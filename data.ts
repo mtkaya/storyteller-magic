@@ -34,10 +34,10 @@ export const IMAGES = {
   DETECTIVE_MOUSE: '/images/detective_mouse.jpg',
 
   // 🦉 Uyuyan Baykuş - Kitaplıkta uyuyan baykuş  
-  SLEEPY_OWL: '/images/sleepy_owl.jpg',
+  SLEEPY_OWL: '/images/sleepy_owl_bookshelf.jpg',
 
   // 🦉 Bilge Baykuş - Ağaç kütüphanesi
-  WISE_OWL: '/images/wise_owl.jpg',
+  WISE_OWL: '/images/wise_owl_library.jpg',
 
   // 🐱 Kedi + Hazine - Orman hazine sandığı
   TREASURE_KITTEN: '/images/treasure_kitten.jpg',
@@ -46,42 +46,54 @@ export const IMAGES = {
   MAGIC_QUILL: '/images/magic_quill.jpg',
 
   // 🐰 Tavşan + Kuş Yuvada - Dostluk
-  BUNNY_NEST: '/images/bunny_nest.jpg',
+  BUNNY_NEST: '/images/bunny_helps_bird.jpg',
 
   // 🦊 Orman Çay Partisi - Hayvanlar çay içiyor
-  TEA_PARTY: '/images/tea_party.jpg',
+  TEA_PARTY: '/images/forest_tea_party.jpg',
 
   // 🐺 Kurt ve Prenses - Ay ışığı kule
-  WOLF_PRINCESS: '/images/wolf_princess.jpg',
+  WOLF_PRINCESS: '/images/wolf_princess_crown.jpg',
 
   // 🧞 Uçan Halı Macerası - Bulutların üstünde
-  MAGIC_CARPET: '/images/flying_carpet.jpg',
+  MAGIC_CARPET: '/images/flying_carpet_adventure.jpg',
 
   // 🐧 Penguen Sahne Gösterisi - Spotlight
-  PENGUIN_SHOW: '/images/penguin_show.jpg',
+  PENGUIN_SHOW: '/images/penguin_stage.jpg',
 
   // 🐢 Kaplumbağa ve Tavşan - Ay ışığı
-  TURTLE_BUNNY: '/images/turtle_rabbit.jpg',
+  TURTLE_BUNNY: '/images/turtle_rabbit_garden.jpg',
 
   // ✨ Sihirli Sandık - Taç ve asa
-  ENCHANTED_CHEST: '/images/magic_chest.jpg',
+  ENCHANTED_CHEST: '/images/magic_treasure_chest.jpg',
 
   // 📖 Sihirli Kitap - Yıldızlar çıkan kitap
-  MAGIC_BOOK: '/images/magic_book.jpg',
+  MAGIC_BOOK: '/images/magic_fairy_book.jpg',
 
   // 🦊 Şömine Tilki - Kitap okuyan tilki
-  COZY_FOX: '/images/cozy_fox.jpg',
+  COZY_FOX: '/images/cozy_foxes_fireplace.jpg',
 
   // 🎉 Yastık Savaşı - Hayvanlar yastık savaşı
   PILLOW_BATTLE: '/images/pillow_fight.jpg',
 
   // 🧸 Kurabiyeli Dostlar - Tavşan ve ayı
-  BEDTIME_COOKIES: '/images/bedtime_cookies.jpg',
+  BEDTIME_COOKIES: '/images/bunny_bear_cookies.jpg',
+
+  // 🦁 Cesur Aslan Yavrusu
+  BRAVE_LION: '/images/brave_lion_cub.jpg',
+
+  // 🦌 Şükran Geyiği
+  GRATEFUL_DEER: '/images/grateful_deer_oak.jpg',
+
+  // 🌙 Uyuyan Ay
+  SLEEPING_MOON: '/images/sleeping_moon.jpg',
+
+  // 🐾 Uyuyan Hayvanlar
+  SLEEPING_ANIMALS: '/images/sleeping_animals_moon.jpg',
 
   // Fallback URLs for stories (using existing URLs until images are added)
-  MOONLIGHT_LION: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC6oPelGRvj9mbz6WBZ5NbstzLABXjFMtlz00BFn_seDp-9049iEpFBwXHx9YumzZojzeZcp3pRMpiUkZpl3owPSY8E4Gn6t_krobLE9mTPk0nWit5rVEIXe7-1aIGHpehqwOn_mBeeBD1XFarmUMkLRs7doEvZ-UyAF71wnhCSvhkmhqgSgFLSZKBKiIdO6JeuFwZ_e3qGA3pjHUvjiiqBy62ivcRKhObIHO8aVOoM4gtuAvlHr7tLRiBLlpQN1IML0O8BO8VX84o',
-  SLEEPY_OWL_BOOKSHELF: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA6t8elbomxKg_ELOTSlMq1dDidacFUipowj3blKoKYMgxz6hzPqjvwyaJQARx44U4OVxsNrOxWHKei1mAmB2mfwxgARlhiMkJh24-JkZIIHUxioFkJSvutnuzJWV4XnLUZn2RH3XrvHFk1bNT7vJwwb7oqOijry5x2hfDy09ZtOyeqh4jDzHut--TDoCm0zjRWLv_nOb3-iZYsUotIZaNraEDXa4_HBD0CF2G9F8MRfa3NNT1MTjbqqBlcSVWFNxHHcnkmzgmGweE',
-  WISE_OWL_LIBRARY: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBd5H0PqZdqcrzVZpX4YRAX_SwYSh-ExO7py59jqNbolYB5z0yGTRZMu52gT37hDxG-ke4GeGjlccbaxxwXirHfxhI8GvxyNKVb5N26WRDOwfs2WIvvGajFn08eDOp0xPQqg1HI4NBDWaavHdIDja2G4tJ-PuEaUTAXKwk3IHsBAAq8t-s5jrRV0la_p0b5pgDNlResYx4NI0KVtaQbcRiBJ4Vxz7SrlG_uPUwtYIZ6PZ0UAt4DJPCZmpEsjYpa3LC2Sb8q8n2hQ6w'
+  MOONLIGHT_LION: '/images/brave_lion_cub.jpg',
+  SLEEPY_OWL_BOOKSHELF: '/images/sleepy_owl_bookshelf.jpg',
+  WISE_OWL_LIBRARY: '/images/wise_owl_library.jpg'
 };
 
 export const RECENT_STORIES: Story[] = [
@@ -341,6 +353,223 @@ export const LIBRARY_STORIES: Story[] = [
       "And Professor Hoot watched her go, his heart full. Because he knew the secret that all wise creatures know:",
       "The wisest thing of all is not to have all the answers, but to keep asking questions and to share what you discover with open wings and an open heart.",
       "In his tree house library, the lanterns glowed a little brighter that night, as if the books themselves were smiling."
+    ]
+  },
+  // 🎮 INTERACTIVE STORY - Choose Your Own Adventure!
+  {
+    id: '20',
+    title: 'Whiskers and the Treasure',
+    subtitle: '🎮 Interactive • Adventure',
+    duration: '10+ min',
+    theme: 'Adventure',
+    coverUrl: IMAGES.TREASURE_KITTEN,
+    character: 'Whiskers the Kitten',
+    ageRange: '4-8',
+    moral: 'Every choice leads to a new adventure. There is no wrong path when you follow your heart.',
+    isInteractive: true,
+    startBranchId: 'start',
+    branches: [
+      {
+        id: 'start',
+        paragraphs: [
+          "Deep in the Enchanted Forest, a curious little kitten named Whiskers was exploring near the old willow tree.",
+          "Her soft gray fur sparkled in the morning light, and her bright green eyes were full of wonder.",
+          "Suddenly, Whiskers noticed something shimmering behind a bush — a beautiful golden treasure chest!",
+          "The chest was covered in mysterious symbols and had a tiny note attached: 'For the bravest explorer. Open if you dare!'",
+          "Whiskers' heart beat fast with excitement. What should she do?"
+        ],
+        choices: [
+          {
+            id: 'choice_open',
+            text: "Open the treasure chest!",
+            emoji: "🔓",
+            nextBranchId: 'open_chest',
+            consequence: "What magical treasures await inside?"
+          },
+          {
+            id: 'choice_friend',
+            text: "Find a friend to share the adventure",
+            emoji: "🐰",
+            nextBranchId: 'find_friend',
+            consequence: "Adventures are better with friends!"
+          },
+          {
+            id: 'choice_hide',
+            text: "Hide and watch the chest first",
+            emoji: "👀",
+            nextBranchId: 'watch_chest',
+            consequence: "Sometimes patience reveals secrets..."
+          }
+        ]
+      },
+      {
+        id: 'open_chest',
+        paragraphs: [
+          "With trembling paws, Whiskers carefully lifted the golden lid of the chest.",
+          "WOOOOSH! A burst of sparkles and stars exploded from inside!",
+          "Inside the chest were three magical items: a glowing map, a tiny compass that always points to adventure, and a beautiful blue feather.",
+          "A gentle voice echoed from the chest: 'Choose one gift, brave explorer. Each will lead you somewhere special.'"
+        ],
+        choices: [
+          {
+            id: 'choose_map',
+            text: "Take the glowing map",
+            emoji: "🗺️",
+            nextBranchId: 'map_adventure',
+            consequence: "Where will it lead?"
+          },
+          {
+            id: 'choose_compass',
+            text: "Take the adventure compass",
+            emoji: "🧭",
+            nextBranchId: 'compass_adventure',
+            consequence: "Follow where adventure calls!"
+          },
+          {
+            id: 'choose_feather',
+            text: "Take the blue feather",
+            emoji: "🪶",
+            nextBranchId: 'feather_adventure',
+            consequence: "It seems to whisper secrets..."
+          }
+        ]
+      },
+      {
+        id: 'find_friend',
+        paragraphs: [
+          "Whiskers ran through the forest calling for her best friend, Honey the Bunny.",
+          "'Honey! Honey! I found something amazing!' Whiskers shouted with excitement.",
+          "Honey hopped over quickly, her floppy ears bouncing. 'What is it, Whiskers?'",
+          "Together, they returned to the treasure chest. 'Let's open it together,' Honey said, holding Whiskers' paw.",
+          "When they opened the chest together, something magical happened — TWO bursts of sparkles came out!",
+          "Instead of three items, there was one special golden key with a note: 'A key for two friends. Use it to unlock the Friendship Garden.'"
+        ],
+        choices: [
+          {
+            id: 'find_garden',
+            text: "Search for the Friendship Garden!",
+            emoji: "🌸",
+            nextBranchId: 'friendship_ending',
+            consequence: "A special place for special friends!"
+          }
+        ]
+      },
+      {
+        id: 'watch_chest',
+        paragraphs: [
+          "Whiskers hid behind a mushroom and watched the chest carefully.",
+          "After a few minutes, a tiny blue fairy appeared! She was no bigger than Whiskers' paw.",
+          "The fairy danced around the chest, sprinkling stardust on the flowers nearby.",
+          "'I know you're there, little kitten,' the fairy giggled. 'Only the most patient explorers find me!'",
+          "The fairy floated over to Whiskers. 'Because you were wise enough to wait, I will grant you a special wish.'"
+        ],
+        choices: [
+          {
+            id: 'wish_fly',
+            text: "I wish I could fly!",
+            emoji: "✨",
+            nextBranchId: 'flying_ending',
+            consequence: "Up, up, and away!"
+          },
+          {
+            id: 'wish_friend',
+            text: "I wish for a new friend",
+            emoji: "💕",
+            nextBranchId: 'fairy_friend_ending',
+            consequence: "The best gift of all!"
+          }
+        ]
+      },
+      {
+        id: 'map_adventure',
+        paragraphs: [
+          "The map unrolled magically in Whiskers' paws. It showed the entire Enchanted Forest!",
+          "A golden dotted line appeared, leading to a place marked 'The Sleepy Mountain Peak.'",
+          "Whiskers followed the map through sparkling streams and past friendly squirrels who waved hello.",
+          "At the top of Sleepy Mountain, she found the most beautiful sunset she had ever seen.",
+          "The whole forest was painted in orange, pink, and purple. Whiskers felt warm and peaceful.",
+          "On a stone at the peak, words were carved: 'The greatest treasure is seeing the world's beauty.'",
+          "Whiskers curled up and watched the stars come out, her heart full of wonder."
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'The Beautiful View'
+      },
+      {
+        id: 'compass_adventure',
+        paragraphs: [
+          "The compass spun wildly and then pointed STRAIGHT UP!",
+          "Before Whiskers could wonder what that meant, a rainbow staircase appeared in the sky!",
+          "Step by step, Whiskers climbed the colorful stairs, each one making a musical sound.",
+          "At the top was a cloud castle where cloud kittens lived! They were fluffy and white and bounced like cotton.",
+          "'Welcome, brave explorer!' the Cloud Kittens cheered. 'You found our secret home!'",
+          "The Cloud Kittens taught Whiskers how to slide down rainbows and bounce on clouds.",
+          "It was the most fun adventure she had ever had!"
+        ],
+        isEnding: true,
+        endingType: 'adventure',
+        endingTitle: 'Cloud Castle Discovery'
+      },
+      {
+        id: 'feather_adventure',
+        paragraphs: [
+          "When Whiskers touched the blue feather, she heard a gentle voice.",
+          "'I am Azura, the Wise Wind Bird. This is my calling feather.'",
+          "A magnificent blue bird with glittering wings descended from the clouds.",
+          "'You are kind and gentle,' Azura said. 'I will teach you the language of birds.'",
+          "From that day on, Whiskers could understand every tweet, chirp, and song in the forest.",
+          "She learned amazing stories from the birds — about distant lands, ocean shores, and mountain tops.",
+          "Whiskers became known as the Kitten Who Speaks to Birds!"
+        ],
+        isEnding: true,
+        endingType: 'lesson',
+        endingTitle: 'The Gift of Understanding'
+      },
+      {
+        id: 'friendship_ending',
+        paragraphs: [
+          "Following the butterflies that appeared from the key, Whiskers and Honey found the secret Friendship Garden.",
+          "It was the most magical place they had ever seen! Flowers of every color bloomed everywhere.",
+          "In the center was a tree with two swings side by side.",
+          "'This garden appears only for true friends,' a friendly Garden Gnome explained.",
+          "Whiskers and Honey promised to visit their special garden every week.",
+          "And whenever one of them felt sad, the other would say, 'Let's go to OUR garden!'",
+          "Because some treasures are not gold or jewels — they're the friends who share your adventures."
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'Our Friendship Garden'
+      },
+      {
+        id: 'flying_ending',
+        paragraphs: [
+          "The fairy sprinkled magical stardust over Whiskers' back.",
+          "Beautiful, translucent wings sprouted from her shoulders — shimmering like morning dew!",
+          "'These wings will appear whenever you really need them,' the fairy explained.",
+          "Whiskers leaped into the air and FLEW! She soared over the treetops, touching the clouds.",
+          "She could see the whole forest below — her home, her friends' homes, the river, everything!",
+          "'I can see how everything is connected,' Whiskers whispered in wonder.",
+          "She became the Guardian Kitten of the Enchanted Forest!"
+        ],
+        isEnding: true,
+        endingType: 'adventure',
+        endingTitle: 'Wings of Wonder'
+      },
+      {
+        id: 'fairy_friend_ending',
+        paragraphs: [
+          "The fairy's eyes sparkled with joy. 'That is the kindest wish of all!'",
+          "She twirled her tiny wand, and POOF! She grew to be the same size as Whiskers!",
+          "'I've been alone in this forest for so long,' the fairy said. 'Will you really be my friend?'",
+          "'Of course!' Whiskers hugged her new friend. 'Let's have adventures together!'",
+          "And so, Whiskers and Stardust the Fairy became the best of friends.",
+          "They explored the forest together and had tea parties on mushroom tops.",
+          "Whiskers learned that the best treasure isn't found — it's made, when you open your heart to new friends."
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'A Friend Like Stardust'
+      }
     ]
   }
 ];

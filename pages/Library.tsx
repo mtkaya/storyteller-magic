@@ -62,7 +62,11 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
                 <span className="text-[10px] font-bold text-white">{story.duration}</span>
               </div>
               {/* Show badge if story has full content */}
-              {story.content && (
+              {story.isInteractive ? (
+                <div className="absolute top-2 left-2 bg-gradient-to-r from-secondary to-purple-500 backdrop-blur-md px-2 py-1 rounded-lg animate-pulse">
+                  <span className="text-[10px] font-bold text-white">🎮 Interactive</span>
+                </div>
+              ) : story.content && (
                 <div className="absolute top-2 left-2 bg-primary/90 backdrop-blur-md px-2 py-1 rounded-lg">
                   <span className="text-[10px] font-bold text-bg-dark">📖 Full Story</span>
                 </div>

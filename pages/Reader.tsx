@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Story } from '../types';
+import { Story, StoryBranch, StoryChoice } from '../types';
 import { LIBRARY_STORIES } from '../data';
 
 interface ReaderProps {
@@ -10,21 +10,76 @@ interface ReaderProps {
 const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState(0);
-  const [speechRate, setSpeechRate] = useState(0.9); // Slower for kids
+  const [speechRate, setSpeechRate] = useState(0.9);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // Interactive story state
+  const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
+  const [storyPath, setStoryPath] = useState<string[]>([]); // Track choices made
+  const [showChoices, setShowChoices] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
+
   const synthRef = useRef<SpeechSynthesis | null>(null);
 
-  // Use provided story or fallback to a default story with content
-  const defaultStory = LIBRARY_STORIES.find(s => s.content) || LIBRARY_STORIES[0];
+  // Use provided story or fallback
+  const defaultStory = LIBRARY_STORIES.find(s => s.content || s.isInteractive) || LIBRARY_STORIES[0];
   const activeStory = story || defaultStory;
 
-  const hasContent = activeStory.content && activeStory.content.length > 0;
+  // Check if this is an interactive story
+  const isInteractiveStory = activeStory.isInteractive && activeStory.branches && activeStory.branches.length > 0;
 
-  // Calculate reading progress
-  const progress = hasContent
-    ? ((currentParagraph + 1) / activeStory.content!.length) * 100
-    : 45;
+  // Get current branch for interactive stories
+  const currentBranch: StoryBranch | null = isInteractiveStory
+    ? activeStory.branches!.find(b => b.id === (currentBranchId || activeStory.startBranchId)) || null
+    : null;
+
+  // Get content based on story type
+  const getContent = (): string[] => {
+    if (isInteractiveStory && currentBranch) {
+      return currentBranch.paragraphs;
+    }
+    return activeStory.content || [];
+  };
+
+  const content = getContent();
+  const hasContent = content.length > 0;
+
+  // Calculate progress
+  const progress = hasContent ? ((currentParagraph + 1) / content.length) * 100 : 0;
+
+  // Initialize interactive story
+  useEffect(() => {
+    if (isInteractiveStory && activeStory.startBranchId) {
+      setCurrentBranchId(activeStory.startBranchId);
+      setStoryPath([]);
+      setCurrentParagraph(0);
+      setShowChoices(false);
+      setIsEnding(false);
+    }
+  }, [activeStory.id]);
+
+  // Check if we need to show choices
+  useEffect(() => {
+    if (isInteractiveStory && currentBranch) {
+      const isLastParagraph = currentParagraph >= content.length - 1;
+      const hasChoices = currentBranch.choices && currentBranch.choices.length > 0;
+      const isBranchEnding = currentBranch.isEnding;
+
+      if (isLastParagraph) {
+        if (hasChoices) {
+          setShowChoices(true);
+          setIsEnding(false);
+        } else if (isBranchEnding) {
+          setShowChoices(false);
+          setIsEnding(true);
+        }
+      } else {
+        setShowChoices(false);
+        setIsEnding(false);
+      }
+    }
+  }, [currentParagraph, currentBranchId]);
 
   // Initialize speech synthesis
   useEffect(() => {
@@ -32,26 +87,22 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
       synthRef.current = window.speechSynthesis;
     }
     return () => {
-      // Cleanup: stop speaking when component unmounts
       if (synthRef.current) {
         synthRef.current.cancel();
       }
     };
   }, []);
 
-  // Speak the current paragraph
+  // Speak paragraph
   const speakParagraph = (text: string) => {
     if (!synthRef.current) return;
-
-    // Cancel any ongoing speech
     synthRef.current.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = speechRate;
-    utterance.pitch = 1.1; // Slightly higher pitch for kids
+    utterance.pitch = 1.1;
     utterance.volume = 1;
 
-    // Try to find a nice voice
     const voices = synthRef.current.getVoices();
     const preferredVoice = voices.find(v =>
       v.name.includes('Samantha') ||
@@ -66,12 +117,12 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => {
       setIsSpeaking(false);
-      // Auto-advance to next paragraph when done
-      if (hasContent && currentParagraph < activeStory.content!.length - 1 && isPlaying) {
+      // Auto-advance (but not past the last paragraph if choices are available)
+      if (hasContent && currentParagraph < content.length - 1 && isPlaying) {
         setTimeout(() => {
           setCurrentParagraph(prev => prev + 1);
-        }, 800); // Small pause between paragraphs
-      } else if (currentParagraph >= activeStory.content!.length - 1) {
+        }, 800);
+      } else if (currentParagraph >= content.length - 1) {
         setIsPlaying(false);
       }
     };
@@ -80,15 +131,15 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
     synthRef.current.speak(utterance);
   };
 
-  // Effect to handle auto-play
+  // Auto-play effect
   useEffect(() => {
-    if (isPlaying && hasContent && activeStory.content) {
-      speakParagraph(activeStory.content[currentParagraph]);
+    if (isPlaying && hasContent && content[currentParagraph]) {
+      speakParagraph(content[currentParagraph]);
     } else if (!isPlaying && synthRef.current) {
       synthRef.current.cancel();
       setIsSpeaking(false);
     }
-  }, [isPlaying, currentParagraph]);
+  }, [isPlaying, currentParagraph, currentBranchId]);
 
   const togglePlayPause = () => {
     if (isPlaying) {
@@ -102,7 +153,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
   };
 
   const handleNextParagraph = () => {
-    if (hasContent && currentParagraph < activeStory.content!.length - 1) {
+    if (hasContent && currentParagraph < content.length - 1) {
       if (synthRef.current) synthRef.current.cancel();
       setCurrentParagraph(prev => prev + 1);
     }
@@ -118,12 +169,48 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
   const changeSpeed = (rate: number) => {
     setSpeechRate(rate);
     setShowSpeedMenu(false);
-    // If currently playing, restart with new speed
-    if (isPlaying && hasContent && activeStory.content) {
+    if (isPlaying && hasContent && content[currentParagraph]) {
       if (synthRef.current) synthRef.current.cancel();
       setTimeout(() => {
-        speakParagraph(activeStory.content![currentParagraph]);
+        speakParagraph(content[currentParagraph]);
       }, 100);
+    }
+  };
+
+  // Handle interactive choice selection
+  const handleChoiceSelect = (choice: StoryChoice) => {
+    if (synthRef.current) synthRef.current.cancel();
+    setIsPlaying(false);
+
+    // Record the choice
+    setStoryPath(prev => [...prev, choice.id]);
+
+    // Navigate to the next branch
+    setCurrentBranchId(choice.nextBranchId);
+    setCurrentParagraph(0);
+    setShowChoices(false);
+    setIsEnding(false);
+  };
+
+  // Restart interactive story
+  const handleRestartStory = () => {
+    if (synthRef.current) synthRef.current.cancel();
+    setIsPlaying(false);
+    setCurrentBranchId(activeStory.startBranchId || null);
+    setStoryPath([]);
+    setCurrentParagraph(0);
+    setShowChoices(false);
+    setIsEnding(false);
+  };
+
+  // Get ending emoji based on type
+  const getEndingEmoji = (type?: string) => {
+    switch (type) {
+      case 'happy': return '🌟';
+      case 'adventure': return '🚀';
+      case 'lesson': return '💡';
+      case 'neutral': return '🌙';
+      default: return '✨';
     }
   };
 
@@ -139,9 +226,16 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
             {activeStory.theme}
           </span>
           {hasContent && (
-            <span className="text-[10px] text-white/40">
-              {currentParagraph + 1} / {activeStory.content!.length}
-            </span>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-[10px] text-white/40">
+                {currentParagraph + 1} / {content.length}
+              </span>
+              {isInteractiveStory && (
+                <span className="text-[10px] text-primary bg-primary/20 px-2 py-0.5 rounded-full">
+                  🎮 Interactive
+                </span>
+              )}
+            </div>
           )}
         </div>
         <div className="w-8"></div>
@@ -167,6 +261,13 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
                 <span className="text-xs text-white/90 font-medium">Ages {activeStory.ageRange}</span>
               </div>
             )}
+            {/* Story path indicator for interactive stories */}
+            {isInteractiveStory && storyPath.length > 0 && (
+              <div className="inline-flex items-center gap-2 bg-primary/30 backdrop-blur-md px-3 py-1.5 rounded-full ml-2">
+                <span className="material-symbols-outlined text-primary text-sm">route</span>
+                <span className="text-xs text-white/90 font-medium">{storyPath.length} choices made</span>
+              </div>
+            )}
           </div>
 
           {/* Speaking indicator */}
@@ -184,7 +285,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
         <h1 className="font-serif text-3xl text-white font-bold leading-tight mb-4">{activeStory.title}</h1>
 
         {/* Moral badge */}
-        {activeStory.moral && (
+        {activeStory.moral && !isEnding && (
           <div className="bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl p-4 mb-6 border border-primary/30">
             <div className="flex items-start gap-3">
               <span className="material-symbols-outlined text-primary text-xl">lightbulb</span>
@@ -198,9 +299,9 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
 
         {hasContent ? (
           <div className="space-y-6 text-lg font-serif leading-relaxed text-gray-300">
-            {activeStory.content!.map((paragraph, index) => (
+            {content.map((paragraph, index) => (
               <p
-                key={index}
+                key={`${currentBranchId}-${index}`}
                 onClick={() => {
                   setCurrentParagraph(index);
                   if (isPlaying && synthRef.current) {
@@ -209,18 +310,96 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
                   }
                 }}
                 className={`transition-all duration-500 cursor-pointer hover:text-white/90 ${index === currentParagraph
-                    ? 'opacity-100 text-white bg-white/5 -mx-4 px-4 py-2 rounded-lg border-l-4 border-primary'
-                    : index < currentParagraph
-                      ? 'opacity-40'
-                      : 'opacity-60'
+                  ? 'opacity-100 text-white bg-white/5 -mx-4 px-4 py-2 rounded-lg border-l-4 border-primary'
+                  : index < currentParagraph
+                    ? 'opacity-40'
+                    : 'opacity-60'
                   }`}
               >
                 {paragraph}
               </p>
             ))}
 
-            {/* Story End */}
-            {currentParagraph === activeStory.content!.length - 1 && (
+            {/* Interactive Choices */}
+            {showChoices && currentBranch?.choices && (
+              <div className="mt-8 space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="material-symbols-outlined text-secondary text-2xl animate-bounce">touch_app</span>
+                  <p className="text-secondary font-bold text-lg">What happens next?</p>
+                </div>
+                <div className="grid gap-3">
+                  {currentBranch.choices.map((choice, index) => (
+                    <button
+                      key={choice.id}
+                      onClick={() => handleChoiceSelect(choice)}
+                      className="group relative bg-gradient-to-r from-bg-card to-bg-card/80 border-2 border-white/10 hover:border-primary/50 rounded-2xl p-4 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98]"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl shadow-lg">
+                          {choice.emoji || ['🌟', '🎯', '💫', '🌈'][index % 4]}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-white font-bold text-base group-hover:text-primary transition-colors">
+                            {choice.text}
+                          </p>
+                          {choice.consequence && (
+                            <p className="text-white/50 text-sm mt-1 italic">
+                              {choice.consequence}
+                            </p>
+                          )}
+                        </div>
+                        <span className="material-symbols-outlined text-white/30 group-hover:text-primary group-hover:translate-x-1 transition-all">
+                          arrow_forward
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Story Ending */}
+            {isEnding && currentBranch?.isEnding && (
+              <div className="mt-8 text-center py-8 bg-gradient-to-b from-primary/10 to-secondary/10 rounded-2xl border border-primary/30">
+                <span className="text-6xl block mb-4 animate-bounce">
+                  {getEndingEmoji(currentBranch.endingType)}
+                </span>
+                <p className="text-white font-bold text-xl mb-2">
+                  {currentBranch.endingTitle || 'The End'}
+                </p>
+                <p className="text-white/60 text-sm mb-6">
+                  {currentBranch.endingType === 'happy' && 'What a wonderful adventure!'}
+                  {currentBranch.endingType === 'adventure' && 'The adventure continues another day!'}
+                  {currentBranch.endingType === 'lesson' && 'Every choice teaches us something new.'}
+                  {!currentBranch.endingType && 'Sweet dreams, little one.'}
+                </p>
+
+                {/* Story stats */}
+                <div className="flex justify-center gap-4 mb-6">
+                  <div className="bg-white/10 rounded-xl px-4 py-2">
+                    <p className="text-2xl font-bold text-primary">{storyPath.length}</p>
+                    <p className="text-xs text-white/50">Choices Made</p>
+                  </div>
+                  <div className="bg-white/10 rounded-xl px-4 py-2">
+                    <p className="text-2xl font-bold text-secondary">
+                      {activeStory.branches?.filter(b => b.isEnding).length || 1}
+                    </p>
+                    <p className="text-xs text-white/50">Possible Endings</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleRestartStory}
+                  className="inline-flex items-center gap-2 bg-primary hover:bg-primary/80 text-bg-dark font-bold px-6 py-3 rounded-full transition-all hover:scale-105"
+                >
+                  <span className="material-symbols-outlined">replay</span>
+                  Try Different Choices
+                </button>
+              </div>
+            )}
+
+            {/* Linear Story End */}
+            {!isInteractiveStory && currentParagraph === content.length - 1 && (
               <div className="text-center py-8">
                 <span className="text-4xl">🌙</span>
                 <p className="text-white/60 text-sm mt-2 font-medium">The End</p>
@@ -234,7 +413,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
               This story doesn't have content yet. Check out our <span className="text-primary font-bold">new stories</span> in the library with full narration!
             </p>
             <p className="text-white/50 italic">
-              Look for stories marked with "📖 Full Story" badge.
+              Look for stories marked with "📖 Full Story" or "🎮 Interactive" badge.
             </p>
           </div>
         )}
@@ -248,9 +427,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
               {hasContent ? `Para ${currentParagraph + 1}` : '02:15'}
             </span>
             <span className="text-xs text-white/50 font-medium">
-              {hasContent ? `${activeStory.content!.length} total` : activeStory.duration}
+              {hasContent ? `${content.length} total` : activeStory.duration}
             </span>
           </div>
+
           {/* Progress Bar */}
           <div
             className="w-full h-1.5 bg-white/10 rounded-full relative cursor-pointer group"
@@ -259,8 +439,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const x = e.clientX - rect.left;
               const percent = x / rect.width;
-              const newParagraph = Math.floor(percent * activeStory.content!.length);
-              setCurrentParagraph(Math.min(newParagraph, activeStory.content!.length - 1));
+              const newParagraph = Math.floor(percent * content.length);
+              setCurrentParagraph(Math.min(newParagraph, content.length - 1));
             }}
           >
             <div
@@ -268,7 +448,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
               style={{ width: `${progress}%` }}
             ></div>
             <div
-              className="absolute h-4 w-4 bg-white border-2 border-primary rounded-full top-1/2 -translate-y-1/2 shadow-lg opacity-100 transition-all duration-300"
+              className="absolute h-4 w-4 bg-white border-2 border-primary rounded-full top-1/2 -translate-y-1/2 shadow-lg"
               style={{ left: `calc(${progress}% - 8px)` }}
             ></div>
           </div>
@@ -312,8 +492,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
               <button
                 onClick={togglePlayPause}
                 className={`size-16 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform ${isPlaying
-                    ? 'bg-accent-peach shadow-accent-peach/30'
-                    : 'bg-primary shadow-primary/30'
+                  ? 'bg-accent-peach shadow-accent-peach/30'
+                  : 'bg-primary shadow-primary/30'
                   } text-bg-dark`}
               >
                 <span className="material-symbols-outlined text-4xl fill-current">
@@ -322,16 +502,27 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
               </button>
               <button
                 onClick={handleNextParagraph}
-                disabled={!hasContent || currentParagraph >= activeStory.content!.length - 1}
-                className={`${!hasContent || currentParagraph >= activeStory.content!.length - 1 ? 'text-white/30' : 'text-white/80 hover:text-white'}`}
+                disabled={!hasContent || currentParagraph >= content.length - 1}
+                className={`${!hasContent || currentParagraph >= content.length - 1 ? 'text-white/30' : 'text-white/80 hover:text-white'}`}
               >
                 <span className="material-symbols-outlined text-3xl">skip_next</span>
               </button>
             </div>
 
-            <button className="text-white/60 hover:text-white active:text-accent-peach">
-              <span className="material-symbols-outlined">bedtime</span>
-            </button>
+            {/* Restart button for interactive stories */}
+            {isInteractiveStory ? (
+              <button
+                onClick={handleRestartStory}
+                className="text-white/60 hover:text-primary"
+                title="Restart Story"
+              >
+                <span className="material-symbols-outlined">replay</span>
+              </button>
+            ) : (
+              <button className="text-white/60 hover:text-white active:text-accent-peach">
+                <span className="material-symbols-outlined">bedtime</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
