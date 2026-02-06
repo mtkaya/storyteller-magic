@@ -7,7 +7,8 @@ export type ScreenName =
   | 'achievements'
   | 'parental_settings'
   | 'settings'
-  | 'subscription';
+  | 'subscription'
+  | 'stats';
 
 export interface Story {
   id: string;

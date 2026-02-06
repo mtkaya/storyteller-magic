@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Story, StoryBranch, StoryChoice } from '../types';
 import { LIBRARY_STORIES } from '../data';
 import SleepController from '../components/SleepController';
+import { useAppState } from '../context/AppStateContext';
+import { useLanguage } from '../context/LanguageContext';
+import { backgroundMusic } from '../services/backgroundMusic';
 
 interface ReaderProps {
   story: Story | null;
@@ -9,11 +12,15 @@ interface ReaderProps {
 }
 
 const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
+  const { recordStoryRead, recordChoice, recordEnding, isFavorite, addFavorite, removeFavorite } = useAppState();
+  const { language, t } = useLanguage();
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState(0);
   const [speechRate, setSpeechRate] = useState(0.9);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [storyCompleted, setStoryCompleted] = useState(false);
 
   // Interactive story state
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
@@ -25,6 +32,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
   const [sleepControllerActive, setSleepControllerActive] = useState(false);
 
   const synthRef = useRef<SpeechSynthesis | null>(null);
+  const storyStartTime = useRef<number>(Date.now());
 
   // Enable sleep controller when playing
   useEffect(() => {
