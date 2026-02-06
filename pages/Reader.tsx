@@ -153,42 +153,80 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     };
   }, []);
 
-  // Speak paragraph
+  // Speak paragraph with character voice acting
   const speakParagraph = (text: string) => {
     if (!synthRef.current) return;
     synthRef.current.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = speechRate;
-    utterance.pitch = 1.1;
-    utterance.volume = 1;
+    // Split text into narration and dialogue segments
+    const segments: { text: string; isDialogue: boolean }[] = [];
+    const dialogueRegex = /"([^"]+)"/g;
+    let lastIndex = 0;
+    let match;
 
-    const voices = synthRef.current.getVoices();
-    const preferredVoice = voices.find(v =>
-      v.name.includes('Samantha') ||
-      v.name.includes('Karen') ||
-      v.name.includes('Daniel') ||
-      v.lang.startsWith('en')
-    );
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
+    while ((match = dialogueRegex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        const narration = text.slice(lastIndex, match.index).trim();
+        if (narration) segments.push({ text: narration, isDialogue: false });
+      }
+      segments.push({ text: match[1], isDialogue: true });
+      lastIndex = dialogueRegex.lastIndex;
+    }
+    if (lastIndex < text.length) {
+      const remaining = text.slice(lastIndex).trim();
+      if (remaining) segments.push({ text: remaining, isDialogue: false });
+    }
+    if (segments.length === 0) {
+      segments.push({ text, isDialogue: false });
     }
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      // Auto-advance (but not past the last paragraph if choices are available)
-      if (hasContent && currentParagraph < content.length - 1 && isPlaying) {
-        setTimeout(() => {
-          setCurrentParagraph(prev => prev + 1);
-        }, 800);
-      } else if (currentParagraph >= content.length - 1) {
-        setIsPlaying(false);
-      }
-    };
-    utterance.onerror = () => setIsSpeaking(false);
+    // Select voice based on language
+    const voices = synthRef.current.getVoices();
+    const preferredVoice = language === 'tr'
+      ? voices.find(v => v.lang.startsWith('tr'))
+      : voices.find(v =>
+          v.name.includes('Samantha') ||
+          v.name.includes('Karen') ||
+          v.name.includes('Daniel') ||
+          v.lang.startsWith('en')
+        );
 
-    synthRef.current.speak(utterance);
+    // Speak segments sequentially with different pitch for dialogue
+    let segmentIndex = 0;
+    const speakNextSegment = () => {
+      if (!synthRef.current || segmentIndex >= segments.length) {
+        setIsSpeaking(false);
+        if (hasContent && currentParagraph < content.length - 1 && isPlaying) {
+          setTimeout(() => {
+            setCurrentParagraph(prev => prev + 1);
+          }, 800);
+        } else if (currentParagraph >= content.length - 1) {
+          setIsPlaying(false);
+        }
+        return;
+      }
+
+      const segment = segments[segmentIndex];
+      const utterance = new SpeechSynthesisUtterance(segment.text);
+      utterance.rate = speechRate;
+      utterance.pitch = segment.isDialogue ? 1.4 : 1.1;
+      utterance.volume = 1;
+
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => {
+        segmentIndex++;
+        speakNextSegment();
+      };
+      utterance.onerror = () => setIsSpeaking(false);
+
+      synthRef.current.speak(utterance);
+    };
+
+    speakNextSegment();
   };
 
   // Auto-play effect
