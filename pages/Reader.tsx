@@ -70,16 +70,35 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     ? activeStory.branches!.find(b => b.id === (currentBranchId || activeStory.startBranchId)) || null
     : null;
 
-  // Get content based on story type
+  // Get content based on story type and language
   const getContent = (): string[] => {
     if (isInteractiveStory && currentBranch) {
+      if (language === 'tr' && currentBranch.paragraphsTr) {
+        return currentBranch.paragraphsTr;
+      }
       return currentBranch.paragraphs;
+    }
+
+    if (language === 'tr' && activeStory.contentTr) {
+      return activeStory.contentTr;
     }
     return activeStory.content || [];
   };
 
   const content = getContent();
   const hasContent = content.length > 0;
+
+  // Get localized text helper
+  const getLocalizedText = (obj: any, field: string) => {
+    if (language === 'tr' && obj[`${field}Tr`]) {
+      return obj[`${field}Tr`];
+    }
+    return obj[field];
+  };
+
+  const storyTitle = getLocalizedText(activeStory, 'title');
+  const storySubtitle = getLocalizedText(activeStory, 'subtitle');
+  const storyMoral = getLocalizedText(activeStory, 'moral');
 
   // Calculate progress
   const progress = hasContent ? ((currentParagraph + 1) / content.length) * 100 : 0;
@@ -120,7 +139,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
         setIsEnding(false);
       }
     }
-  }, [currentParagraph, currentBranchId]);
+  }, [currentParagraph, currentBranchId, content.length]); // Added content.length to dependency for lang switch
 
   // Initialize speech synthesis
   useEffect(() => {
@@ -312,14 +331,14 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             {activeStory.ageRange && (
               <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full ml-2">
                 <span className="material-symbols-outlined text-accent-peach text-sm">child_care</span>
-                <span className="text-xs text-white/90 font-medium">Ages {activeStory.ageRange}</span>
+                <span className="text-xs text-white/90 font-medium">{language === 'tr' ? 'Yaş ' : 'Ages '}{activeStory.ageRange}</span>
               </div>
             )}
             {/* Story path indicator for interactive stories */}
             {isInteractiveStory && storyPath.length > 0 && (
               <div className="inline-flex items-center gap-2 bg-primary/30 backdrop-blur-md px-3 py-1.5 rounded-full ml-2">
                 <span className="material-symbols-outlined text-primary text-sm">route</span>
-                <span className="text-xs text-white/90 font-medium">{storyPath.length} choices made</span>
+                <span className="text-xs text-white/90 font-medium">{storyPath.length} {language === 'tr' ? 'seçim' : 'choices made'}</span>
               </div>
             )}
           </div>
@@ -410,7 +429,9 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
           {/* Interactive Choices */}
           {showChoices && currentBranch?.choices && (
             <div className="mt-4 space-y-3 animate-slide-up">
-              <h3 className="text-center text-white/60 text-sm uppercase tracking-widest font-bold mb-4">What happens next?</h3>
+              <h3 className="text-center text-white/60 text-sm uppercase tracking-widest font-bold mb-4">
+                {language === 'tr' ? 'Ne olsun?' : 'What happens next?'}
+              </h3>
               {currentBranch.choices.map((choice, idx) => (
                 <button
                   key={choice.id}
@@ -419,7 +440,9 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                   <div className="flex items-center justify-between relative z-10">
-                    <span className="text-white font-medium">{choice.text}</span>
+                    <span className="text-white font-medium">
+                      {getLocalizedText(choice, 'text')}
+                    </span>
                     <span className="material-symbols-outlined text-white/40 group-hover:text-primary transition-colors">arrow_forward</span>
                   </div>
                 </button>
@@ -433,11 +456,13 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
               <div className="text-6xl mb-4 animate-bounce-slow">
                 {getEndingEmoji(currentBranch?.endingType)}
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2 font-serif">The End</h2>
+              <h2 className="text-2xl font-bold text-white mb-2 font-serif">
+                {getLocalizedText(currentBranch, 'endingTitle') || (language === 'tr' ? 'Son' : 'The End')}
+              </h2>
               <p className="text-white/60 text-sm mb-6">
-                You've discovered one of the endings!
-                {currentBranch?.endingType === 'happy' && " A happy ending indeed!"}
-                {currentBranch?.endingType === 'lesson' && " What a valuable lesson!"}
+                {language === 'tr'
+                  ? 'Bu sonlardan sadece biri! Başka yollar keşfetmek ister misin?'
+                  : "You've discovered one of the endings! Try different choices to find other paths."}
               </p>
 
               <div className="flex flex-col gap-3">
@@ -446,13 +471,13 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
                   className="w-full bg-primary text-bg-dark font-bold py-3 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
                 >
                   <span className="material-symbols-outlined">replay</span>
-                  Read Again
+                  {language === 'tr' ? 'Tekrar Oku' : 'Read Again'}
                 </button>
                 <button
                   onClick={onBack}
                   className="w-full bg-white/10 text-white font-bold py-3 rounded-xl hover:bg-white/20 transition-all"
                 >
-                  Back to Library
+                  {language === 'tr' ? 'Kütüphaneye Dön' : 'Back to Library'}
                 </button>
               </div>
             </div>

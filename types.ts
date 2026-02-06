@@ -15,15 +15,19 @@ export type ScreenName =
 export interface Story {
   id: string;
   title: string;
+  titleTr?: string;
   subtitle?: string;
+  subtitleTr?: string;
   duration: string;
   coverUrl: string;
   theme: string;
   isLocked?: boolean;
   // Story content
   content?: string[];  // Array of paragraphs (for linear stories)
+  contentTr?: string[]; // Turkish content
   character?: string;  // Main character name
   moral?: string;      // Lesson/moral of the story
+  moralTr?: string;
   ageRange?: string;   // e.g., "3-6", "5-8"
   // Interactive story content
   isInteractive?: boolean;  // Flag for choose-your-own-adventure style
@@ -35,19 +39,23 @@ export interface Story {
 export interface StoryChoice {
   id: string;
   text: string;           // Choice button text
+  textTr?: string;        // Turkish choice text
   emoji?: string;         // Optional emoji for the choice
   nextBranchId: string;   // Which branch this leads to
   consequence?: string;   // Brief hint about what happens
+  consequenceTr?: string;
 }
 
 // Story branch/section
 export interface StoryBranch {
   id: string;
   paragraphs: string[];   // Content paragraphs for this branch
+  paragraphsTr?: string[]; // Turkish paragraphs
   choices?: StoryChoice[]; // Choices at the end of this branch
   isEnding?: boolean;     // Is this an ending?
   endingType?: 'happy' | 'neutral' | 'lesson' | 'adventure'; // Type of ending
   endingTitle?: string;   // Custom ending title
+  endingTitleTr?: string;
 }
 
 export interface Badge {
