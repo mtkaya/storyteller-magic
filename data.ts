@@ -571,6 +571,394 @@ export const LIBRARY_STORIES: Story[] = [
         endingTitle: 'A Friend Like Stardust'
       }
     ]
+  },
+  // 🎮 INTERACTIVE STORY 2 - Flying Carpet Adventure
+  {
+    id: '21',
+    title: 'The Magic Carpet Ride',
+    subtitle: '🎮 Interactive • Magic',
+    duration: '8+ min',
+    theme: 'Magic',
+    coverUrl: IMAGES.MAGIC_CARPET,
+    character: 'Luna & the Magic Carpet',
+    ageRange: '4-8',
+    moral: 'The best adventures are the ones where you help others along the way.',
+    isInteractive: true,
+    startBranchId: 'carpet_start',
+    branches: [
+      {
+        id: 'carpet_start',
+        paragraphs: [
+          "In a dusty old attic, a young girl named Luna found a beautiful carpet rolled up in a corner.",
+          "When she unrolled it, the carpet shimmered with golden threads and began to FLOAT!",
+          "'Hello, Luna!' the carpet said in a warm, friendly voice. 'I am Zephyr, the Magic Carpet.'",
+          "'I can take you anywhere you wish to go. But choose wisely — every journey has its own magic.'",
+          "Luna's eyes sparkled with excitement. Where should they go first?"
+        ],
+        choices: [
+          { id: 'go_clouds', text: "Fly to the clouds!", emoji: "☁️", nextBranchId: 'cloud_kingdom', consequence: "What's hiding above the clouds?" },
+          { id: 'go_desert', text: "Visit the golden desert", emoji: "🏜️", nextBranchId: 'desert_palace', consequence: "Ancient mysteries await..." },
+          { id: 'go_ocean', text: "Soar over the sparkling ocean", emoji: "🌊", nextBranchId: 'ocean_adventure', consequence: "The sea holds many secrets!" }
+        ]
+      },
+      {
+        id: 'cloud_kingdom',
+        paragraphs: [
+          "Zephyr zoomed up, up, up through fluffy white clouds!",
+          "Above the clouds was a magical kingdom made entirely of cotton candy and rainbows!",
+          "The Cloud King approached them. 'Welcome, travelers! But we have a problem.'",
+          "'Our rainbow machine is broken, and without it, children on Earth can't see rainbows after the rain.'",
+          "Luna looked at Zephyr. What should they do?"
+        ],
+        choices: [
+          { id: 'fix_rainbow', text: "Help fix the rainbow machine!", emoji: "🌈", nextBranchId: 'rainbow_ending', consequence: "Be the hero!" },
+          { id: 'find_parts', text: "Search for missing parts", emoji: "🔍", nextBranchId: 'search_ending', consequence: "Every piece matters..." }
+        ]
+      },
+      {
+        id: 'desert_palace',
+        paragraphs: [
+          "They flew over golden sand dunes that sparkled like treasure.",
+          "In the distance, a magnificent palace rose from the sand!",
+          "A kind Sultan welcomed them. 'You've arrived just in time! Tonight is the Festival of Stars.'",
+          "'But our magical lanterns have all gone out. Without light, the stars won't dance.'",
+          "How could Luna help?"
+        ],
+        choices: [
+          { id: 'share_light', text: "Share Zephyr's magic glow", emoji: "✨", nextBranchId: 'lantern_ending', consequence: "Light up the night!" },
+          { id: 'call_fireflies', text: "Call the desert fireflies", emoji: "🪲", nextBranchId: 'firefly_ending', consequence: "Nature's little helpers!" }
+        ]
+      },
+      {
+        id: 'ocean_adventure',
+        paragraphs: [
+          "They soared low over crystal blue waters, the waves sparkling below.",
+          "Suddenly, they heard a tiny voice: 'Help! Help!'",
+          "It was a baby dolphin, separated from its family!",
+          "'Please,' the dolphin cried, 'I can't find my way home!'",
+          "Luna knew exactly what to do."
+        ],
+        choices: [
+          { id: 'guide_dolphin', text: "Guide the dolphin home", emoji: "🐬", nextBranchId: 'dolphin_ending', consequence: "Lead the way!" },
+          { id: 'sing_song', text: "Sing a dolphin family song", emoji: "🎵", nextBranchId: 'song_ending', consequence: "Music brings families together!" }
+        ]
+      },
+      {
+        id: 'rainbow_ending',
+        paragraphs: [
+          "Luna and Zephyr worked together to fix the rainbow machine.",
+          "When they turned it on, the most beautiful rainbow anyone had ever seen stretched across the sky!",
+          "Children all over the world looked up and smiled.",
+          "The Cloud King gave Luna a tiny rainbow crystal. 'Whenever you need magic, hold this close.'",
+          "As they flew home, Luna felt warm inside. She had brought joy to so many children.",
+          "'That was the best adventure ever,' Luna whispered to Zephyr. And it was."
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'The Rainbow Maker'
+      },
+      {
+        id: 'search_ending',
+        paragraphs: [
+          "Luna searched high and low through the cloud kingdom.",
+          "She found rainbow pieces in the most unexpected places — a red piece in a rose garden, blue in a puddle, green hiding in a four-leaf clover!",
+          "When she put them all together, the rainbow was even MORE beautiful than before!",
+          "'You taught us something important,' said the Cloud King. 'Sometimes broken things become even more beautiful when we rebuild them with care.'",
+          "Luna smiled. She had learned that looking carefully and never giving up could work magic all its own."
+        ],
+        isEnding: true,
+        endingType: 'lesson',
+        endingTitle: 'The Piece Finder'
+      },
+      {
+        id: 'lantern_ending',
+        paragraphs: [
+          "Zephyr glowed with all his magical light, and Luna spread it gently into each lantern.",
+          "One by one, the lanterns flickered to life, casting beautiful patterns on the palace walls.",
+          "When night fell, the stars began to dance in the sky, reflecting the lights below!",
+          "The Sultan's people cheered and celebrated. 'You are always welcome here, Luna the Light Bringer!'",
+          "As she flew home, Luna watched the stars dance and knew she would always carry this magic in her heart."
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'Light Bringer'
+      },
+      {
+        id: 'firefly_ending',
+        paragraphs: [
+          "Luna remembered that fireflies loved music. She began to hum a soft, sweet melody.",
+          "From behind every sand dune, thousands of fireflies rose into the air!",
+          "They circled the palace, creating a light show more beautiful than any lanterns could!",
+          "The Festival of Stars became the Festival of Fireflies, and it was the most magical night ever.",
+          "Luna learned that sometimes the best solutions come from working with nature, not against it."
+        ],
+        isEnding: true,
+        endingType: 'lesson',
+        endingTitle: 'The Firefly Whisperer'
+      },
+      {
+        id: 'dolphin_ending',
+        paragraphs: [
+          "Luna and Zephyr flew low and slow, letting the baby dolphin follow their magical trail.",
+          "After a wonderful journey through coral caves and past friendly sea turtles, they found the dolphin family!",
+          "The dolphins jumped and splashed with joy, spraying rainbow droplets into the air.",
+          "'Thank you, kind sky-travelers!' they sang. 'You gave us back our family!'",
+          "Luna learned that the greatest gift isn't treasure or magic — it's bringing loved ones together."
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'The Dolphin Guide'
+      },
+      {
+        id: 'song_ending',
+        paragraphs: [
+          "Luna sang the ancient dolphin family song that Zephyr taught her.",
+          "The melody carried across the waves, and soon, answering songs came from far away!",
+          "The baby dolphin's parents found them, guided by the beautiful music!",
+          "The dolphins invited Luna to swim with them, and Zephyr magically kept her warm and dry.",
+          "That night, under the stars, Luna danced with dolphins and learned that music connects all hearts."
+        ],
+        isEnding: true,
+        endingType: 'adventure',
+        endingTitle: 'The Ocean Singer'
+      }
+    ]
+  },
+  // 🎮 INTERACTIVE STORY 3 - Tea Party Tales
+  {
+    id: '22',
+    title: 'The Enchanted Tea Party',
+    subtitle: '🎮 Interactive • Friendship',
+    duration: '7+ min',
+    theme: 'Friendship',
+    coverUrl: IMAGES.TEA_PARTY,
+    character: 'Flora the Fox',
+    ageRange: '3-6',
+    moral: 'True friends make even the simplest moments magical.',
+    isInteractive: true,
+    startBranchId: 'tea_start',
+    branches: [
+      {
+        id: 'tea_start',
+        paragraphs: [
+          "Flora the Fox was preparing the most special tea party in the whole Whispering Woods!",
+          "She set up her tiny table under the old oak tree, with her best acorn cups and mushroom stools.",
+          "But oh no! Only three guests could fit at the table, and FIVE friends wanted to come!",
+          "She had to send out invitations. Who should she invite?"
+        ],
+        choices: [
+          { id: 'invite_old', text: "Invite the oldest friends", emoji: "🦔🐰🦌", nextBranchId: 'old_friends', consequence: "Loyalty is precious..." },
+          { id: 'invite_new', text: "Invite the newest friend and others", emoji: "🐿️🦋🐦", nextBranchId: 'new_friends', consequence: "New friendships blossom!" },
+          { id: 'think_harder', text: "Think of a creative solution", emoji: "💡", nextBranchId: 'creative_solution', consequence: "There might be another way..." }
+        ]
+      },
+      {
+        id: 'old_friends',
+        paragraphs: [
+          "Flora invited Hedgie the Hedgehog, Rosie the Rabbit, and Dotty the Deer — her oldest friends.",
+          "They had the most wonderful time, sharing honey cakes and chamomile tea!",
+          "But later, Flora saw Squirrel, Butterfly, and Bird watching from behind a bush, looking sad.",
+          "Flora's heart felt heavy. What should she do?"
+        ],
+        choices: [
+          { id: 'apologize', text: "Invite them for dessert!", emoji: "🍰", nextBranchId: 'everyone_ending', consequence: "There's always room for more!" }
+        ]
+      },
+      {
+        id: 'new_friends',
+        paragraphs: [
+          "Flora invited Sammy Squirrel (her newest friend), Bella Butterfly, and Billy Bird.",
+          "They were SO excited! Sammy had never been to a fancy tea party before.",
+          "'This is the best day ever!' Sammy squeaked, his eyes shining with joy.",
+          "Flora felt happy she had made her new friends feel so special and welcome.",
+          "After the party, Flora's old friends said they understood — making new friends feel welcome is important!"
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'The Welcoming Host'
+      },
+      {
+        id: 'creative_solution',
+        paragraphs: [
+          "Flora had an idea! 'What if we make the party BIGGER?'",
+          "She gathered more mushroom stools and asked Mr. Beaver to help build a longer table.",
+          "By afternoon, there was room for EVERYONE!",
+          "All five friends came, and they had the biggest, happiest tea party the forest had ever seen!",
+          "Flora learned that sometimes the best solution is to make more room, not less."
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'Room for Everyone'
+      },
+      {
+        id: 'everyone_ending',
+        paragraphs: [
+          "Flora rushed over to her other friends. 'Please, come join us for dessert!'",
+          "They squeezed together, sitting on logs and blankets around the table.",
+          "It was a bit crowded, but everyone was laughing and sharing treats.",
+          "'This is the best tea party ever!' they all agreed.",
+          "Flora smiled. She learned that sometimes the best parties aren't perfect — they're just full of love."
+        ],
+        isEnding: true,
+        endingType: 'lesson',
+        endingTitle: 'The More The Merrier'
+      }
+    ]
+  },
+  // 🎮 INTERACTIVE STORY 4 - Penguin's Big Show
+  {
+    id: '23',
+    title: "Penny's Big Show",
+    subtitle: '🎮 Interactive • Courage',
+    duration: '8+ min',
+    theme: 'Courage',
+    coverUrl: IMAGES.PENGUIN_SHOW,
+    character: 'Penny the Penguin',
+    ageRange: '4-7',
+    moral: 'Being brave means trying even when you are afraid.',
+    isInteractive: true,
+    startBranchId: 'show_start',
+    branches: [
+      {
+        id: 'show_start',
+        paragraphs: [
+          "Tonight was the night! Penny the Penguin was going to perform in the Grand Ice Show!",
+          "She had practiced her dance for weeks, twirling and sliding on the ice.",
+          "But as she peeked from behind the curtain and saw the HUGE audience, her flippers started shaking!",
+          "Her tummy felt like it was full of jumping fish. What should Penny do?"
+        ],
+        choices: [
+          { id: 'deep_breath', text: "Take deep breaths and try", emoji: "🌬️", nextBranchId: 'brave_try', consequence: "Courage begins with one breath..." },
+          { id: 'find_friend', text: "Find a friend backstage", emoji: "🐧", nextBranchId: 'friend_help', consequence: "Friends make everything easier!" },
+          { id: 'practice_more', text: "Practice one more time", emoji: "🩰", nextBranchId: 'extra_practice', consequence: "One more try can't hurt..." }
+        ]
+      },
+      {
+        id: 'brave_try',
+        paragraphs: [
+          "Penny closed her eyes and took three deep breaths. One... two... three...",
+          "She remembered what her grandmother told her: 'Being brave doesn't mean you're not scared. It means you try anyway.'",
+          "Penny waddled onto the stage. The spotlight was bright and warm.",
+          "She began to dance, and something wonderful happened — she forgot to be scared!",
+          "The audience cheered, and Penny felt like she was flying on ice!"
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'The Brave Dancer'
+      },
+      {
+        id: 'friend_help',
+        paragraphs: [
+          "Penny found her best friend, Pip, backstage.",
+          "'I'm so scared!' Penny whispered. 'What if I fall?'",
+          "Pip took her flipper. 'Then you get back up! And I'll be right here cheering for you.'",
+          "Just knowing Pip was there made Penny feel braver.",
+          "She walked onto the stage and danced beautifully. Every time she looked backstage, Pip was smiling and waving!"
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'Friends Give Courage'
+      },
+      {
+        id: 'extra_practice',
+        paragraphs: [
+          "Penny practiced her routine one more time in the corner.",
+          "Spin, slide, jump, bow! She knew every move perfectly.",
+          "'I CAN do this!' she said to herself.",
+          "When she went on stage, her muscles remembered every move. She danced like the star she was!",
+          "The audience gave her a standing ovation, and Penny learned that preparation gives confidence!"
+        ],
+        isEnding: true,
+        endingType: 'lesson',
+        endingTitle: 'Practice Makes Perfect'
+      }
+    ]
+  },
+  // 🎮 INTERACTIVE STORY 5 - Wolf Princess
+  {
+    id: '24',
+    title: 'The Wolf and the Moon Princess',
+    subtitle: '🎮 Interactive • Kindness',
+    duration: '10+ min',
+    theme: 'Kindness',
+    coverUrl: IMAGES.WOLF_PRINCESS,
+    character: 'Shadow the Wolf',
+    ageRange: '5-9',
+    moral: 'Kindness can change hearts and break old fears.',
+    isInteractive: true,
+    startBranchId: 'wolf_start',
+    branches: [
+      {
+        id: 'wolf_start',
+        paragraphs: [
+          "In the Moonlit Kingdom, a gentle wolf named Shadow lived alone in the forest.",
+          "The villagers were afraid of wolves, so Shadow never had any friends.",
+          "One night, he heard crying from the tall tower in the castle. The Moon Princess was trapped!",
+          "An evil spell kept her locked away, and only an act of pure kindness could break it.",
+          "Shadow wanted to help, but the villagers would chase him away. What should he do?"
+        ],
+        choices: [
+          { id: 'sneak', text: "Sneak to the tower at night", emoji: "🌙", nextBranchId: 'night_journey', consequence: "Under the cover of darkness..." },
+          { id: 'ask_animals', text: "Ask the forest animals for help", emoji: "🦊🐰", nextBranchId: 'animal_help', consequence: "Friends come in all forms!" },
+          { id: 'approach_village', text: "Bravely approach the village", emoji: "🏘️", nextBranchId: 'village_approach', consequence: "Face your fears..." }
+        ]
+      },
+      {
+        id: 'night_journey',
+        paragraphs: [
+          "Shadow crept through the sleeping village, his soft paws making no sound.",
+          "He climbed the tower using the vines growing on its walls.",
+          "The Princess was surprised but not afraid. 'A wolf? But... you look so kind!'",
+          "'I want to help you,' Shadow said softly. 'What can break the spell?'",
+          "The Princess smiled. 'The spell can only be broken by someone who shows kindness expecting nothing in return.'",
+          "Shadow didn't need to think. He gently took her hand and led her down the tower, asking for nothing."
+        ],
+        choices: [
+          { id: 'spell_breaks', text: "Watch the magic happen", emoji: "✨", nextBranchId: 'spell_ending', consequence: "Pure kindness works wonders!" }
+        ]
+      },
+      {
+        id: 'animal_help',
+        paragraphs: [
+          "Shadow called all the forest animals together — foxes, rabbits, deer, and birds.",
+          "'We can distract the guards while you save the princess!' said a brave little mouse.",
+          "The animals worked together. Birds sang in the trees, rabbits hopped around the gardens, and foxes did funny tricks!",
+          "While everyone watched the animals, Shadow slipped into the tower unnoticed.",
+          "He found the Princess and together they escaped through a secret passage the mice had discovered!"
+        ],
+        isEnding: true,
+        endingType: 'adventure',
+        endingTitle: 'The Forest Alliance'
+      },
+      {
+        id: 'village_approach',
+        paragraphs: [
+          "Shadow took a deep breath and walked into the village in broad daylight.",
+          "People screamed and ran! But Shadow didn't growl or scare anyone.",
+          "He simply sat down and waited.",
+          "An old woman looked at him carefully. 'This wolf... he's not dangerous. Look at his eyes — they're kind!'",
+          "Slowly, the villagers realized they had been wrong about wolves. They thanked Shadow and asked for his help.",
+          "Together, they walked to the tower and freed the Princess, who declared that wolves and villagers would be friends forever."
+        ],
+        isEnding: true,
+        endingType: 'lesson',
+        endingTitle: 'Breaking Old Fears'
+      },
+      {
+        id: 'spell_ending',
+        paragraphs: [
+          "The moment Shadow helped the Princess with no thought of reward, the tower glowed with silver light!",
+          "The spell shattered like ice melting in spring!",
+          "The villagers saw everything and realized they had been wrong about wolves.",
+          "'You saved our Princess!' they cheered. 'You are a hero!'",
+          "The King declared Shadow a Royal Guardian. For the first time ever, Shadow had a home and a family.",
+          "The Moon Princess became his best friend, and they often watched the moon rise together — no longer alone."
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'The Gentle Guardian'
+      }
+    ]
   }
 ];
 

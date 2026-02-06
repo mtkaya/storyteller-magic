@@ -9,8 +9,9 @@ import Settings from './pages/Settings';
 import Subscription from './pages/Subscription';
 import BottomNav from './components/BottomNav';
 import ParentalGate from './components/ParentalGate';
+import { LanguageProvider } from './context/LanguageContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenName>('home');
   const [showParentalGate, setShowParentalGate] = useState(false);
   const [targetRestrictedScreen, setTargetRestrictedScreen] = useState<ScreenName | null>(null);
@@ -81,6 +82,15 @@ const App: React.FC = () => {
         />
       )}
     </div>
+  );
+};
+
+// Wrap the app with LanguageProvider
+const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Story, StoryBranch, StoryChoice } from '../types';
 import { LIBRARY_STORIES } from '../data';
+import SleepController from '../components/SleepController';
 
 interface ReaderProps {
   story: Story | null;
@@ -20,7 +21,31 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
   const [showChoices, setShowChoices] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
 
+  // Sleep controller state
+  const [sleepControllerActive, setSleepControllerActive] = useState(false);
+
   const synthRef = useRef<SpeechSynthesis | null>(null);
+
+  // Enable sleep controller when playing
+  useEffect(() => {
+    setSleepControllerActive(isPlaying);
+  }, [isPlaying]);
+
+  // Handle sleep detection - goodnight and close
+  const handleSleepDetected = () => {
+    setIsPlaying(false);
+    if (synthRef.current) {
+      synthRef.current.cancel();
+    }
+    // Go back to main screen after goodnight
+    setTimeout(() => {
+      onBack();
+    }, 1000);
+  };
+
+  const handleUserAwake = () => {
+    // User is still listening, continue
+  };
 
   // Use provided story or fallback
   const defaultStory = LIBRARY_STORIES.find(s => s.content || s.isInteractive) || LIBRARY_STORIES[0];
@@ -526,6 +551,15 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Sleep Controller - Detects inactivity */}
+      <SleepController
+        isActive={sleepControllerActive}
+        onSleepDetected={handleSleepDetected}
+        onUserAwake={handleUserAwake}
+        inactivityTimeout={30}
+        goodnightDelay={5}
+      />
     </div>
   );
 };

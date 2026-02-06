@@ -1,95 +1,186 @@
 import React, { useState, useEffect } from 'react';
-import { CreateStep, ScreenName } from '../types';
+import { CreateStep, Story } from '../types';
 import { IMAGES } from '../data';
+import { useLanguage } from '../context/LanguageContext';
+import { generateStoryWithAI, getFallbackStory, StoryPrompt, GeneratedStory } from '../services/storyGenerator';
 
 interface CreateStoryProps {
   onBack: () => void;
-  onComplete: () => void;
+  onComplete: (story?: Story) => void;
 }
 
 const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
+  const { language, t } = useLanguage();
   const [step, setStep] = useState<CreateStep>(CreateStep.THEME);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  useEffect(() => {
-    if (step === CreateStep.GENERATING) {
-      const interval = setInterval(() => {
-        setLoadingProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setStep(CreateStep.RESULT);
-            return 100;
-          }
-          return prev + 1;
-        });
-      }, 50);
-      return () => clearInterval(interval);
-    }
-  }, [step]);
+  // Story options
+  const [selectedTheme, setSelectedTheme] = useState('magic');
+  const [selectedTone, setSelectedTone] = useState('calm');
+  const [selectedDuration, setSelectedDuration] = useState<'short' | 'medium' | 'long'>('medium');
+  const [isInteractive, setIsInteractive] = useState(false);
+  const [childName, setChildName] = useState('');
+
+  // Generated story
+  const [generatedStory, setGeneratedStory] = useState<GeneratedStory | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const themes = [
-    { name: 'Courage', icon: IMAGES.LION_MOON },
-    { name: 'Friendship', icon: IMAGES.PILLOW_FIGHT },
-    { name: 'Wonder', icon: IMAGES.MAGIC_CHEST },
-    { name: 'Nature', icon: IMAGES.TURTLE_RABBIT }
+    { id: 'adventure', name: t.create_themes.adventure, icon: IMAGES.BRAVE_LION },
+    { id: 'friendship', name: t.create_themes.friendship, icon: IMAGES.TEA_PARTY },
+    { id: 'magic', name: t.create_themes.magic, icon: IMAGES.ENCHANTED_CHEST },
+    { id: 'nature', name: t.create_themes.nature, icon: IMAGES.GRATEFUL_DEER },
+    { id: 'space', name: t.create_themes.space, icon: IMAGES.MAGIC_CARPET },
+    { id: 'underwater', name: t.create_themes.underwater, icon: IMAGES.SLEEPING_ANIMALS }
   ];
 
+  const tones = [
+    { id: 'calm', name: t.create_tones.calm },
+    { id: 'exciting', name: t.create_tones.exciting },
+    { id: 'funny', name: t.create_tones.funny },
+    { id: 'mysterious', name: t.create_tones.mysterious }
+  ];
+
+  const durations = [
+    { id: 'short' as const, name: t.create_durations.short },
+    { id: 'medium' as const, name: t.create_durations.medium },
+    { id: 'long' as const, name: t.create_durations.long }
+  ];
+
+  // Generate story with AI
+  const handleGenerateStory = async () => {
+    setStep(CreateStep.GENERATING);
+    setLoadingProgress(0);
+    setError(null);
+
+    // Start progress animation
+    const progressInterval = setInterval(() => {
+      setLoadingProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 10;
+      });
+    }, 300);
+
+    const storyOptions: StoryPrompt = {
+      theme: selectedTheme,
+      tone: selectedTone,
+      duration: selectedDuration,
+      childName: childName || undefined,
+      language: language,
+      isInteractive: isInteractive
+    };
+
+    try {
+      const story = await generateStoryWithAI(storyOptions);
+      setGeneratedStory(story);
+      clearInterval(progressInterval);
+      setLoadingProgress(100);
+      setTimeout(() => setStep(CreateStep.RESULT), 500);
+    } catch (err) {
+      console.error('Story generation failed:', err);
+      clearInterval(progressInterval);
+      // Use fallback story
+      const fallbackStory = getFallbackStory(language);
+      setGeneratedStory(fallbackStory);
+      setLoadingProgress(100);
+      setTimeout(() => setStep(CreateStep.RESULT), 500);
+    }
+  };
+
+  // Convert GeneratedStory to Story type for the reader
+  const convertToStory = (generated: GeneratedStory): Story => {
+    const themeData = themes.find(th => th.id === generated.theme);
+    return {
+      id: `generated_${Date.now()}`,
+      title: generated.title,
+      subtitle: generated.subtitle,
+      duration: selectedDuration === 'short' ? '3 min' : selectedDuration === 'medium' ? '7 min' : '12 min',
+      theme: generated.theme,
+      coverUrl: themeData?.icon || IMAGES.MAGIC_BOOK,
+      character: generated.character,
+      ageRange: generated.ageRange,
+      moral: generated.moral,
+      content: generated.content,
+      isInteractive: generated.isInteractive,
+      branches: generated.branches,
+      startBranchId: generated.startBranchId
+    };
+  };
+
+  // Generating screen
   if (step === CreateStep.GENERATING) {
     return (
       <div className="flex flex-col h-screen items-center justify-center bg-bg-dark relative overflow-hidden">
         {/* Magic gradient background */}
         <div className="absolute inset-0 bg-magic-gradient opacity-80"></div>
         <div className="absolute inset-0 bg-star-dust opacity-30"></div>
-        
+
         <div className="relative z-10 flex flex-col items-center w-full max-w-sm px-6">
-           <div className="relative w-64 h-64 mb-12">
-              <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/30 animate-spin-slow"></div>
-              <div className="absolute inset-4 rounded-full border-4 border-primary/20"></div>
-              <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
-                 <img src={IMAGES.WAND_UI} alt="Magic Wand" className="w-40 h-40 object-contain opacity-90 drop-shadow-[0_0_15px_rgba(238,140,43,0.6)] animate-pulse-slow" />
-              </div>
-           </div>
-           
-           <h2 className="text-3xl font-bold text-white text-center mb-2">Writing Story...</h2>
-           <p className="text-primary/80 italic mb-8">The magic is at work</p>
-           
-           <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden border border-white/5">
-             <div 
-               className="h-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-100 ease-linear shadow-[0_0_15px_rgba(238,140,43,0.5)]"
-               style={{ width: `${loadingProgress}%` }}
-             ></div>
-           </div>
-           <p className="text-white/40 text-xs mt-3">{loadingProgress}% Complete</p>
+          <div className="relative w-64 h-64 mb-12">
+            <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/30 animate-spin-slow"></div>
+            <div className="absolute inset-4 rounded-full border-4 border-primary/20"></div>
+            <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
+              <img src={IMAGES.MAGIC_QUILL} alt="Magic Quill" className="w-40 h-40 object-contain opacity-90 drop-shadow-[0_0_15px_rgba(238,140,43,0.6)] animate-pulse-slow" />
+            </div>
+          </div>
+
+          <h2 className="text-3xl font-bold text-white text-center mb-2">{t.create_generating}</h2>
+          <p className="text-primary/80 italic mb-8">
+            {language === 'tr' ? 'Sihir başladı...' : 'The magic is at work...'}
+          </p>
+
+          <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden border border-white/5">
+            <div
+              className="h-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-100 ease-linear shadow-[0_0_15px_rgba(238,140,43,0.5)]"
+              style={{ width: `${loadingProgress}%` }}
+            ></div>
+          </div>
+          <p className="text-white/40 text-xs mt-3">{Math.round(loadingProgress)}% {language === 'tr' ? 'Tamamlandı' : 'Complete'}</p>
         </div>
       </div>
     );
   }
 
-  if (step === CreateStep.RESULT) {
-      return (
-          <div className="flex flex-col h-screen bg-bg-dark relative">
-               <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: `url("${IMAGES.MOON_RESULT}")` }}></div>
-               <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/80 to-transparent"></div>
-               
-               <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6 text-center">
-                   <div className="w-48 h-48 rounded-2xl overflow-hidden shadow-2xl border-2 border-primary/30 mb-8 mx-auto">
-                        <img src={IMAGES.MOON_RESULT} className="w-full h-full object-cover" />
-                   </div>
-                   <h1 className="text-3xl font-bold text-white mb-2">Story Ready!</h1>
-                   <p className="text-white/70 mb-8">Your magical journey "The Sleeping Moon" has been created.</p>
-                   
-                   <button onClick={onComplete} className="w-full bg-primary hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 mb-4">
-                       <span className="material-symbols-outlined">auto_stories</span>
-                       Read Now
-                   </button>
-                   <button onClick={() => setStep(CreateStep.THEME)} className="text-white/50 text-sm hover:text-white">
-                       Create Another
-                   </button>
-               </div>
+  // Result screen
+  if (step === CreateStep.RESULT && generatedStory) {
+    const storyForReader = convertToStory(generatedStory);
+
+    return (
+      <div className="flex flex-col h-screen bg-bg-dark relative">
+        <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: `url("${themes.find(t => t.id === generatedStory.theme)?.icon || IMAGES.MOON_RESULT}")` }}></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/80 to-transparent"></div>
+
+        <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6 text-center">
+          <div className="w-48 h-48 rounded-2xl overflow-hidden shadow-2xl border-2 border-primary/30 mb-8 mx-auto">
+            <img src={themes.find(t => t.id === generatedStory.theme)?.icon || IMAGES.MOON_RESULT} className="w-full h-full object-cover" />
           </div>
-      )
+
+          {generatedStory.isInteractive && (
+            <div className="bg-gradient-to-r from-secondary to-purple-500 px-4 py-1 rounded-full mb-4">
+              <span className="text-white text-sm font-bold">🎮 {language === 'tr' ? 'İnteraktif Hikaye' : 'Interactive Story'}</span>
+            </div>
+          )}
+
+          <h1 className="text-3xl font-bold text-white mb-2">{generatedStory.title}</h1>
+          <p className="text-white/70 mb-2">{generatedStory.subtitle}</p>
+          <p className="text-primary/80 text-sm italic mb-8">"{generatedStory.moral}"</p>
+
+          <button
+            onClick={() => onComplete(storyForReader)}
+            className="w-full bg-primary hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 mb-4"
+          >
+            <span className="material-symbols-outlined">auto_stories</span>
+            {language === 'tr' ? 'Şimdi Oku' : 'Read Now'}
+          </button>
+          <button onClick={() => setStep(CreateStep.THEME)} className="text-white/50 text-sm hover:text-white">
+            {language === 'tr' ? 'Başka Bir Hikaye Oluştur' : 'Create Another'}
+          </button>
+        </div>
+      </div>
+    );
   }
 
+  // Main creation screen
   return (
     <div className="flex flex-col min-h-screen bg-bg-dark text-white">
       {/* Header */}
@@ -97,58 +188,127 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
         <button onClick={onBack} className="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20">
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
-        <h2 className="flex-1 text-center text-lg font-bold pr-10">Create Magic Story</h2>
+        <h2 className="flex-1 text-center text-lg font-bold pr-10">{t.create_title}</h2>
       </div>
 
       {/* Progress */}
       <div className="px-6 py-4">
         <div className="flex justify-between items-end mb-2">
-          <p className="text-white/90 text-base font-semibold">Crafting your adventure</p>
-          <p className="text-white/60 text-xs font-medium">Step 1 of 3</p>
+          <p className="text-white/90 text-base font-semibold">
+            {language === 'tr' ? 'Maceranı şekillendir' : 'Crafting your adventure'}
+          </p>
+          <p className="text-white/60 text-xs font-medium">
+            {language === 'tr' ? 'Adım 1 / 1' : 'Step 1 of 1'}
+          </p>
         </div>
         <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-          <div className="h-full bg-accent-peach rounded-full transition-all duration-300" style={{ width: '33%' }}></div>
+          <div className="h-full bg-accent-peach rounded-full transition-all duration-300" style={{ width: '100%' }}></div>
         </div>
       </div>
 
-      {/* Theme Grid */}
-      <div className="flex-1 px-6 py-4">
-        <h3 className="text-xl font-bold mb-4">Choose a Theme</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {themes.map((theme, idx) => (
-            <div key={idx} className={`p-3 rounded-2xl border transition-all cursor-pointer ${idx === 0 ? 'bg-white/10 border-accent-peach ring-2 ring-accent-peach/50' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
-              <div className="w-full aspect-square rounded-xl bg-[#2d2e4d] mb-3 overflow-hidden shadow-inner">
+      <div className="flex-1 px-6 py-4 overflow-y-auto pb-32">
+        {/* Child Name (Optional) */}
+        <div className="mb-6">
+          <h3 className="text-lg font-bold mb-3">
+            {language === 'tr' ? "Çocuğun Adı (İsteğe Bağlı)" : "Child's Name (Optional)"}
+          </h3>
+          <input
+            type="text"
+            value={childName}
+            onChange={(e) => setChildName(e.target.value)}
+            placeholder={language === 'tr' ? "Adı gir..." : "Enter name..."}
+            className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:border-primary"
+          />
+        </div>
+
+        {/* Theme Grid */}
+        <h3 className="text-lg font-bold mb-3">{t.create_choose_theme}</h3>
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {themes.map((theme) => (
+            <button
+              key={theme.id}
+              onClick={() => setSelectedTheme(theme.id)}
+              className={`p-2 rounded-xl border transition-all ${selectedTheme === theme.id
+                  ? 'bg-white/10 border-accent-peach ring-2 ring-accent-peach/50'
+                  : 'bg-white/5 border-white/10 hover:bg-white/10'
+                }`}
+            >
+              <div className="w-full aspect-square rounded-lg bg-[#2d2e4d] mb-2 overflow-hidden shadow-inner">
                 <img src={theme.icon} alt={theme.name} className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
               </div>
-              <div className="flex justify-between items-center px-1">
-                <span className="font-bold text-sm">{theme.name}</span>
-                {idx === 0 && <span className="material-symbols-outlined text-accent-peach text-sm">check_circle</span>}
-              </div>
-            </div>
+              <span className="font-medium text-xs">{theme.name}</span>
+            </button>
           ))}
         </div>
 
         {/* Tone */}
-        <div className="mt-8">
-            <h3 className="text-xl font-bold mb-4">Select a Tone</h3>
-            <div className="flex gap-3">
-                <button className="px-6 py-2.5 rounded-full bg-secondary text-white font-bold border border-white/20">Calm</button>
-                <button className="px-6 py-2.5 rounded-full bg-white/5 text-white/70 font-bold border border-white/10">Funny</button>
-                <button className="px-6 py-2.5 rounded-full bg-white/5 text-white/70 font-bold border border-white/10">Adventure</button>
+        <h3 className="text-lg font-bold mb-3">{t.create_choose_tone}</h3>
+        <div className="flex flex-wrap gap-2 mb-6">
+          {tones.map((tone) => (
+            <button
+              key={tone.id}
+              onClick={() => setSelectedTone(tone.id)}
+              className={`px-4 py-2 rounded-full font-bold text-sm transition-all ${selectedTone === tone.id
+                  ? 'bg-secondary text-white border border-white/20'
+                  : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'
+                }`}
+            >
+              {tone.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Duration */}
+        <h3 className="text-lg font-bold mb-3">{t.create_choose_duration}</h3>
+        <div className="flex gap-2 mb-6">
+          {durations.map((dur) => (
+            <button
+              key={dur.id}
+              onClick={() => setSelectedDuration(dur.id)}
+              className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${selectedDuration === dur.id
+                  ? 'bg-primary text-bg-dark'
+                  : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'
+                }`}
+            >
+              {dur.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Interactive Toggle */}
+        <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 mb-6">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🎮</span>
+            <div>
+              <p className="font-bold text-sm">
+                {language === 'tr' ? 'İnteraktif Hikaye' : 'Interactive Story'}
+              </p>
+              <p className="text-white/50 text-xs">
+                {language === 'tr' ? 'Kendi maceranı seç!' : 'Choose your own adventure!'}
+              </p>
             </div>
+          </div>
+          <button
+            onClick={() => setIsInteractive(!isInteractive)}
+            className={`w-12 h-7 rounded-full relative transition-colors ${isInteractive ? 'bg-secondary' : 'bg-white/10'}`}
+          >
+            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${isInteractive ? 'right-1' : 'left-1'}`}></div>
+          </button>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="p-6 bg-bg-dark border-t border-white/5">
-        <button 
-          onClick={() => setStep(CreateStep.GENERATING)}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-bg-dark border-t border-white/5 max-w-[430px] mx-auto">
+        <button
+          onClick={handleGenerateStory}
           className="w-full py-4 rounded-xl bg-accent-peach text-bg-dark text-lg font-extrabold flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,176,142,0.4)] active:scale-95 transition-transform"
         >
           <span className="material-symbols-outlined">auto_fix_high</span>
-          Generate Story
+          {language === 'tr' ? 'AI ile Hikaye Oluştur' : 'Generate with AI'}
         </button>
-        <p className="text-center text-white/40 text-xs mt-4 italic">Using AI to weave your magical tale...</p>
+        <p className="text-center text-white/40 text-xs mt-3 italic">
+          {language === 'tr' ? 'Gemini AI ile sihirli hikayeni yazıyoruz...' : 'Using Gemini AI to weave your magical tale...'}
+        </p>
       </div>
     </div>
   );
