@@ -8,7 +8,9 @@ export type ScreenName =
   | 'parental_settings'
   | 'settings'
   | 'subscription'
-  | 'stats';
+  | 'stats'
+  | 'parent_report'
+  | 'collections';
 
 export interface Story {
   id: string;

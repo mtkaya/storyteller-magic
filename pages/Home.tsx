@@ -9,9 +9,11 @@ interface HomeProps {
   onStorySelect: (story: Story) => void;
   onProfileClick?: () => void;
   onMusicClick?: () => void;
+  onMapClick?: () => void;
+  onGoalsClick?: () => void;
 }
 
-const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, onMusicClick }) => {
+const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, onMusicClick, onMapClick, onGoalsClick }) => {
   const { language, t } = useLanguage();
   const { activeProfile, stats, favorites, isFavorite, addFavorite, removeFavorite } = useAppState();
 
@@ -52,6 +54,20 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
           </div>
         </button>
         <div className="flex items-center gap-2">
+          {/* Goals Button */}
+          <button
+            onClick={onGoalsClick}
+            className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+          >
+            <span className="material-symbols-outlined text-white">flag</span>
+          </button>
+          {/* Map Button */}
+          <button
+            onClick={onMapClick}
+            className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+          >
+            <span className="material-symbols-outlined text-white">map</span>
+          </button>
           {/* Stats Button */}
           <button
             onClick={() => onNavigate('stats' as ScreenName)}
@@ -186,6 +202,23 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Collections Banner */}
+      <div className="px-6 pb-4">
+        <button
+          onClick={() => onNavigate('collections' as ScreenName)}
+          className="w-full bg-gradient-to-r from-purple-600/30 to-blue-600/30 border border-white/10 rounded-2xl p-4 flex items-center justify-between hover:from-purple-600/40 hover:to-blue-600/40 transition-all"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">📚</span>
+            <div className="text-left">
+              <p className="text-white font-bold">{language === 'tr' ? 'Hikaye Koleksiyonları' : 'Story Collections'}</p>
+              <p className="text-white/50 text-xs">{language === 'tr' ? '8 özel paket keşfet' : 'Explore 8 curated packs'}</p>
+            </div>
+          </div>
+          <span className="material-symbols-outlined text-white/50">chevron_right</span>
+        </button>
       </div>
 
       {/* Categories / Themes */}

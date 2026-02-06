@@ -4,14 +4,17 @@ import { LIBRARY_STORIES } from '../data';
 import SleepController from '../components/SleepController';
 import { useAppState } from '../context/AppStateContext';
 import { useLanguage } from '../context/LanguageContext';
-import { backgroundMusic } from '../services/backgroundMusic';
+import { backgroundMusic, MusicType } from '../services/backgroundMusic';
+import { soundEffects } from '../services/soundEffects';
 
 interface ReaderProps {
   story: Story | null;
   onBack: () => void;
+  currentMusic?: MusicType;
+  onMusicChange?: (music: MusicType) => void;
 }
 
-const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
+const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange }) => {
   const { recordStoryRead, recordChoice, recordEnding, isFavorite, addFavorite, removeFavorite } = useAppState();
   const { language, t } = useLanguage();
 
@@ -106,6 +109,11 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
         } else if (isBranchEnding) {
           setShowChoices(false);
           setIsEnding(true);
+          // Record story completion
+          const duration = Math.round((Date.now() - storyStartTime.current) / 60000);
+          recordStoryRead(activeStory.id, activeStory.theme || 'general', duration);
+          recordEnding();
+          soundEffects.play('story_complete');
         }
       } else {
         setShowChoices(false);
@@ -217,6 +225,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack }) => {
 
     // Record the choice
     setStoryPath(prev => [...prev, choice.id]);
+    recordChoice();
+    soundEffects.play('choice_select');
 
     // Navigate to the next branch
     setCurrentBranchId(choice.nextBranchId);

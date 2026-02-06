@@ -5,9 +5,10 @@ import { useLanguage, languageOptions } from '../context/LanguageContext';
 interface SettingsProps {
     onNavigate: (screen: ScreenName) => void;
     onBack: () => void;
+    onParentReport?: () => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack }) => {
+const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport }) => {
     const { language, setLanguage, t } = useLanguage();
     const [sleepTimer, setSleepTimer] = useState(30); // seconds
     const [soundEffects, setSoundEffects] = useState(true);
@@ -94,8 +95,8 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack }) => {
                                         key={time}
                                         onClick={() => setSleepTimer(time)}
                                         className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all ${sleepTimer === time
-                                                ? 'bg-primary text-bg-dark'
-                                                : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                            ? 'bg-primary text-bg-dark'
+                                            : 'bg-white/10 text-white/70 hover:bg-white/20'
                                             }`}
                                     >
                                         {time}s
@@ -122,8 +123,8 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack }) => {
                                     key={speed}
                                     onClick={() => setReadingSpeed(speed)}
                                     className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${readingSpeed === speed
-                                            ? 'bg-secondary text-bg-dark'
-                                            : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                        ? 'bg-secondary text-bg-dark'
+                                        : 'bg-white/10 text-white/70 hover:bg-white/20'
                                         }`}
                                 >
                                     {speed}x
@@ -174,11 +175,21 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack }) => {
                     <div className="bg-white/5 rounded-2xl overflow-hidden border border-white/5">
                         <button
                             onClick={() => onNavigate('parental_settings')}
-                            className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+                            className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors border-b border-white/5"
                         >
                             <div className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-accent-peach">lock</span>
                                 <span>{language === 'tr' ? 'Ebeveyn Kontrolleri' : 'Parental Controls'}</span>
+                            </div>
+                            <span className="material-symbols-outlined text-white/40">chevron_right</span>
+                        </button>
+                        <button
+                            onClick={onParentReport}
+                            className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-green-400">assessment</span>
+                                <span>{language === 'tr' ? 'Ebeveyn Raporu' : 'Parent Report'}</span>
                             </div>
                             <span className="material-symbols-outlined text-white/40">chevron_right</span>
                         </button>
