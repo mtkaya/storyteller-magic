@@ -12,9 +12,10 @@ interface ReaderProps {
   onBack: () => void;
   currentMusic?: MusicType;
   onMusicChange?: (music: MusicType) => void;
+  onMusicClick?: () => void;
 }
 
-const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange }) => {
+const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange, onMusicClick }) => {
   const { recordStoryRead, recordChoice, recordEnding, isFavorite, addFavorite, removeFavorite } = useAppState();
   const { language, t } = useLanguage();
 
@@ -23,7 +24,6 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [speechRate, setSpeechRate] = useState(0.9);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [storyCompleted, setStoryCompleted] = useState(false);
 
   // Interactive story state
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
@@ -261,10 +261,11 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     <div className="flex flex-col min-h-screen bg-bg-dark">
       {/* Header */}
       <div className="sticky top-0 z-50 flex items-center justify-between p-4 bg-bg-dark/80 backdrop-blur-md border-b border-white/5">
-        <button onClick={onBack} className="text-white/80 hover:text-white">
+        <button onClick={onBack} className="text-white/80 hover:text-white size-10 flex items-center justify-center">
           <span className="material-symbols-outlined text-3xl">expand_more</span>
         </button>
-        <div className="text-center">
+
+        <div className="text-center flex-1">
           <span className="text-sm font-serif font-medium tracking-widest uppercase text-white/60 block">
             {activeStory.theme}
           </span>
@@ -281,7 +282,17 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             </div>
           )}
         </div>
-        <div className="w-8"></div>
+
+        <div className="flex items-center gap-2">
+          {/* Music Button */}
+          <button
+            onClick={onMusicClick}
+            className={`size-10 rounded-full flex items-center justify-center transition-colors ${currentMusic !== 'none' ? 'bg-primary/20 text-primary' : 'hover:bg-white/5 text-white/60'
+              }`}
+          >
+            <span className="material-symbols-outlined">music_note</span>
+          </button>
+        </div>
       </div>
 
       {/* Hero Image */}
@@ -323,260 +334,146 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
         </div>
       </div>
 
-      {/* Text Content */}
-      <div className="px-6 py-4 flex-1 pb-48 overflow-y-auto">
-        <h1 className="font-serif text-3xl text-white font-bold leading-tight mb-4">{activeStory.title}</h1>
+      {/* Main Content Area */}
+      <div className="flex-1 transition-all duration-300 relative px-4 pb-24">
+        <div className="max-w-md mx-auto relative pt-4">
 
-        {/* Moral badge */}
-        {activeStory.moral && !isEnding && (
-          <div className="bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl p-4 mb-6 border border-primary/30">
-            <div className="flex items-start gap-3">
-              <span className="material-symbols-outlined text-primary text-xl">lightbulb</span>
-              <div>
-                <p className="text-xs text-primary font-bold uppercase tracking-wide mb-1">Lesson</p>
-                <p className="text-sm text-white/80 italic">{activeStory.moral}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {hasContent ? (
-          <div className="space-y-6 text-lg font-serif leading-relaxed text-gray-300">
-            {content.map((paragraph, index) => (
-              <p
-                key={`${currentBranchId}-${index}`}
-                onClick={() => {
-                  setCurrentParagraph(index);
-                  if (isPlaying && synthRef.current) {
-                    synthRef.current.cancel();
-                    setTimeout(() => speakParagraph(paragraph), 100);
-                  }
-                }}
-                className={`transition-all duration-500 cursor-pointer hover:text-white/90 ${index === currentParagraph
-                  ? 'opacity-100 text-white bg-white/5 -mx-4 px-4 py-2 rounded-lg border-l-4 border-primary'
-                  : index < currentParagraph
-                    ? 'opacity-40'
-                    : 'opacity-60'
-                  }`}
-              >
-                {paragraph}
+          {/* Text Content */}
+          <div className="bg-bg-card rounded-2xl p-6 shadow-xl border border-white/5 relative mb-4">
+            {hasContent ? (
+              <p className="text-white text-lg leading-relaxed font-medium transition-all duration-500 ease-in-out font-serif">
+                {content[currentParagraph]}
               </p>
-            ))}
-
-            {/* Interactive Choices */}
-            {showChoices && currentBranch?.choices && (
-              <div className="mt-8 space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-secondary text-2xl animate-bounce">touch_app</span>
-                  <p className="text-secondary font-bold text-lg">What happens next?</p>
-                </div>
-                <div className="grid gap-3">
-                  {currentBranch.choices.map((choice, index) => (
-                    <button
-                      key={choice.id}
-                      onClick={() => handleChoiceSelect(choice)}
-                      className="group relative bg-gradient-to-r from-bg-card to-bg-card/80 border-2 border-white/10 hover:border-primary/50 rounded-2xl p-4 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98]"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl shadow-lg">
-                          {choice.emoji || ['🌟', '🎯', '💫', '🌈'][index % 4]}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-white font-bold text-base group-hover:text-primary transition-colors">
-                            {choice.text}
-                          </p>
-                          {choice.consequence && (
-                            <p className="text-white/50 text-sm mt-1 italic">
-                              {choice.consequence}
-                            </p>
-                          )}
-                        </div>
-                        <span className="material-symbols-outlined text-white/30 group-hover:text-primary group-hover:translate-x-1 transition-all">
-                          arrow_forward
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+            ) : (
+              <div className="text-center py-10">
+                <p className="text-white/60">Story content is loading...</p>
               </div>
             )}
 
-            {/* Story Ending */}
-            {isEnding && currentBranch?.isEnding && (
-              <div className="mt-8 text-center py-8 bg-gradient-to-b from-primary/10 to-secondary/10 rounded-2xl border border-primary/30">
-                <span className="text-6xl block mb-4 animate-bounce">
-                  {getEndingEmoji(currentBranch.endingType)}
-                </span>
-                <p className="text-white font-bold text-xl mb-2">
-                  {currentBranch.endingTitle || 'The End'}
-                </p>
-                <p className="text-white/60 text-sm mb-6">
-                  {currentBranch.endingType === 'happy' && 'What a wonderful adventure!'}
-                  {currentBranch.endingType === 'adventure' && 'The adventure continues another day!'}
-                  {currentBranch.endingType === 'lesson' && 'Every choice teaches us something new.'}
-                  {!currentBranch.endingType && 'Sweet dreams, little one.'}
-                </p>
-
-                {/* Story stats */}
-                <div className="flex justify-center gap-4 mb-6">
-                  <div className="bg-white/10 rounded-xl px-4 py-2">
-                    <p className="text-2xl font-bold text-primary">{storyPath.length}</p>
-                    <p className="text-xs text-white/50">Choices Made</p>
-                  </div>
-                  <div className="bg-white/10 rounded-xl px-4 py-2">
-                    <p className="text-2xl font-bold text-secondary">
-                      {activeStory.branches?.filter(b => b.isEnding).length || 1}
-                    </p>
-                    <p className="text-xs text-white/50">Possible Endings</p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleRestartStory}
-                  className="inline-flex items-center gap-2 bg-primary hover:bg-primary/80 text-bg-dark font-bold px-6 py-3 rounded-full transition-all hover:scale-105"
-                >
-                  <span className="material-symbols-outlined">replay</span>
-                  Try Different Choices
-                </button>
-              </div>
-            )}
-
-            {/* Linear Story End */}
-            {!isInteractiveStory && currentParagraph === content.length - 1 && (
-              <div className="text-center py-8">
-                <span className="text-4xl">🌙</span>
-                <p className="text-white/60 text-sm mt-2 font-medium">The End</p>
-                <p className="text-white/40 text-xs mt-1">Sweet dreams, little one</p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-6 text-lg font-serif leading-relaxed text-gray-300">
-            <p>
-              This story doesn't have content yet. Check out our <span className="text-primary font-bold">new stories</span> in the library with full narration!
-            </p>
-            <p className="text-white/50 italic">
-              Look for stories marked with "📖 Full Story" or "🎮 Interactive" badge.
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Player Controls */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#16131f]/95 backdrop-blur-xl border-t border-white/10 pb-8 pt-6 px-6 rounded-t-3xl max-w-[430px] mx-auto">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between px-2">
-            <span className="text-xs text-white/50 font-medium">
-              {hasContent ? `Para ${currentParagraph + 1}` : '02:15'}
-            </span>
-            <span className="text-xs text-white/50 font-medium">
-              {hasContent ? `${content.length} total` : activeStory.duration}
-            </span>
-          </div>
-
-          {/* Progress Bar */}
-          <div
-            className="w-full h-1.5 bg-white/10 rounded-full relative cursor-pointer group"
-            onClick={(e) => {
-              if (!hasContent) return;
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x = e.clientX - rect.left;
-              const percent = x / rect.width;
-              const newParagraph = Math.floor(percent * content.length);
-              setCurrentParagraph(Math.min(newParagraph, content.length - 1));
-            }}
-          >
-            <div
-              className="absolute h-full bg-primary rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            ></div>
-            <div
-              className="absolute h-4 w-4 bg-white border-2 border-primary rounded-full top-1/2 -translate-y-1/2 shadow-lg"
-              style={{ left: `calc(${progress}% - 8px)` }}
-            ></div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex items-center justify-between mt-2 relative">
-            {/* Speed Control */}
-            <div className="relative">
+            {/* Action Bar */}
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/5">
               <button
                 onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-                className="text-white/60 hover:text-white flex items-center gap-1"
+                className="flex items-center gap-1 text-white/40 hover:text-white text-xs font-bold uppercase tracking-wider px-2 py-1 rounded hover:bg-white/5"
               >
-                <span className="material-symbols-outlined">speed</span>
-                <span className="text-[10px]">{speechRate}x</span>
+                <span className="material-symbols-outlined text-sm">speed</span>
+                {speechRate}x
               </button>
 
-              {showSpeedMenu && (
-                <div className="absolute bottom-full left-0 mb-2 bg-bg-card rounded-lg border border-white/10 shadow-xl overflow-hidden">
-                  {[0.5, 0.75, 0.9, 1.0, 1.25].map(rate => (
-                    <button
-                      key={rate}
-                      onClick={() => changeSpeed(rate)}
-                      className={`block w-full px-4 py-2 text-sm text-left hover:bg-white/10 ${speechRate === rate ? 'bg-primary/20 text-primary' : 'text-white/80'
-                        }`}
-                    >
-                      {rate}x {rate === 0.9 && '(default)'}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handlePrevParagraph}
+                  disabled={currentParagraph === 0}
+                  className="size-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center disabled:opacity-30 disabled:hover:bg-white/5 transition-all"
+                >
+                  <span className="material-symbols-outlined text-white">chevron_left</span>
+                </button>
+
+                <button
+                  onClick={togglePlayPause}
+                  className="size-12 rounded-full bg-primary text-bg-dark flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                >
+                  <span className="material-symbols-outlined text-2xl fill-current">
+                    {isPlaying ? 'pause' : 'play_arrow'}
+                  </span>
+                </button>
+
+                <button
+                  onClick={handleNextParagraph}
+                  disabled={!hasContent || currentParagraph >= content.length - 1}
+                  className="size-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center disabled:opacity-30 disabled:hover:bg-white/5 transition-all"
+                >
+                  <span className="material-symbols-outlined text-white">chevron_right</span>
+                </button>
+              </div>
+
+              <div className="w-12"></div> {/* Spacer for balance */}
             </div>
 
-            <div className="flex items-center gap-6">
-              <button
-                onClick={handlePrevParagraph}
-                disabled={currentParagraph === 0}
-                className={`${currentParagraph === 0 ? 'text-white/30' : 'text-white/80 hover:text-white'}`}
-              >
-                <span className="material-symbols-outlined text-3xl">skip_previous</span>
-              </button>
-              <button
-                onClick={togglePlayPause}
-                className={`size-16 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform ${isPlaying
-                  ? 'bg-accent-peach shadow-accent-peach/30'
-                  : 'bg-primary shadow-primary/30'
-                  } text-bg-dark`}
-              >
-                <span className="material-symbols-outlined text-4xl fill-current">
-                  {isPlaying ? 'pause' : 'play_arrow'}
-                </span>
-              </button>
-              <button
-                onClick={handleNextParagraph}
-                disabled={!hasContent || currentParagraph >= content.length - 1}
-                className={`${!hasContent || currentParagraph >= content.length - 1 ? 'text-white/30' : 'text-white/80 hover:text-white'}`}
-              >
-                <span className="material-symbols-outlined text-3xl">skip_next</span>
-              </button>
-            </div>
-
-            {/* Restart button for interactive stories */}
-            {isInteractiveStory ? (
-              <button
-                onClick={handleRestartStory}
-                className="text-white/60 hover:text-primary"
-                title="Restart Story"
-              >
-                <span className="material-symbols-outlined">replay</span>
-              </button>
-            ) : (
-              <button className="text-white/60 hover:text-white active:text-accent-peach">
-                <span className="material-symbols-outlined">bedtime</span>
-              </button>
+            {/* Speed Menu Dropdown */}
+            {showSpeedMenu && (
+              <div className="absolute bottom-16 left-4 bg-bg-dark border border-white/10 rounded-xl shadow-xl p-1 flex flex-col gap-1 z-20">
+                {[0.7, 0.9, 1.0, 1.2, 1.5].map(rate => (
+                  <button
+                    key={rate}
+                    onClick={() => changeSpeed(rate)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold text-center transition-colors ${speechRate === rate ? 'bg-primary text-bg-dark' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                      }`}
+                  >
+                    {rate}x
+                  </button>
+                ))}
+              </div>
             )}
           </div>
+
+          {/* Interactive Choices */}
+          {showChoices && currentBranch?.choices && (
+            <div className="mt-4 space-y-3 animate-slide-up">
+              <h3 className="text-center text-white/60 text-sm uppercase tracking-widest font-bold mb-4">What happens next?</h3>
+              {currentBranch.choices.map((choice, idx) => (
+                <button
+                  key={choice.id}
+                  onClick={() => handleChoiceSelect(choice)}
+                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  <div className="flex items-center justify-between relative z-10">
+                    <span className="text-white font-medium">{choice.text}</span>
+                    <span className="material-symbols-outlined text-white/40 group-hover:text-primary transition-colors">arrow_forward</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Ending Screen */}
+          {isEnding && (
+            <div className="mt-8 text-center animate-fade-in p-6 bg-gradient-to-b from-primary/10 to-transparent rounded-3xl border border-primary/20">
+              <div className="text-6xl mb-4 animate-bounce-slow">
+                {getEndingEmoji(currentBranch?.endingType)}
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2 font-serif">The End</h2>
+              <p className="text-white/60 text-sm mb-6">
+                You've discovered one of the endings!
+                {currentBranch?.endingType === 'happy' && " A happy ending indeed!"}
+                {currentBranch?.endingType === 'lesson' && " What a valuable lesson!"}
+              </p>
+
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handleRestartStory}
+                  className="w-full bg-primary text-bg-dark font-bold py-3 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined">replay</span>
+                  Read Again
+                </button>
+                <button
+                  onClick={onBack}
+                  className="w-full bg-white/10 text-white font-bold py-3 rounded-xl hover:bg-white/20 transition-all"
+                >
+                  Back to Library
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Progress Bar */}
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5 rounded-full overflow-hidden mt-6">
+            <div
+              className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+
         </div>
       </div>
 
-      {/* Sleep Controller - Detects inactivity */}
+      {/* Sleep Controller (Invisible but active) */}
       <SleepController
         isActive={sleepControllerActive}
         onSleepDetected={handleSleepDetected}
         onUserAwake={handleUserAwake}
-        inactivityTimeout={30}
-        goodnightDelay={5}
       />
     </div>
   );

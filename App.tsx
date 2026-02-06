@@ -169,6 +169,7 @@ const AppContent: React.FC = () => {
             onBack={() => setCurrentScreen('home')}
             currentMusic={currentMusic}
             onMusicChange={handleMusicChange}
+            onMusicClick={() => { playClickSound(); setShowMusicSelector(true); }}
           />
         );
       case 'library':
