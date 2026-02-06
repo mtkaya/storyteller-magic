@@ -91,7 +91,11 @@ const AppContent: React.FC = () => {
     }
 
     if (screen === 'parental_settings') {
-      setTargetRestrictedScreen('settings');
+      // This is usually for general parental controls unlock
+      setTargetRestrictedScreen(null); // Just unlock
+      setShowParentalGate(true);
+    } else if (screen === 'parent_report' as ScreenName) {
+      setTargetRestrictedScreen('parent_report' as ScreenName);
       setShowParentalGate(true);
     } else if (screen === 'subscription') {
       setCurrentScreen('subscription');
