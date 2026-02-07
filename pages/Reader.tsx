@@ -22,11 +22,20 @@ const LANGUAGE_VOICE_HINTS: Record<'en' | 'tr', string[]> = {
   tr: ['yelda', 'filiz', 'mert', 'cem', 'tr']
 };
 
-const splitTextForSpeech = (rawText: string): string[] => {
-  const normalized = rawText.replace(/\s+/g, ' ').trim();
+const sanitizeTextForSpeech = (rawText: string, currentLanguage: 'en' | 'tr'): string => {
+  const ampersandReplacement = currentLanguage === 'tr' ? ' ve ' : ' and ';
+  return rawText
+    .replace(/&/g, ampersandReplacement)
+    .replace(/[\u{1F300}-\u{1FAFF}]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+const splitTextForSpeech = (rawText: string, currentLanguage: 'en' | 'tr'): string[] => {
+  const normalized = sanitizeTextForSpeech(rawText, currentLanguage);
   if (!normalized) return [];
 
-  const maxChunkLength = 220;
+  const maxChunkLength = currentLanguage === 'tr' ? 170 : 200;
   const sentences = normalized.match(/[^.!?…]+[.!?…]?/g) || [normalized];
   const chunks: string[] = [];
   let buffer = '';
@@ -50,6 +59,18 @@ const splitTextForSpeech = (rawText: string): string[] => {
 
   if (buffer) chunks.push(buffer);
   return chunks.length > 0 ? chunks : [normalized];
+};
+
+const chunkPauseMs = (chunk: string): number => {
+  const trimmed = chunk.trim();
+  if (!trimmed) return 120;
+
+  const lastChar = trimmed[trimmed.length - 1];
+  if (lastChar === '.') return 180;
+  if (lastChar === '!' || lastChar === '?') return 240;
+  if (lastChar === '…') return 300;
+  if (lastChar === ',' || lastChar === ';' || lastChar === ':') return 140;
+  return 120;
 };
 
 const pickBestVoice = (voices: SpeechSynthesisVoice[], currentLanguage: 'en' | 'tr'): SpeechSynthesisVoice | null => {
@@ -296,7 +317,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   // Speak paragraph
   const speakParagraph = (text: string) => {
     if (!synthRef.current) return;
-    const chunks = splitTextForSpeech(text);
+    const chunks = splitTextForSpeech(text, language);
     if (chunks.length === 0) return;
 
     cancelSpeech();
@@ -337,7 +358,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
         chunkIndex += 1;
 
         if (chunkIndex < chunks.length && isPlayingRef.current) {
-          setTimeout(speakNextChunk, 120);
+          setTimeout(speakNextChunk, chunkPauseMs(chunk));
           return;
         }
 

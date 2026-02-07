@@ -95,9 +95,9 @@ const TONE_PROMPTS = {
 
 // Duration to paragraph count
 const DURATION_CONFIG = {
-    short: { paragraphs: 8, ageRange: '2-4', minutes: 5 },
-    medium: { paragraphs: 14, ageRange: '4-6', minutes: 10 },
-    long: { paragraphs: 20, ageRange: '5-8', minutes: 15 }
+    short: { paragraphs: 8, ageRange: '2-4', minutes: 5, sentencesPerParagraph: 3 },
+    medium: { paragraphs: 14, ageRange: '4-6', minutes: 10, sentencesPerParagraph: 3 },
+    long: { paragraphs: 20, ageRange: '5-8', minutes: 15, sentencesPerParagraph: 4 }
 };
 
 // Build the prompt for Gemini
@@ -378,16 +378,67 @@ function toEndingType(value: unknown): EndingType | undefined {
     return undefined;
 }
 
-function normalizeParagraphs(paragraphs: string[], targetCount: number, language: StoryPrompt['language']): string[] {
-    const normalized = [...paragraphs];
+function countSentences(text: string): number {
+    const matches = text.match(/[^.!?…]+[.!?…]?/g);
+    return matches?.filter(segment => segment.trim().length > 0).length || 0;
+}
+
+function detailSentence(language: StoryPrompt['language'], index: number): string {
+    const trDetails = [
+        'Gökyüzü sakinleşirken minik yıldızlar yolu nazikçe aydınlatmış.',
+        'Rüzgarın yumuşak sesi herkese güven ve huzur vermiş.',
+        'Küçük dostlar birlikte hareket edince her şey daha kolay olmuş.',
+        'Gece boyunca paylaşılan iyilikler kalpleri ısıtmış.',
+        'Ay ışığı, adımların üzerinde gümüş bir iz bırakmış.'
+    ];
+
+    const enDetails = [
+        'As the sky settled, tiny stars gently lit the path ahead.',
+        'A soft breeze carried a calm feeling through the night.',
+        'Moving together made every little challenge easier.',
+        'Small acts of kindness warmed every heart along the way.',
+        'Moonlight left a silver trail under each careful step.'
+    ];
+
+    const details = language === 'tr' ? trDetails : enDetails;
+    return details[index % details.length];
+}
+
+function enrichParagraph(paragraph: string, language: StoryPrompt['language'], minSentences: number, seedIndex: number): string {
+    const cleaned = paragraph.trim();
+    if (!cleaned) return cleaned;
+
+    let sentenceCount = countSentences(cleaned);
+    let result = cleaned;
+    let detailIndex = seedIndex;
+
+    while (sentenceCount < minSentences) {
+        result = `${result} ${detailSentence(language, detailIndex)}`;
+        sentenceCount += 1;
+        detailIndex += 1;
+    }
+
+    return result;
+}
+
+function normalizeParagraphs(
+    paragraphs: string[],
+    targetCount: number,
+    language: StoryPrompt['language'],
+    minSentencesPerParagraph: number
+): string[] {
+    const normalized = [...paragraphs].map((paragraph, index) =>
+        enrichParagraph(paragraph, language, minSentencesPerParagraph, index)
+    );
 
     while (normalized.length < targetCount) {
         const index = normalized.length + 1;
-        normalized.push(
+        const filler =
             language === 'tr'
                 ? `Gece ilerlerken ${index}. bölüm de sakin bir gülümsemeyle devam etti.`
-                : `As the night drifted by, part ${index} continued with calm and comfort.`
-        );
+                : `As the night drifted by, part ${index} continued with calm and comfort.`;
+
+        normalized.push(enrichParagraph(filler, language, minSentencesPerParagraph, index));
     }
 
     return normalized.slice(0, targetCount);
@@ -421,7 +472,8 @@ function fallbackThemeLabel(options: StoryPrompt): string {
 }
 
 function buildLinearFallbackParagraphs(options: StoryPrompt): string[] {
-    const targetCount = DURATION_CONFIG[options.duration].paragraphs;
+    const durationConfig = DURATION_CONFIG[options.duration];
+    const targetCount = durationConfig.paragraphs;
     const character = fallbackCharacter(options);
     const place = fallbackThemeLabel(options);
 
@@ -447,12 +499,17 @@ function buildLinearFallbackParagraphs(options: StoryPrompt): string[] {
             `By the end of the night, ${character} learned that the best adventures are shared with kindness.`
         ];
 
-    const padded = normalizeParagraphs(starterParagraphs, Math.max(targetCount - 1, 1), options.language);
+    const padded = normalizeParagraphs(
+        starterParagraphs,
+        Math.max(targetCount - 1, 1),
+        options.language,
+        durationConfig.sentencesPerParagraph
+    );
     const ending = options.language === 'tr'
         ? `${character}, battaniyesine sarılıp huzurla gözlerini kapatmış ve tatlı rüyalara doğru gülümsemiş.`
         : `${character} snuggled into a cozy blanket, closed their eyes, and smiled into sweet dreams.`;
 
-    return [...padded, ending].slice(0, targetCount);
+    return [...padded, enrichParagraph(ending, options.language, durationConfig.sentencesPerParagraph, 999)].slice(0, targetCount);
 }
 
 function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
@@ -646,7 +703,8 @@ function normalizeInteractiveStory(
             if (!branchRecord) return null;
 
             const id = asString(branchRecord.id) || `branch_${branchIndex + 1}`;
-            const branchParagraphs = asStringArray(branchRecord.paragraphs);
+            const branchParagraphs = asStringArray(branchRecord.paragraphs)
+                .map((paragraph, paragraphIndex) => enrichParagraph(paragraph, options.language, 3, paragraphIndex));
             if (branchParagraphs.length === 0) return null;
 
             const inputChoices = Array.isArray(branchRecord.choices) ? branchRecord.choices : [];
@@ -759,7 +817,7 @@ function normalizeGeneratedStory(rawPayload: unknown, options: StoryPrompt): Gen
 
     const content = asStringArray(payload.content);
     const normalizedContent = content.length > 0
-        ? normalizeParagraphs(content, durationConfig.paragraphs, options.language)
+        ? normalizeParagraphs(content, durationConfig.paragraphs, options.language, durationConfig.sentencesPerParagraph)
         : buildLinearFallbackParagraphs(options);
 
     return {
