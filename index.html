@@ -2,7 +2,7 @@
 <html lang="tr" class="dark">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Storyteller Magic</title>
     
     <!-- Fonts -->
@@ -47,6 +47,10 @@
       body {
         -webkit-tap-highlight-color: transparent;
         background-color: #111121;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
       }
       /* Custom scrollbar hiding */
       .no-scrollbar::-webkit-scrollbar {

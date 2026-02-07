@@ -4,7 +4,7 @@ import { LIBRARY_STORIES } from '../data';
 import SleepController from '../components/SleepController';
 import { useAppState } from '../context/AppStateContext';
 import { useLanguage } from '../context/LanguageContext';
-import { backgroundMusic, MusicType } from '../services/backgroundMusic';
+import { MusicType } from '../services/backgroundMusic';
 import { soundEffects } from '../services/soundEffects';
 
 interface ReaderProps {
@@ -16,8 +16,8 @@ interface ReaderProps {
 }
 
 const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange, onMusicClick }) => {
-  const { recordStoryRead, recordChoice, recordEnding, isFavorite, addFavorite, removeFavorite } = useAppState();
-  const { language, t } = useLanguage();
+  const { recordStoryRead, recordChoice, recordEnding } = useAppState();
+  const { language } = useLanguage();
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState(0);
@@ -27,15 +27,18 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
   // Interactive story state
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
-  const [storyPath, setStoryPath] = useState<string[]>([]); // Track choices made
+  const [storyPath, setStoryPath] = useState<Array<{ id: string; text: string; emoji?: string }>>([]); // Track choices made
   const [showChoices, setShowChoices] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
+  const [navigationError, setNavigationError] = useState<string | null>(null);
 
   // Sleep controller state
   const [sleepControllerActive, setSleepControllerActive] = useState(false);
 
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const storyStartTime = useRef<number>(Date.now());
+  const completionEventRef = useRef<string | null>(null);
+  const discoveredEndingKeysRef = useRef<Set<string>>(new Set());
 
   // Enable sleep controller when playing
   useEffect(() => {
@@ -64,6 +67,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
   // Check if this is an interactive story
   const isInteractiveStory = activeStory.isInteractive && activeStory.branches && activeStory.branches.length > 0;
+  const initialBranchId = activeStory.startBranchId || activeStory.branches?.[0]?.id || null;
 
   // Get current branch for interactive stories
   const currentBranch: StoryBranch | null = isInteractiveStory
@@ -96,50 +100,96 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     return obj[field];
   };
 
-  const storyTitle = getLocalizedText(activeStory, 'title');
-  const storySubtitle = getLocalizedText(activeStory, 'subtitle');
-  const storyMoral = getLocalizedText(activeStory, 'moral');
+  const getSessionDurationMinutes = () => {
+    return Math.max(1, Math.round((Date.now() - storyStartTime.current) / 60000));
+  };
 
   // Calculate progress
   const progress = hasContent ? ((currentParagraph + 1) / content.length) * 100 : 0;
 
-  // Initialize interactive story
+  // Reset session state when story changes
   useEffect(() => {
-    if (isInteractiveStory && activeStory.startBranchId) {
-      setCurrentBranchId(activeStory.startBranchId);
-      setStoryPath([]);
+    storyStartTime.current = Date.now();
+    completionEventRef.current = null;
+    discoveredEndingKeysRef.current = new Set();
+    setCurrentParagraph(0);
+    setStoryPath([]);
+    setShowChoices(false);
+    setIsEnding(false);
+    setNavigationError(null);
+    if (isInteractiveStory) {
+      setCurrentBranchId(initialBranchId);
+    } else {
+      setCurrentBranchId(null);
+    }
+  }, [activeStory.id, isInteractiveStory, initialBranchId]);
+
+  // Keep paragraph index in bounds when language/content changes
+  useEffect(() => {
+    if (!hasContent) {
       setCurrentParagraph(0);
+      return;
+    }
+
+    if (currentParagraph > content.length - 1) {
+      setCurrentParagraph(Math.max(0, content.length - 1));
+    }
+  }, [hasContent, content.length, currentParagraph]);
+
+  // Interactive flow: show choices/endings and record analytics safely once per completion event
+  useEffect(() => {
+    if (!isInteractiveStory || !currentBranch) return;
+
+    const isLastParagraph = content.length > 0 && currentParagraph >= content.length - 1;
+    const hasChoices = (currentBranch.choices?.length || 0) > 0;
+    const isBranchEnding = Boolean(currentBranch.isEnding) || !hasChoices;
+
+    if (!isLastParagraph) {
       setShowChoices(false);
       setIsEnding(false);
+      return;
     }
-  }, [activeStory.id]);
 
-  // Check if we need to show choices
-  useEffect(() => {
-    if (isInteractiveStory && currentBranch) {
-      const isLastParagraph = currentParagraph >= content.length - 1;
-      const hasChoices = currentBranch.choices && currentBranch.choices.length > 0;
-      const isBranchEnding = currentBranch.isEnding;
+    if (hasChoices) {
+      setShowChoices(true);
+      setIsEnding(false);
+      return;
+    }
 
-      if (isLastParagraph) {
-        if (hasChoices) {
-          setShowChoices(true);
-          setIsEnding(false);
-        } else if (isBranchEnding) {
-          setShowChoices(false);
-          setIsEnding(true);
-          // Record story completion
-          const duration = Math.round((Date.now() - storyStartTime.current) / 60000);
-          recordStoryRead(activeStory.id, activeStory.theme || 'general', duration);
+    if (isBranchEnding) {
+      setShowChoices(false);
+      setIsEnding(true);
+
+      const completionKey = `interactive:${activeStory.id}:${currentBranch.id}:${storyPath.map(step => step.id).join('>')}`;
+      if (completionEventRef.current !== completionKey) {
+        completionEventRef.current = completionKey;
+        recordStoryRead(activeStory.id, activeStory.theme || 'general', getSessionDurationMinutes());
+
+        const endingKey = `${activeStory.id}:${currentBranch.id}`;
+        if (!discoveredEndingKeysRef.current.has(endingKey)) {
+          discoveredEndingKeysRef.current.add(endingKey);
           recordEnding();
-          soundEffects.play('story_complete');
         }
-      } else {
-        setShowChoices(false);
-        setIsEnding(false);
+
+        soundEffects.play('story_complete');
       }
     }
-  }, [currentParagraph, currentBranchId, content.length]); // Added content.length to dependency for lang switch
+  }, [isInteractiveStory, currentBranch, currentParagraph, content.length, activeStory.id, activeStory.theme, storyPath, recordStoryRead, recordEnding]);
+
+  // Linear stories should also count as completed once the last paragraph is reached
+  useEffect(() => {
+    if (isInteractiveStory || !hasContent) return;
+
+    const isLastParagraph = currentParagraph >= content.length - 1;
+    if (!isLastParagraph) return;
+
+    const completionKey = `linear:${activeStory.id}`;
+    if (completionEventRef.current === completionKey) return;
+
+    completionEventRef.current = completionKey;
+    recordStoryRead(activeStory.id, activeStory.theme || 'general', getSessionDurationMinutes());
+    soundEffects.play('story_complete');
+  }, [isInteractiveStory, hasContent, currentParagraph, content.length, activeStory.id, activeStory.theme, recordStoryRead]);
 
   // Initialize speech synthesis
   useEffect(() => {
@@ -199,7 +249,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       synthRef.current.cancel();
       setIsSpeaking(false);
     }
-  }, [isPlaying, currentParagraph, currentBranchId]);
+  }, [isPlaying, hasContent, content, currentParagraph, currentBranchId]);
 
   const togglePlayPause = () => {
     if (isPlaying) {
@@ -242,8 +292,28 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     if (synthRef.current) synthRef.current.cancel();
     setIsPlaying(false);
 
+    const hasTargetBranch = activeStory.branches?.some(branch => branch.id === choice.nextBranchId);
+    if (!hasTargetBranch) {
+      setNavigationError(
+        language === 'tr'
+          ? 'Bu yol şu an açık değil. Lütfen başka bir seçim dene.'
+          : 'That path is unavailable right now. Please choose another option.'
+      );
+      soundEffects.play('error');
+      return;
+    }
+
+    setNavigationError(null);
+
     // Record the choice
-    setStoryPath(prev => [...prev, choice.id]);
+    setStoryPath(prev => [
+      ...prev,
+      {
+        id: choice.id,
+        text: getLocalizedText(choice, 'text'),
+        emoji: choice.emoji
+      }
+    ]);
     recordChoice();
     soundEffects.play('choice_select');
 
@@ -258,11 +328,14 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const handleRestartStory = () => {
     if (synthRef.current) synthRef.current.cancel();
     setIsPlaying(false);
-    setCurrentBranchId(activeStory.startBranchId || null);
+    storyStartTime.current = Date.now();
+    completionEventRef.current = null;
+    setCurrentBranchId(initialBranchId);
     setStoryPath([]);
     setCurrentParagraph(0);
     setShowChoices(false);
     setIsEnding(false);
+    setNavigationError(null);
   };
 
   // Get ending emoji based on type
@@ -432,7 +505,12 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
               <h3 className="text-center text-white/60 text-sm uppercase tracking-widest font-bold mb-4">
                 {language === 'tr' ? 'Ne olsun?' : 'What happens next?'}
               </h3>
-              {currentBranch.choices.map((choice, idx) => (
+              {navigationError && (
+                <div className="rounded-xl border border-red-300/25 bg-red-400/10 px-4 py-3 text-sm text-red-100">
+                  {navigationError}
+                </div>
+              )}
+              {currentBranch.choices.map((choice) => (
                 <button
                   key={choice.id}
                   onClick={() => handleChoiceSelect(choice)}
@@ -440,9 +518,17 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                   <div className="flex items-center justify-between relative z-10">
-                    <span className="text-white font-medium">
-                      {getLocalizedText(choice, 'text')}
-                    </span>
+                    <div>
+                      <span className="text-white font-medium flex items-center gap-2">
+                        {choice.emoji && <span>{choice.emoji}</span>}
+                        {getLocalizedText(choice, 'text')}
+                      </span>
+                      {getLocalizedText(choice, 'consequence') && (
+                        <p className="text-xs text-white/60 mt-1">
+                          {getLocalizedText(choice, 'consequence')}
+                        </p>
+                      )}
+                    </div>
                     <span className="material-symbols-outlined text-white/40 group-hover:text-primary transition-colors">arrow_forward</span>
                   </div>
                 </button>
@@ -464,6 +550,23 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
                   ? 'Bu sonlardan sadece biri! Başka yollar keşfetmek ister misin?'
                   : "You've discovered one of the endings! Try different choices to find other paths."}
               </p>
+              {storyPath.length > 0 && (
+                <div className="mb-6 rounded-xl border border-white/10 bg-white/5 p-3">
+                  <p className="text-[11px] uppercase tracking-widest text-white/50 mb-2">
+                    {language === 'tr' ? 'Seçim Yolun' : 'Your Path'}
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {storyPath.map((step) => (
+                      <span
+                        key={`${step.id}-${step.text}`}
+                        className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs text-white/90"
+                      >
+                        {step.emoji || '✨'} {step.text}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col gap-3">
                 <button

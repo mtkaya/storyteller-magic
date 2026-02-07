@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Capacitor native builds
+ios/App/App/public
+android/app/src/main/assets/public
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
