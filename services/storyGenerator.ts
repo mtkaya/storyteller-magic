@@ -3,6 +3,7 @@
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_REQUEST_TIMEOUT_MS = 25000;
 
 export interface StoryPrompt {
     theme: string;
@@ -750,12 +751,16 @@ export async function generateStoryWithAI(options: StoryPrompt): Promise<Generat
 
     const prompt = buildStoryPrompt(options);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), GEMINI_REQUEST_TIMEOUT_MS);
+
     try {
         const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
+            signal: controller.signal,
             body: JSON.stringify({
                 contents: [{
                     parts: [{ text: prompt }]
@@ -796,8 +801,13 @@ export async function generateStoryWithAI(options: StoryPrompt): Promise<Generat
         const payload = parseModelStoryPayload(generatedText);
         return normalizeGeneratedStory(payload, options);
     } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+            throw new Error(`Gemini request timed out after ${Math.round(GEMINI_REQUEST_TIMEOUT_MS / 1000)} seconds.`);
+        }
         console.error('Error generating story:', error);
         throw error;
+    } finally {
+        clearTimeout(timeoutId);
     }
 }
 

@@ -73,22 +73,28 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
     try {
       const story = await generateStoryWithAI(storyOptions);
       setGeneratedStory(story);
-      clearInterval(progressInterval);
       setLoadingProgress(100);
       setTimeout(() => setStep(CreateStep.RESULT), 500);
     } catch (err) {
       console.error('Story generation failed:', err);
-      clearInterval(progressInterval);
+      const errorMessage = err instanceof Error ? err.message.toLowerCase() : '';
+      const isTimeout = errorMessage.includes('timed out');
       setError(
-        language === 'tr'
-          ? 'AI servisine ulaşılamadı, yedek hikaye gösteriliyor.'
-          : 'Could not reach AI service, showing a fallback story.'
+        isTimeout
+          ? (language === 'tr'
+            ? 'AI yanıtı gecikti, yedek hikaye gösteriliyor.'
+            : 'AI response timed out, showing a fallback story.')
+          : (language === 'tr'
+            ? 'AI servisine ulaşılamadı, yedek hikaye gösteriliyor.'
+            : 'Could not reach AI service, showing a fallback story.')
       );
       // Use fallback story
       const fallbackStory = getFallbackStory(storyOptions);
       setGeneratedStory(fallbackStory);
       setLoadingProgress(100);
       setTimeout(() => setStep(CreateStep.RESULT), 500);
+    } finally {
+      clearInterval(progressInterval);
     }
   };
 
