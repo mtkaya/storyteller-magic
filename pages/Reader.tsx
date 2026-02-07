@@ -15,6 +15,80 @@ interface ReaderProps {
   onMusicClick?: () => void;
 }
 
+const HIGH_QUALITY_VOICE_HINTS = ['neural', 'natural', 'premium', 'enhanced', 'wavenet', 'google', 'siri', 'apple', 'microsoft'];
+const LOW_QUALITY_VOICE_HINTS = ['espeak', 'compact', 'default'];
+const LANGUAGE_VOICE_HINTS: Record<'en' | 'tr', string[]> = {
+  en: ['samantha', 'karen', 'daniel', 'serena', 'moira'],
+  tr: ['yelda', 'filiz', 'mert', 'cem', 'tr']
+};
+
+const splitTextForSpeech = (rawText: string): string[] => {
+  const normalized = rawText.replace(/\s+/g, ' ').trim();
+  if (!normalized) return [];
+
+  const maxChunkLength = 220;
+  const sentences = normalized.match(/[^.!?…]+[.!?…]?/g) || [normalized];
+  const chunks: string[] = [];
+  let buffer = '';
+
+  for (const sentence of sentences) {
+    const next = sentence.trim();
+    if (!next) continue;
+
+    if (!buffer) {
+      buffer = next;
+      continue;
+    }
+
+    if ((buffer.length + 1 + next.length) <= maxChunkLength) {
+      buffer = `${buffer} ${next}`;
+    } else {
+      chunks.push(buffer);
+      buffer = next;
+    }
+  }
+
+  if (buffer) chunks.push(buffer);
+  return chunks.length > 0 ? chunks : [normalized];
+};
+
+const pickBestVoice = (voices: SpeechSynthesisVoice[], currentLanguage: 'en' | 'tr'): SpeechSynthesisVoice | null => {
+  if (voices.length === 0) return null;
+
+  const scored = voices.map((voice) => {
+    const name = voice.name.toLowerCase();
+    const lang = voice.lang.toLowerCase();
+    let score = 0;
+
+    if (currentLanguage === 'tr') {
+      if (lang.startsWith('tr')) score += 90;
+      if (lang === 'tr-tr') score += 25;
+    } else {
+      if (lang.startsWith('en')) score += 90;
+      if (lang === 'en-us' || lang === 'en-gb') score += 25;
+    }
+
+    if (!voice.localService) score += 10;
+
+    for (const hint of HIGH_QUALITY_VOICE_HINTS) {
+      if (name.includes(hint)) score += 8;
+    }
+
+    for (const hint of LANGUAGE_VOICE_HINTS[currentLanguage]) {
+      if (name.includes(hint)) score += 10;
+    }
+
+    for (const hint of LOW_QUALITY_VOICE_HINTS) {
+      if (name.includes(hint)) score -= 12;
+    }
+
+    return { voice, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0]?.voice || null;
+};
+
 const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange, onMusicClick }) => {
   const { recordStoryRead, recordChoice, recordEnding } = useAppState();
   const { language } = useLanguage();
@@ -36,21 +110,29 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [sleepControllerActive, setSleepControllerActive] = useState(false);
 
   const synthRef = useRef<SpeechSynthesis | null>(null);
+  const preferredVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
+  const isPlayingRef = useRef(false);
+  const speechSessionRef = useRef(0);
   const storyStartTime = useRef<number>(Date.now());
   const completionEventRef = useRef<string | null>(null);
   const discoveredEndingKeysRef = useRef<Set<string>>(new Set());
 
+  const cancelSpeech = () => {
+    speechSessionRef.current += 1;
+    if (synthRef.current) synthRef.current.cancel();
+    setIsSpeaking(false);
+  };
+
   // Enable sleep controller when playing
   useEffect(() => {
     setSleepControllerActive(isPlaying);
+    isPlayingRef.current = isPlaying;
   }, [isPlaying]);
 
   // Handle sleep detection - goodnight and close
   const handleSleepDetected = () => {
     setIsPlaying(false);
-    if (synthRef.current) {
-      synthRef.current.cancel();
-    }
+    cancelSpeech();
     // Go back to main screen after goodnight
     setTimeout(() => {
       onBack();
@@ -195,68 +277,106 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   useEffect(() => {
     if ('speechSynthesis' in window) {
       synthRef.current = window.speechSynthesis;
+      const applyBestVoice = () => {
+        if (!synthRef.current) return;
+        preferredVoiceRef.current = pickBestVoice(synthRef.current.getVoices(), language);
+      };
+
+      applyBestVoice();
+      window.speechSynthesis.addEventListener('voiceschanged', applyBestVoice);
+
+      return () => {
+        window.speechSynthesis.removeEventListener('voiceschanged', applyBestVoice);
+        cancelSpeech();
+      };
     }
-    return () => {
-      if (synthRef.current) {
-        synthRef.current.cancel();
-      }
-    };
-  }, []);
+    return undefined;
+  }, [language]);
 
   // Speak paragraph
   const speakParagraph = (text: string) => {
     if (!synthRef.current) return;
-    synthRef.current.cancel();
+    const chunks = splitTextForSpeech(text);
+    if (chunks.length === 0) return;
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = speechRate;
-    utterance.pitch = 1.1;
-    utterance.volume = 1;
+    cancelSpeech();
+    const sessionId = speechSessionRef.current;
+    let chunkIndex = 0;
 
     const voices = synthRef.current.getVoices();
-    const preferredVoice = voices.find(v =>
-      v.name.includes('Samantha') ||
-      v.name.includes('Karen') ||
-      v.name.includes('Daniel') ||
-      v.lang.startsWith('en')
-    );
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
+    const preferredVoice = pickBestVoice(voices, language);
+    preferredVoiceRef.current = preferredVoice;
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      // Auto-advance (but not past the last paragraph if choices are available)
-      if (hasContent && currentParagraph < content.length - 1 && isPlaying) {
-        setTimeout(() => {
-          setCurrentParagraph(prev => prev + 1);
-        }, 800);
-      } else if (currentParagraph >= content.length - 1) {
-        setIsPlaying(false);
+    const effectiveRate = language === 'tr'
+      ? Math.min(1.0, Math.max(0.75, speechRate))
+      : Math.min(1.1, Math.max(0.8, speechRate));
+
+    const speakNextChunk = () => {
+      if (!synthRef.current || sessionId !== speechSessionRef.current) return;
+      const chunk = chunks[chunkIndex];
+      if (!chunk) return;
+
+      const utterance = new SpeechSynthesisUtterance(chunk);
+      utterance.rate = effectiveRate;
+      utterance.pitch = language === 'tr' ? 0.98 : 1.0;
+      utterance.volume = 1;
+      utterance.lang = language === 'tr' ? 'tr-TR' : 'en-US';
+
+      if (preferredVoiceRef.current) {
+        utterance.voice = preferredVoiceRef.current;
       }
-    };
-    utterance.onerror = () => setIsSpeaking(false);
 
-    synthRef.current.speak(utterance);
+      utterance.onstart = () => {
+        if (sessionId === speechSessionRef.current) {
+          setIsSpeaking(true);
+        }
+      };
+
+      utterance.onend = () => {
+        if (sessionId !== speechSessionRef.current) return;
+        chunkIndex += 1;
+
+        if (chunkIndex < chunks.length && isPlayingRef.current) {
+          setTimeout(speakNextChunk, 120);
+          return;
+        }
+
+        setIsSpeaking(false);
+        // Auto-advance (but not past the last paragraph if choices are available)
+        if (hasContent && currentParagraph < content.length - 1 && isPlayingRef.current) {
+          setTimeout(() => {
+            setCurrentParagraph(prev => prev + 1);
+          }, 800);
+        } else if (currentParagraph >= content.length - 1) {
+          setIsPlaying(false);
+        }
+      };
+
+      utterance.onerror = () => {
+        if (sessionId === speechSessionRef.current) {
+          setIsSpeaking(false);
+        }
+      };
+
+      synthRef.current.speak(utterance);
+    };
+
+    speakNextChunk();
   };
 
   // Auto-play effect
   useEffect(() => {
     if (isPlaying && hasContent && content[currentParagraph]) {
       speakParagraph(content[currentParagraph]);
-    } else if (!isPlaying && synthRef.current) {
-      synthRef.current.cancel();
-      setIsSpeaking(false);
+    } else if (!isPlaying) {
+      cancelSpeech();
     }
   }, [isPlaying, hasContent, content, currentParagraph, currentBranchId]);
 
   const togglePlayPause = () => {
     if (isPlaying) {
       setIsPlaying(false);
-      if (synthRef.current) {
-        synthRef.current.cancel();
-      }
+      cancelSpeech();
     } else {
       setIsPlaying(true);
     }
@@ -264,14 +384,14 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
   const handleNextParagraph = () => {
     if (hasContent && currentParagraph < content.length - 1) {
-      if (synthRef.current) synthRef.current.cancel();
+      cancelSpeech();
       setCurrentParagraph(prev => prev + 1);
     }
   };
 
   const handlePrevParagraph = () => {
     if (currentParagraph > 0) {
-      if (synthRef.current) synthRef.current.cancel();
+      cancelSpeech();
       setCurrentParagraph(prev => prev - 1);
     }
   };
@@ -280,7 +400,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     setSpeechRate(rate);
     setShowSpeedMenu(false);
     if (isPlaying && hasContent && content[currentParagraph]) {
-      if (synthRef.current) synthRef.current.cancel();
+      cancelSpeech();
       setTimeout(() => {
         speakParagraph(content[currentParagraph]);
       }, 100);
@@ -289,7 +409,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
   // Handle interactive choice selection
   const handleChoiceSelect = (choice: StoryChoice) => {
-    if (synthRef.current) synthRef.current.cancel();
+    cancelSpeech();
     setIsPlaying(false);
 
     const hasTargetBranch = activeStory.branches?.some(branch => branch.id === choice.nextBranchId);
@@ -326,7 +446,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
   // Restart interactive story
   const handleRestartStory = () => {
-    if (synthRef.current) synthRef.current.cancel();
+    cancelSpeech();
     setIsPlaying(false);
     storyStartTime.current = Date.now();
     completionEventRef.current = null;

@@ -105,7 +105,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       id: `generated_${Date.now()}`,
       title: generated.title,
       subtitle: generated.subtitle,
-      duration: selectedDuration === 'short' ? '3 min' : selectedDuration === 'medium' ? '7 min' : '12 min',
+      duration: selectedDuration === 'short' ? '5 min' : selectedDuration === 'medium' ? '10 min' : '15 min',
       theme: generated.theme,
       coverUrl: themeData?.icon || IMAGES.MAGIC_BOOK,
       character: generated.character,

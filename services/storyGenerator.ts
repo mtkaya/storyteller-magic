@@ -95,9 +95,9 @@ const TONE_PROMPTS = {
 
 // Duration to paragraph count
 const DURATION_CONFIG = {
-    short: { paragraphs: 5, ageRange: '2-4', minutes: 3 },
-    medium: { paragraphs: 10, ageRange: '4-6', minutes: 7 },
-    long: { paragraphs: 15, ageRange: '5-8', minutes: 12 }
+    short: { paragraphs: 8, ageRange: '2-4', minutes: 5 },
+    medium: { paragraphs: 14, ageRange: '4-6', minutes: 10 },
+    long: { paragraphs: 20, ageRange: '5-8', minutes: 15 }
 };
 
 // Build the prompt for Gemini
@@ -164,12 +164,13 @@ You must respond ONLY with a valid JSON object (no markdown, no explanation) in 
 }
 
 Requirements:
-- Create 3-4 different possible endings
-- Each branch should have 3-5 short paragraphs
+- Create 4-5 different possible endings
+- Each branch should have 4-6 short paragraphs
 - Choices should be meaningful and child-appropriate
 - Include emojis that match each choice
 - Make it ${toneDesc}
-- The story should be calming and suitable for bedtime` :
+- The story should be calming and suitable for bedtime
+- Keep clear beginning, middle, and ending structure in each branch` :
 
             `Çocuklar için interaktif bir "kendi maceranı seç" uyku hikayesi oluştur.
 
@@ -201,12 +202,13 @@ SADECE geçerli bir JSON nesnesi ile yanıt ver (markdown yok, açıklama yok), 
 }
 
 Gereksinimler:
-- 3-4 farklı olası son oluştur
-- Her dal 3-5 kısa paragraf içermeli
+- 4-5 farklı olası son oluştur
+- Her dal 4-6 kısa paragraf içermeli
 - Seçimler anlamlı ve çocuklara uygun olmalı
 - Her seçime uygun emoji ekle
 - ${toneDesc} olmalı
-- Hikaye sakinleştirici ve uyku vakti için uygun olmalı`;
+- Hikaye sakinleştirici ve uyku vakti için uygun olmalı
+- Her dalda giriş, gelişme ve sonuç hissi olmalı`;
     }
 
     // Regular (non-interactive) story prompt
@@ -236,11 +238,12 @@ You must respond ONLY with a valid JSON object (no markdown, no explanation) in 
 
 Requirements:
 - Create exactly ${durationConfig.paragraphs} paragraphs
-- Each paragraph should be 2-3 sentences
+- Each paragraph should be 3-4 sentences
 - Use simple words appropriate for ${durationConfig.ageRange} year olds
 - Make it ${toneDesc}
 - End with a gentle, positive conclusion
-- The story should be calming and suitable for bedtime` :
+- The story should be calming and suitable for bedtime
+- Keep story arc strong: setup, challenge, warm resolution` :
 
         `Çocuklar için bir uyku hikayesi oluştur.
 
@@ -267,11 +270,12 @@ SADECE geçerli bir JSON nesnesi ile yanıt ver (markdown yok, açıklama yok), 
 
 Gereksinimler:
 - Tam olarak ${durationConfig.paragraphs} paragraf oluştur
-- Her paragraf 2-3 cümle olmalı
+- Her paragraf 3-4 cümle olmalı
 - ${durationConfig.ageRange} yaş için uygun basit kelimeler kullan
 - ${toneDesc} olmalı
 - Nazik, olumlu bir sonuçla bitir
-- Hikaye sakinleştirici ve uyku vakti için uygun olmalı`;
+- Hikaye sakinleştirici ve uyku vakti için uygun olmalı
+- Hikaye akışı net olsun: giriş, küçük bir zorluk, sıcak bir çözüm`;
 }
 
 type StoryBranchType = NonNullable<GeneratedStory['branches']>[number];
@@ -427,6 +431,9 @@ function buildLinearFallbackParagraphs(options: StoryPrompt): string[] {
             `${character}, gökyüzündeki yıldızlara bakıp derin bir nefes almış ve kalbindeki merakı dinlemiş.`,
             `Yolda karşılaştığı küçük dostlarına nazikçe yardım etmiş, herkesin yüzünde sıcak bir gülümseme bırakmış.`,
             `Birlikte sakin bir şarkı mırıldanmışlar ve rüzgarın sesi onlara güvenli bir yol göstermiş.`,
+            `${character}, ay ışığında parlayan taşların üstünden geçerken küçük bir ışık kelebeğiyle arkadaş olmuş.`,
+            `Kelebek, yolunu kaybeden minik bir kirpiye eşlik etmelerini isteyince ${character} hemen kabul etmiş.`,
+            `Hepsi birlikte yavaş adımlarla ilerleyip kirpiyi sıcak yuvasına ulaştırmış ve gece sessizce gülümsemiş.`,
             `Gecenin sonunda ${character}, en güzel maceranın paylaşmak ve iyi kalpli olmak olduğunu anlamış.`
         ]
         : [
@@ -434,6 +441,9 @@ function buildLinearFallbackParagraphs(options: StoryPrompt): string[] {
             `${character} looked up at the stars, took a deep breath, and listened to a curious little dream.`,
             `Along the way, gentle friends asked for help, and each kind act brought warm smiles.`,
             `Together they hummed a quiet song while the breeze showed a safe and peaceful path.`,
+            `${character} met a tiny light butterfly dancing over the moonlit stones and waved hello.`,
+            `The butterfly asked for help guiding a little hedgehog home, and ${character} happily agreed.`,
+            `Step by step, they walked together until the hedgehog reached a cozy nest and sighed with relief.`,
             `By the end of the night, ${character} learned that the best adventures are shared with kindness.`
         ];
 
@@ -466,6 +476,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                     paragraphs: [
                         `${character}, ay ışığında parlayan yolda yürürken uzakta iki farklı ışık görmüş.`,
                         'Bir yol göl kenarına, diğer yol ise yıldız bahçesine gidiyormuş.',
+                        'Gökyüzündeki yıldızlar sanki hangi yolu seçeceğini merak eder gibi parıldıyormuş.',
                         'Hangisini seçmeli?'
                     ],
                     choices: [
@@ -478,6 +489,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                     paragraphs: [
                         `${character}, göl kıyısında yönünü kaybetmiş minik bir kurbağa görmüş.`,
                         'Kurbağanın yuvasına dönmesine yardım etmek için sabırla etrafı incelemiş.',
+                        'Rüzgar hafifçe esmiş ve suyun üstünde gümüş bir iz bırakmış.',
                         'Şimdi ne yapmalı?'
                     ],
                     choices: [
@@ -490,6 +502,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                     paragraphs: [
                         `${character}, yıldız bahçesinde dilek tohumlarıyla dolu bir kutu bulmuş.`,
                         'Tohumlar yalnızca paylaşılırsa parlıyormuş.',
+                        'Bahçedeki çiçekler, nazik bir seçim bekliyormuş gibi hafifçe sallanmış.',
                         `${character} kutuyu arkadaşlarıyla paylaşmaya karar vermiş.`
                     ],
                     choices: [
@@ -500,6 +513,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                     id: 'ending_friendship',
                     paragraphs: [
                         'Şarkı göl üzerinde yankılanmış ve kurbağa yuvasını kolayca bulmuş.',
+                        'Göl kıyısındaki nilüferler de bu neşeli anı kutlamak için hafifçe sallanmış.',
                         `${character}, dostlukla atılan küçük adımların büyük mutluluk getirdiğini görmüş.`
                     ],
                     isEnding: true,
@@ -510,6 +524,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                     id: 'ending_lesson',
                     paragraphs: [
                         'Fenerin yumuşak ışığı yolu aydınlatmış ve herkes güvenle evine dönmüş.',
+                        'Kurbağa teşekkür ederken gece daha da huzurlu bir sessizliğe bürünmüş.',
                         `${character}, cesaretin en güzel halinin başkalarına ışık olmak olduğunu öğrenmiş.`
                     ],
                     isEnding: true,
@@ -520,6 +535,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                     id: 'ending_happy',
                     paragraphs: [
                         'Paylaşılan tohumlar bir anda göğe yükselip yıldız yağmuruna dönüşmüş.',
+                        'Parlayan tohumlar, tüm dostların üzerine umut dolu bir ışık serpmiş.',
                         `${character}, paylaşmanın her dileği daha parlak yaptığını fark ederek huzurla eve dönmüş.`
                     ],
                     isEnding: true,
@@ -546,6 +562,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                 paragraphs: [
                     `${character} walked under moonlight and noticed two glowing paths ahead.`,
                     'One path led to a calm lake, and the other led to a garden of stars.',
+                    'The stars above shimmered as if they were waiting for the next choice.',
                     'Which way should the journey continue?'
                 ],
                 choices: [
@@ -558,6 +575,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                 paragraphs: [
                     `${character} found a tiny frog who could not find the way home.`,
                     'Together they looked around carefully and listened to the quiet night sounds.',
+                    'A silver ripple moved across the water as the breeze whispered by.',
                     'What should they try next?'
                 ],
                 choices: [
@@ -570,6 +588,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                 paragraphs: [
                     `${character} discovered a box filled with tiny wishing seeds in the star garden.`,
                     'The seeds glowed only when they were shared kindly.',
+                    'The flowers in the garden swayed softly, waiting for a gentle decision.',
                     `${character} decided to share every glowing seed with friends.`
                 ],
                 choices: [
@@ -580,6 +599,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                 id: 'ending_friendship',
                 paragraphs: [
                     'The calming song echoed across the lake, and the frog found the way home.',
+                    'Nearby lily pads swayed like they were celebrating the kind choice.',
                     `${character} learned that gentle friendship can guide anyone through the dark.`
                 ],
                 isEnding: true,
@@ -590,6 +610,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                 id: 'ending_lesson',
                 paragraphs: [
                     'The lantern painted a warm trail of light, and everyone reached home safely.',
+                    'As the frog smiled with relief, the whole night felt calmer and brighter.',
                     `${character} discovered that courage often looks like helping others first.`
                 ],
                 isEnding: true,
@@ -600,6 +621,7 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                 id: 'ending_happy',
                 paragraphs: [
                     'As the seeds were shared, they rose like tiny comets and lit up the whole sky.',
+                    'The sparkling seeds drifted gently and wrapped every friend in warm light.',
                     `${character} returned home smiling, knowing kindness makes every wish brighter.`
                 ],
                 isEnding: true,

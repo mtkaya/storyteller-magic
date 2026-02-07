@@ -165,9 +165,9 @@ const en: Translations = {
         mysterious: '🔮 Mysterious',
     },
     create_durations: {
-        short: '⚡ Short (3 min)',
-        medium: '📖 Medium (7 min)',
-        long: '📚 Long (12 min)',
+        short: '⚡ Short (5 min)',
+        medium: '📖 Medium (10 min)',
+        long: '📚 Long (15 min)',
     },
 
     settings_title: 'Settings',
@@ -254,9 +254,9 @@ const tr: Translations = {
         mysterious: '🔮 Gizemli',
     },
     create_durations: {
-        short: '⚡ Kısa (3 dk)',
-        medium: '📖 Orta (7 dk)',
-        long: '📚 Uzun (12 dk)',
+        short: '⚡ Kısa (5 dk)',
+        medium: '📖 Orta (10 dk)',
+        long: '📚 Uzun (15 dk)',
     },
 
     settings_title: 'Ayarlar',
