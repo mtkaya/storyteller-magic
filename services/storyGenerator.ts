@@ -1,9 +1,13 @@
-// AI Story Generation Service using Gemini API
-// Replace GEMINI_API_KEY with your actual API key
+// AI Story Generation Service via backend proxy
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const STORY_API_PATH = '/api/generate-story';
+const STORY_API_BASE_URL = import.meta.env.VITE_STORY_API_URL?.trim() || '';
 const GEMINI_REQUEST_TIMEOUT_MS = 25000;
+
+function resolveStoryApiEndpoint(): string {
+    if (!STORY_API_BASE_URL) return STORY_API_PATH;
+    return `${STORY_API_BASE_URL.replace(/\/+$/, '')}${STORY_API_PATH}`;
+}
 
 export interface StoryPrompt {
     theme: string;
@@ -745,38 +749,20 @@ function normalizeGeneratedStory(rawPayload: unknown, options: StoryPrompt): Gen
 
 // Call Gemini API
 export async function generateStoryWithAI(options: StoryPrompt): Promise<GeneratedStory> {
-    if (!GEMINI_API_KEY) {
-        throw new Error('Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env.local file.');
-    }
-
     const prompt = buildStoryPrompt(options);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), GEMINI_REQUEST_TIMEOUT_MS);
 
     try {
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(resolveStoryApiEndpoint(), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             signal: controller.signal,
             body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: prompt }]
-                }],
-                generationConfig: {
-                    temperature: 0.8,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 4096,
-                },
-                safetySettings: [
-                    { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                    { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                ]
+                prompt
             })
         });
 
@@ -788,14 +774,14 @@ export async function generateStoryWithAI(options: StoryPrompt): Promise<Generat
             } catch {
                 // keep status text fallback
             }
-            throw new Error(`Gemini API error: ${errorMessage}`);
+            throw new Error(`Story API error: ${errorMessage}`);
         }
 
         const data = await response.json();
-        const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const generatedText = typeof data.generatedText === 'string' ? data.generatedText : '';
 
         if (!generatedText) {
-            throw new Error('No content generated from Gemini API.');
+            throw new Error('No content generated from Story API.');
         }
 
         const payload = parseModelStoryPayload(generatedText);

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "node server/story-api.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "cap:sync": "npx cap sync",
@@ -12,7 +13,8 @@
     "cap:open:android": "npx cap open android",
     "cap:run:ios": "npx cap run ios",
     "cap:run:android": "npx cap run android",
-    "build:mobile": "vite build && npx cap sync"
+    "build:mobile": "vite build && npx cap sync",
+    "ios:ready": "npm run build:mobile && npm run cap:open:ios"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.2",
