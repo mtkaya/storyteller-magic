@@ -6,6 +6,7 @@ import { useAppState } from '../context/AppStateContext';
 import { useLanguage } from '../context/LanguageContext';
 import { backgroundMusic, MusicType } from '../services/backgroundMusic';
 import { soundEffects } from '../services/soundEffects';
+import { synthesizeSpeech, playAudioUrl, isTTSAvailable } from '../services/ttsService';
 
 interface ReaderProps {
   story: Story | null;
@@ -35,6 +36,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [sleepControllerActive, setSleepControllerActive] = useState(false);
 
   const synthRef = useRef<SpeechSynthesis | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const abortRef = useRef<boolean>(false);
   const storyStartTime = useRef<number>(Date.now());
 
   // Enable sleep controller when playing
@@ -45,10 +48,9 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   // Handle sleep detection - goodnight and close
   const handleSleepDetected = () => {
     setIsPlaying(false);
-    if (synthRef.current) {
-      synthRef.current.cancel();
-    }
-    // Go back to main screen after goodnight
+    abortRef.current = true;
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    if (synthRef.current) { synthRef.current.cancel(); }
     setTimeout(() => {
       onBack();
     }, 1000);
@@ -153,12 +155,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     };
   }, []);
 
-  // Speak paragraph with character voice acting
-  const speakParagraph = (text: string) => {
-    if (!synthRef.current) return;
-    synthRef.current.cancel();
-
-    // Split text into narration and dialogue segments
+  // Parse text into narration vs dialogue segments
+  const parseSegments = (text: string): { text: string; isDialogue: boolean }[] => {
     const segments: { text: string; isDialogue: boolean }[] = [];
     const dialogueRegex = /"([^"]+)"/g;
     let lastIndex = 0;
@@ -179,62 +177,128 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     if (segments.length === 0) {
       segments.push({ text, isDialogue: false });
     }
+    return segments;
+  };
 
-    // Select voice based on language
-    const voices = synthRef.current.getVoices();
-    const preferredVoice = language === 'tr'
-      ? voices.find(v => v.lang.startsWith('tr'))
-      : voices.find(v =>
-          v.name.includes('Samantha') ||
-          v.name.includes('Karen') ||
-          v.name.includes('Daniel') ||
-          v.lang.startsWith('en')
-        );
+  // Auto-advance to next paragraph
+  const advanceAfterSpeech = () => {
+    if (hasContent && currentParagraph < content.length - 1 && isPlaying) {
+      setTimeout(() => setCurrentParagraph(prev => prev + 1), 800);
+    } else if (currentParagraph >= content.length - 1) {
+      setIsPlaying(false);
+    }
+  };
 
-    // Speak segments sequentially with different pitch for dialogue
-    let segmentIndex = 0;
-    const speakNextSegment = () => {
-      if (!synthRef.current || segmentIndex >= segments.length) {
-        setIsSpeaking(false);
-        if (hasContent && currentParagraph < content.length - 1 && isPlaying) {
-          setTimeout(() => {
-            setCurrentParagraph(prev => prev + 1);
-          }, 800);
-        } else if (currentParagraph >= content.length - 1) {
-          setIsPlaying(false);
+  // Cloud TTS: speak segments sequentially using Google Cloud TTS
+  const speakWithCloudTTS = async (text: string) => {
+    const segments = parseSegments(text);
+    abortRef.current = false;
+    setIsSpeaking(true);
+
+    for (const segment of segments) {
+      if (abortRef.current) break;
+
+      try {
+        const audioUrl = await synthesizeSpeech(segment.text, {
+          language: language as 'en' | 'tr',
+          gender: segment.isDialogue ? 'MALE' : 'FEMALE',
+          pitch: segment.isDialogue ? 3.0 : 0,
+          rate: speechRate,
+        });
+
+        if (abortRef.current) break;
+
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        audio.volume = 1;
+
+        await new Promise<void>((resolve, reject) => {
+          audio.onended = () => resolve();
+          audio.onerror = () => reject(new Error('playback failed'));
+          audio.play().catch(reject);
+        });
+      } catch {
+        // If Cloud TTS fails, fall back to browser speech for this segment
+        if (!abortRef.current) {
+          await speakSegmentWithBrowser(segment);
         }
-        return;
       }
+    }
 
-      const segment = segments[segmentIndex];
+    audioRef.current = null;
+    if (!abortRef.current) {
+      setIsSpeaking(false);
+      advanceAfterSpeech();
+    }
+  };
+
+  // Browser fallback: speak a single segment using Web Speech API
+  const speakSegmentWithBrowser = (segment: { text: string; isDialogue: boolean }): Promise<void> => {
+    return new Promise(resolve => {
+      if (!synthRef.current) { resolve(); return; }
+
       const utterance = new SpeechSynthesisUtterance(segment.text);
       utterance.rate = speechRate;
       utterance.pitch = segment.isDialogue ? 1.4 : 1.1;
       utterance.volume = 1;
 
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
+      const voices = synthRef.current.getVoices();
+      const preferredVoice = language === 'tr'
+        ? voices.find(v => v.lang.startsWith('tr'))
+        : voices.find(v =>
+            v.name.includes('Samantha') || v.name.includes('Karen') ||
+            v.name.includes('Daniel') || v.lang.startsWith('en')
+          );
+      if (preferredVoice) utterance.voice = preferredVoice;
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => {
-        segmentIndex++;
-        speakNextSegment();
-      };
-      utterance.onerror = () => setIsSpeaking(false);
-
+      utterance.onend = () => resolve();
+      utterance.onerror = () => resolve();
       synthRef.current.speak(utterance);
-    };
+    });
+  };
 
-    speakNextSegment();
+  // Browser-only fallback: speak all segments sequentially
+  const speakWithBrowser = async (text: string) => {
+    if (!synthRef.current) return;
+    synthRef.current.cancel();
+
+    const segments = parseSegments(text);
+    abortRef.current = false;
+    setIsSpeaking(true);
+
+    for (const segment of segments) {
+      if (abortRef.current) break;
+      await speakSegmentWithBrowser(segment);
+    }
+
+    if (!abortRef.current) {
+      setIsSpeaking(false);
+      advanceAfterSpeech();
+    }
+  };
+
+  // Main speak function: tries Cloud TTS first, falls back to browser
+  const speakParagraph = (text: string) => {
+    // Stop any ongoing speech
+    abortRef.current = true;
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    if (synthRef.current) { synthRef.current.cancel(); }
+
+    if (isTTSAvailable()) {
+      speakWithCloudTTS(text);
+    } else {
+      speakWithBrowser(text);
+    }
   };
 
   // Auto-play effect
   useEffect(() => {
     if (isPlaying && hasContent && content[currentParagraph]) {
       speakParagraph(content[currentParagraph]);
-    } else if (!isPlaying && synthRef.current) {
-      synthRef.current.cancel();
+    } else if (!isPlaying) {
+      abortRef.current = true;
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+      if (synthRef.current) { synthRef.current.cancel(); }
       setIsSpeaking(false);
     }
   }, [isPlaying, currentParagraph, currentBranchId]);
@@ -242,24 +306,30 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const togglePlayPause = () => {
     if (isPlaying) {
       setIsPlaying(false);
-      if (synthRef.current) {
-        synthRef.current.cancel();
-      }
+      abortRef.current = true;
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+      if (synthRef.current) { synthRef.current.cancel(); }
     } else {
       setIsPlaying(true);
     }
   };
 
+  const stopAllAudio = () => {
+    abortRef.current = true;
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    if (synthRef.current) { synthRef.current.cancel(); }
+  };
+
   const handleNextParagraph = () => {
     if (hasContent && currentParagraph < content.length - 1) {
-      if (synthRef.current) synthRef.current.cancel();
+      stopAllAudio();
       setCurrentParagraph(prev => prev + 1);
     }
   };
 
   const handlePrevParagraph = () => {
     if (currentParagraph > 0) {
-      if (synthRef.current) synthRef.current.cancel();
+      stopAllAudio();
       setCurrentParagraph(prev => prev - 1);
     }
   };
@@ -268,7 +338,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     setSpeechRate(rate);
     setShowSpeedMenu(false);
     if (isPlaying && hasContent && content[currentParagraph]) {
-      if (synthRef.current) synthRef.current.cancel();
+      stopAllAudio();
       setTimeout(() => {
         speakParagraph(content[currentParagraph]);
       }, 100);
@@ -277,7 +347,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
   // Handle interactive choice selection
   const handleChoiceSelect = (choice: StoryChoice) => {
-    if (synthRef.current) synthRef.current.cancel();
+    stopAllAudio();
     setIsPlaying(false);
 
     // Record the choice
@@ -294,7 +364,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
   // Restart interactive story
   const handleRestartStory = () => {
-    if (synthRef.current) synthRef.current.cancel();
+    stopAllAudio();
     setIsPlaying(false);
     setCurrentBranchId(activeStory.startBranchId || null);
     setStoryPath([]);
