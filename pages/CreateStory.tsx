@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CreateStep, Story } from '../types';
 import { IMAGES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
@@ -79,8 +79,13 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
     } catch (err) {
       console.error('Story generation failed:', err);
       clearInterval(progressInterval);
+      setError(
+        language === 'tr'
+          ? 'AI servisine ulaşılamadı, yedek hikaye gösteriliyor.'
+          : 'Could not reach AI service, showing a fallback story.'
+      );
       // Use fallback story
-      const fallbackStory = getFallbackStory(language);
+      const fallbackStory = getFallbackStory(storyOptions);
       setGeneratedStory(fallbackStory);
       setLoadingProgress(100);
       setTimeout(() => setStep(CreateStep.RESULT), 500);
@@ -164,6 +169,14 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
           <h1 className="text-3xl font-bold text-white mb-2">{generatedStory.title}</h1>
           <p className="text-white/70 mb-2">{generatedStory.subtitle}</p>
           <p className="text-primary/80 text-sm italic mb-8">"{generatedStory.moral}"</p>
+          {error && (
+            <div className="w-full mb-4 rounded-xl border border-amber-300/30 bg-amber-200/10 px-4 py-3 text-left">
+              <p className="text-xs font-semibold text-amber-200">
+                {language === 'tr' ? 'Bilgi' : 'Notice'}
+              </p>
+              <p className="text-sm text-amber-100/90">{error}</p>
+            </div>
+          )}
 
           <button
             onClick={() => onComplete(storyForReader)}
@@ -172,7 +185,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             <span className="material-symbols-outlined">auto_stories</span>
             {language === 'tr' ? 'Şimdi Oku' : 'Read Now'}
           </button>
-          <button onClick={() => setStep(CreateStep.THEME)} className="text-white/50 text-sm hover:text-white">
+          <button onClick={() => { setError(null); setStep(CreateStep.THEME); }} className="text-white/50 text-sm hover:text-white">
             {language === 'tr' ? 'Başka Bir Hikaye Oluştur' : 'Create Another'}
           </button>
         </div>
