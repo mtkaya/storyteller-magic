@@ -90,6 +90,24 @@ export const IMAGES = {
   // 🐾 Uyuyan Hayvanlar
   SLEEPING_ANIMALS: '/images/sleeping_animals_moon.jpg',
 
+  // Additional local prompt-based illustrations
+  ORNATE_MAGICAL_LANTERN: '/images/ornate_magical_lantern.jpg',
+  BABY_BEAR_CLOUD_SLEEP: '/images/baby_bear_cloud_sleep.jpg',
+  FRIENDLY_ROCKET_STARS: '/images/friendly_rocket_stars.jpg',
+  MAGICAL_SEAHORSE_GLOW: '/images/magical_seahorse_glow.jpg',
+  COZY_TREEHOUSE_NIGHT: '/images/cozy_treehouse_night.jpg',
+  VINTAGE_MAGIC_COMPASS: '/images/vintage_magic_compass.jpg',
+  HOT_AIR_BALLOON_STARS: '/images/hot_air_balloon_stars.jpg',
+  FAIRY_CASTLE_MOONLIGHT: '/images/fairy_castle_moonlight.jpg',
+  MAGICAL_TOWER_STARS: '/images/magical_tower_stars.jpg',
+  SMILING_CRESCENT_MOON_STARS: '/images/smiling_crescent_moon_stars.jpg',
+  COZY_LIGHTHOUSE_ISLAND: '/images/cozy_lighthouse_island.jpg',
+  GENTLE_WHALE_NIGHTSKY: '/images/gentle_whale_nightsky.jpg',
+  ENCHANTED_FOREST_GLOW: '/images/enchanted_forest_glow.jpg',
+  ENCHANTED_OLD_TREE: '/images/enchanted_old_tree.jpg',
+  MAGICAL_DANDELION_WISH: '/images/magical_dandelion_wish.jpg',
+  SERENE_LOTUS_MOONWATER: '/images/serene_lotus_moonwater.jpg',
+
   // Fallback URLs for stories (using existing URLs until images are added)
   MOONLIGHT_LION: '/images/brave_lion_cub.jpg',
   SLEEPY_OWL_BOOKSHELF: '/images/sleepy_owl_bookshelf.jpg',
@@ -958,6 +976,310 @@ export const LIBRARY_STORIES: Story[] = [
         endingType: 'happy',
         endingTitle: 'The Gentle Guardian'
       }
+    ]
+  },
+  {
+    id: '25',
+    title: 'The Lantern That Listened',
+    subtitle: 'Magic • Kindness',
+    duration: '9 min',
+    theme: 'Magic',
+    coverUrl: IMAGES.ORNATE_MAGICAL_LANTERN,
+    character: 'Nia',
+    ageRange: '4-8',
+    moral: 'When we listen with care, we can light someone else\'s night.',
+    content: [
+      "Nia found an ornate lantern in her grandmother's attic, glowing with warm golden light.",
+      "Each evening the lantern flickered brighter whenever Nia listened to someone share a worry.",
+      "A shy hedgehog feared the dark path home, so Nia walked beside him and held the lantern low.",
+      "A little owl worried about forgetting her song, so Nia listened patiently until the tune returned.",
+      "By moonrise the whole village looked brighter, not because the lantern was magical, but because Nia had made everyone feel seen.",
+      "That night Nia whispered, 'Thank you,' and the lantern glowed once before gently drifting to sleep."
+    ]
+  },
+  {
+    id: '26',
+    title: 'Bobo and the Cloud Blanket',
+    subtitle: 'Calm • Sleep',
+    duration: '6 min',
+    theme: 'Calm',
+    coverUrl: IMAGES.BABY_BEAR_CLOUD_SLEEP,
+    character: 'Bobo the Bear Cub',
+    ageRange: '2-5',
+    moral: 'Slow breaths and safe thoughts help us rest.',
+    content: [
+      "Bobo lay on a fluffy cloud blanket and watched tiny stars blink hello.",
+      "Whenever his thoughts felt jumpy, he hugged his pillow and counted one soft breath at a time.",
+      "A sleepy rabbit floated by and taught Bobo to stretch his paws, then relax them like melting butter.",
+      "The moon hummed a gentle tune while the wind tucked the cloud around his shoulders.",
+      "Soon Bobo's eyes felt heavy and warm, and every worry drifted away like mist.",
+      "He fell asleep smiling, wrapped in moonlight and quiet."
+    ]
+  },
+  {
+    id: '27',
+    title: 'Captain Pebble\'s Star Rocket',
+    subtitle: 'Adventure • Wonder',
+    duration: '8 min',
+    theme: 'Adventure',
+    coverUrl: IMAGES.FRIENDLY_ROCKET_STARS,
+    character: 'Captain Pebble',
+    ageRange: '4-7',
+    moral: 'Curiosity is brightest when shared with friends.',
+    content: [
+      "Captain Pebble launched his friendly little rocket toward the twinkling belt of stars.",
+      "At each stop, he wrote down one wonder: a singing comet, a sleepy planet, and a ring made of moon dust.",
+      "When his map fluttered out the window, Pebble felt nervous, but his new alien friend Lumo calmly held the controls.",
+      "Together they followed a trail of glowing crumbs left by a playful meteor bird.",
+      "They found the map, added Lumo's home to it, and promised to explore together next time.",
+      "Back on Earth, Pebble pinned the map above his bed and fell asleep planning kind adventures."
+    ]
+  },
+  {
+    id: '28',
+    title: 'Luna and the Seahorse Song',
+    subtitle: 'Nature • Calm',
+    duration: '9 min',
+    theme: 'Nature',
+    coverUrl: IMAGES.MAGICAL_SEAHORSE_GLOW,
+    character: 'Luna the Seahorse',
+    ageRange: '4-8',
+    moral: 'Gentle voices can guide others home.',
+    content: [
+      "Luna the seahorse glowed softly in the moonlit sea, weaving between bubbles and coral.",
+      "One evening she heard tiny crabs calling for their little brother who had drifted away.",
+      "Luna sang a low, shimmering song that traveled farther than any shout.",
+      "The lost crab followed the melody through sea grass and found his family waiting.",
+      "To celebrate, every fish in the reef hummed the same peaceful tune under the stars.",
+      "Luna learned that calm music can be a lighthouse in the deep."
+    ]
+  },
+  {
+    id: '29',
+    title: 'The Treehouse Promise',
+    subtitle: 'Friendship • Home',
+    duration: '8 min',
+    theme: 'Friendship',
+    coverUrl: IMAGES.COZY_TREEHOUSE_NIGHT,
+    character: 'Mina and Taro',
+    ageRange: '4-8',
+    moral: 'A shared home is built from trust, not wood.',
+    content: [
+      "Mina and Taro built a tiny treehouse with rope ladders, lanterns, and a window facing the moon.",
+      "They promised it would always be a place where no one laughed at mistakes.",
+      "When a new squirrel dropped his paint bucket and ruined the welcome sign, he expected to be sent away.",
+      "Instead Mina handed him a brush, and Taro said, 'Then let's paint a better sign together.'",
+      "By sunset the new sign read, 'Climb up, breathe deep, you belong here.'",
+      "That night the treehouse glowed brighter than ever, full of friends and second chances."
+    ]
+  },
+  {
+    id: '30',
+    title: 'Compass of Kind Paths',
+    subtitle: 'Adventure • Kindness',
+    duration: '10 min',
+    theme: 'Adventure',
+    coverUrl: IMAGES.VINTAGE_MAGIC_COMPASS,
+    character: 'Rin the Explorer',
+    ageRange: '5-9',
+    moral: 'The best direction is the one that helps others too.',
+    content: [
+      "Rin discovered an old compass whose needle pointed not north, but toward the nearest person who needed help.",
+      "It first led him to a duckling stuck behind reeds, then to a fox cub searching for his mitten.",
+      "At a fork in the forest trail, Rin wanted to race toward treasure, but the compass spun toward a shaky bridge.",
+      "On the bridge he found two younger travelers afraid to cross in the wind.",
+      "Rin crossed slowly with them, step by step, until all three reached safe ground.",
+      "When they looked back, the compass glowed warm gold and pointed home, as if saying the real treasure was already found."
+    ]
+  },
+  {
+    id: '31',
+    title: 'Balloon Above Sleepy Valley',
+    subtitle: 'Adventure • Dreams',
+    duration: '8 min',
+    theme: 'Adventure',
+    coverUrl: IMAGES.HOT_AIR_BALLOON_STARS,
+    character: 'Eli the Balloon Keeper',
+    ageRange: '4-8',
+    moral: 'Seeing from above helps us appreciate what we already have.',
+    content: [
+      "Eli's striped balloon rose slowly over Sleepy Valley while stars gathered like lanterns in the sky.",
+      "From above, the noisy parts of the day looked small and gentle.",
+      "He waved to rooftops, gardens, and winding paths that had once felt confusing.",
+      "A gust of wind pushed him off course, but Eli remembered to steer with patience, not panic.",
+      "He landed near home with a basket full of moonlit pears he picked from a high orchard.",
+      "Eli shared them with neighbors and said, 'Everything looked kinder from the sky tonight.'"
+    ]
+  },
+  {
+    id: '32',
+    title: 'The Castle of Quiet Crowns',
+    subtitle: 'Kindness • Wisdom',
+    duration: '9 min',
+    theme: 'Kindness',
+    coverUrl: IMAGES.FAIRY_CASTLE_MOONLIGHT,
+    character: 'Princess Elin',
+    ageRange: '4-8',
+    moral: 'A true leader listens before speaking.',
+    content: [
+      "In a moonlit castle, Princess Elin wore a light silver crown that chimed whenever she spoke too quickly.",
+      "At first she found it annoying, but the royal baker smiled and said it might be a useful reminder.",
+      "The next day two villages argued over who could use the river first.",
+      "Elin took off her shoes, sat between them, and listened to both sides until the moon climbed high.",
+      "Together they designed a shared schedule and planted extra water lilies to keep the river healthy.",
+      "When Elin returned home, her crown stayed silent, and she realized calm listening had become her strongest magic."
+    ]
+  },
+  {
+    id: '33',
+    title: 'The Tower and the Falling Star',
+    subtitle: 'Magic • Hope',
+    duration: '9 min',
+    theme: 'Magic',
+    coverUrl: IMAGES.MAGICAL_TOWER_STARS,
+    character: 'Theo',
+    ageRange: '5-9',
+    moral: 'Small brave steps can carry big dreams.',
+    content: [
+      "Theo climbed the spiral steps of the star tower to return a tiny falling star to the sky.",
+      "Halfway up he wanted to turn back, because the stairs seemed endless and the night wind was loud.",
+      "A friendly bat guided him with soft clicks, and Theo kept climbing one careful step at a time.",
+      "At the top he opened his hands, and the little star floated up like a spark from a candle.",
+      "Before disappearing, it left Theo a silver thread that glowed whenever he felt unsure.",
+      "Theo tucked the thread in his pocket and walked down smiling, taller inside than when he started."
+    ]
+  },
+  {
+    id: '34',
+    title: 'Goodnight, Smiling Moon',
+    subtitle: 'Calm • Bedtime',
+    duration: '6 min',
+    theme: 'Calm',
+    coverUrl: IMAGES.SMILING_CRESCENT_MOON_STARS,
+    character: 'The Smiling Moon',
+    ageRange: '2-6',
+    moral: 'Night can feel friendly when we welcome rest.',
+    content: [
+      "A smiling crescent moon peeped through soft clouds and greeted each child by name.",
+      "For every yawn, a tiny star twinkled once like a bedtime bell.",
+      "The moon asked everyone to place one happy memory in an invisible pocket before sleep.",
+      "Soon bedrooms became quiet harbors, and blankets felt like warm boats.",
+      "The moon hummed until even the loudest thoughts turned soft and slow.",
+      "When morning came, each child woke with the same memory still glowing inside."
+    ]
+  },
+  {
+    id: '35',
+    title: 'The Lighthouse of Little Waves',
+    subtitle: 'Family • Safety',
+    duration: '8 min',
+    theme: 'Family',
+    coverUrl: IMAGES.COZY_LIGHTHOUSE_ISLAND,
+    character: 'Nora the Keeper',
+    ageRange: '4-8',
+    moral: 'Steady care helps everyone find their way.',
+    content: [
+      "Nora lived in a cozy lighthouse where the sea hummed bedtime songs against the rocks.",
+      "Each evening she polished the lamp so boats could find safe water before night grew thick.",
+      "One foggy night she heard a tiny horn and spotted a little fishing boat drifting too close to shore.",
+      "Nora adjusted the beam into slow, gentle circles the captain could follow.",
+      "The boat reached calm harbor, and the crew waved with grateful smiles.",
+      "Nora wrote in her journal: 'A steady light is a kind promise kept.'"
+    ]
+  },
+  {
+    id: '36',
+    title: 'The Whale Who Carried Starlight',
+    subtitle: 'Nature • Wonder',
+    duration: '9 min',
+    theme: 'Nature',
+    coverUrl: IMAGES.GENTLE_WHALE_NIGHTSKY,
+    character: 'Mavi the Whale',
+    ageRange: '4-8',
+    moral: 'Gentleness makes even great strength comforting.',
+    content: [
+      "Mavi, a giant gentle whale, swam beneath a sky so clear that stars reflected like silver shells.",
+      "One small seal felt afraid of deep water and asked to travel on Mavi's back.",
+      "Mavi moved slowly, letting each wave become a rocking cradle instead of a giant wall.",
+      "As they crossed the bay, Mavi pointed out constellations and made stories for each one.",
+      "By the time they reached home, the little seal was laughing and splashing beside him.",
+      "Mavi learned that being strong means helping others feel safe."
+    ]
+  },
+  {
+    id: '37',
+    title: 'Firefly Forest Picnic',
+    subtitle: 'Nature • Friendship',
+    duration: '8 min',
+    theme: 'Nature',
+    coverUrl: IMAGES.ENCHANTED_FOREST_GLOW,
+    character: 'Tina the Fox',
+    ageRange: '3-7',
+    moral: 'Simple moments become magical when shared.',
+    content: [
+      "Tina packed berry tarts and tea for a picnic in the glowing firefly forest.",
+      "When rain began to sprinkle, she worried the picnic would be ruined.",
+      "Her friends tied broad leaves into a roof and turned raindrops into a drumbeat game.",
+      "As dusk arrived, fireflies blinked in patterns that matched their laughter.",
+      "The picnic became even better than planned, full of songs and warm tea.",
+      "Tina smiled and said, 'Plans can change, but joy can stay.'"
+    ]
+  },
+  {
+    id: '38',
+    title: 'The Old Tree\'s Lantern Leaves',
+    subtitle: 'Magic • Wisdom',
+    duration: '8 min',
+    theme: 'Magic',
+    coverUrl: IMAGES.ENCHANTED_OLD_TREE,
+    character: 'Grand Tree Rowan',
+    ageRange: '4-8',
+    moral: 'Wisdom grows when we care for others.',
+    content: [
+      "At the heart of the woods stood Rowan, an old tree whose leaves glowed like tiny lanterns.",
+      "Every evening animals came to Rowan with questions too heavy to carry alone.",
+      "Rowan listened first, then let one glowing leaf fall for each honest answer they found inside themselves.",
+      "A worried rabbit received a leaf after admitting she needed help finishing her burrow.",
+      "A proud magpie received one after apologizing for taking shiny things that were not his.",
+      "By dawn the path around Rowan glowed gold, lit by lessons learned with gentle hearts."
+    ]
+  },
+  {
+    id: '39',
+    title: 'The Dandelion Wish',
+    subtitle: 'Kindness • Dreams',
+    duration: '7 min',
+    theme: 'Kindness',
+    coverUrl: IMAGES.MAGICAL_DANDELION_WISH,
+    character: 'Pip',
+    ageRange: '3-7',
+    moral: 'The best wishes include someone else.',
+    content: [
+      "Pip found a glowing dandelion that granted one wish when blown under moonlight.",
+      "He first wished for a mountain of sweets, then paused and thought of his tired grandmother.",
+      "Instead, he wished for her cough to ease and for warm soup to always be in her kitchen.",
+      "The dandelion seeds flew out like tiny stars and settled gently across the village.",
+      "That week neighbors brought soup, blankets, and laughter to Pip's home without being asked.",
+      "Pip discovered that kind wishes keep growing long after we make them."
+    ]
+  },
+  {
+    id: '40',
+    title: 'Lotus Lake Breathing',
+    subtitle: 'Calm • Mindfulness',
+    duration: '6 min',
+    theme: 'Calm',
+    coverUrl: IMAGES.SERENE_LOTUS_MOONWATER,
+    character: 'Mina',
+    ageRange: '3-7',
+    moral: 'A quiet breath can calm a busy mind.',
+    content: [
+      "Mina sat by Lotus Lake where pink petals floated in perfect circles.",
+      "A wise frog taught her to breathe in for four counts and breathe out for four, like ripples on water.",
+      "Each slow breath made the noisy thoughts in Mina's head sink gently to the lake floor.",
+      "When a sudden splash startled her, Mina smiled and returned to her breathing rhythm.",
+      "Soon she felt light, warm, and steady, as if moonlight lived in her chest.",
+      "Before bed, Mina repeated the same breathing and drifted into peaceful dreams."
     ]
   }
 ];
