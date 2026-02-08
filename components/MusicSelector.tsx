@@ -38,11 +38,6 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ isOpen, onClose, currentT
 
     const handleSelect = (trackId: MusicType) => {
         onSelect(trackId);
-        if (trackId === 'none') {
-            backgroundMusic.stop();
-        } else {
-            backgroundMusic.fadeIn(trackId, 1000);
-        }
         setPreviewTrack(null);
         onClose();
     };
