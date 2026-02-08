@@ -24,6 +24,11 @@ interface IllustrationCoverInput {
   icon?: string;
 }
 
+function isUserPreparedAsset(src: string): boolean {
+  const value = src.trim().toLowerCase();
+  return value.startsWith('/images/');
+}
+
 const ILLUSTRATION_STYLE_OVERRIDE = parseTechniqueOverride(import.meta.env.VITE_ILLUSTRATION_STYLE_OVERRIDE);
 
 const THEME_PALETTES: Record<string, Palette> = {
@@ -289,7 +294,7 @@ function buildIllustrationDataUri(input: IllustrationCoverInput): string {
 }
 
 export function getIllustratedImageUrl(input: IllustrationCoverInput): string {
-  if (input.src) return input.src;
+  if (input.src && isUserPreparedAsset(input.src)) return input.src;
   return buildIllustrationDataUri(input);
 }
 
