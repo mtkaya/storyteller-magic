@@ -147,6 +147,25 @@ npm run cap:run:android
 If Gemini is unavailable or times out, the app automatically shows a locally generated fallback story so the reading flow continues.
 If OpenAI TTS is unavailable or not configured, the reader falls back to browser Speech Synthesis.
 
+## Free Background Music
+
+Background music now works in two layers:
+
+1. Built-in procedural ambient loops (always available, royalty-free)
+2. Optional local music files under `public/audio` (if you provide them)
+
+If a file is missing, the app automatically falls back to built-in loops.
+
+Optional file names:
+
+- `public/audio/lullaby-light.mp3`
+- `public/audio/starlight-piano.mp3`
+- `public/audio/soft-rain.mp3`
+- `public/audio/forest-night.mp3`
+- `public/audio/ocean-waves.mp3`
+- `public/audio/warm-fireplace.mp3`
+- `public/audio/gentle-wind.mp3`
+
 ## API Guardrails
 
 - `/api/generate-story` and `/api/tts` share IP-based rate limiting (`20` requests per minute per IP).
