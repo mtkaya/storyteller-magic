@@ -25,6 +25,8 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY?.trim() || '';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY?.trim() || '';
 const OPENAI_TTS_MODEL = process.env.OPENAI_TTS_MODEL?.trim() || 'gpt-4o-mini-tts';
 const OPENAI_TTS_VOICE = process.env.OPENAI_TTS_VOICE?.trim() || 'alloy';
+const OPENAI_TTS_VOICE_TR = process.env.OPENAI_TTS_VOICE_TR?.trim() || '';
+const OPENAI_TTS_VOICE_EN = process.env.OPENAI_TTS_VOICE_EN?.trim() || '';
 const OPENAI_TTS_FORMAT = process.env.OPENAI_TTS_FORMAT?.trim() || 'mp3';
 const MIN_TTS_SPEED = 0.25;
 const MAX_TTS_SPEED = 4;
@@ -181,8 +183,9 @@ async function handleTtsRequest(res, body) {
     return;
   }
 
-  const text = typeof body.text === 'string' ? body.text.trim() : '';
   const language = typeof body.language === 'string' ? body.language.trim().toLowerCase() : '';
+  const rawText = typeof body.text === 'string' ? body.text : '';
+  const text = sanitizeTtsText(rawText, language);
   const rawSpeed = typeof body.speed === 'number' ? body.speed : Number(body.speed);
   const speed = Number.isFinite(rawSpeed)
     ? Math.max(MIN_TTS_SPEED, Math.min(MAX_TTS_SPEED, rawSpeed))
@@ -313,13 +316,53 @@ async function safeJson(response) {
   }
 }
 
+function sanitizeTtsText(rawText, language) {
+  const normalizedLanguage = (language || '').toLowerCase();
+  const replacements = normalizedLanguage.startsWith('tr')
+    ? [
+        [/%/g, ' yüzde '],
+        [/\+/g, ' artı '],
+        [/\//g, ' bölü '],
+        [/@/g, ' et '],
+        [/#/g, ' numara '],
+        [/&/g, ' ve ']
+      ]
+    : [
+        [/%/g, ' percent '],
+        [/\+/g, ' plus '],
+        [/\//g, ' over '],
+        [/@/g, ' at '],
+        [/#/g, ' number '],
+        [/&/g, ' and ']
+      ];
+
+  let text = rawText
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/\.{4,}/g, '…')
+    .replace(/--+/g, ', ')
+    .replace(/[_*~`]/g, ' ')
+    .replace(/[\u{1F300}-\u{1FAFF}]/gu, ' ')
+    .replace(/\n+/g, '. ')
+    .replace(/[()[\]{}]/g, ' ')
+    .trim();
+
+  for (const [pattern, replacement] of replacements) {
+    text = text.replace(pattern, replacement);
+  }
+
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.!?…;:])/g, '$1')
+    .trim();
+}
+
 function resolveVoiceForLanguage(language) {
   if (!language) return OPENAI_TTS_VOICE;
   if (OPENAI_TTS_VOICE !== 'alloy') return OPENAI_TTS_VOICE;
 
-  // Keep default configurable voice; if untouched, prefer a softer voice mapping by language.
-  if (language.startsWith('tr')) return 'alloy';
-  if (language.startsWith('en')) return 'alloy';
+  if (language.startsWith('tr')) return OPENAI_TTS_VOICE_TR || 'alloy';
+  if (language.startsWith('en')) return OPENAI_TTS_VOICE_EN || 'alloy';
   return OPENAI_TTS_VOICE;
 }
 

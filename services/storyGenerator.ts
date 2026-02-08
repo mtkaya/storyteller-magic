@@ -100,12 +100,51 @@ const DURATION_CONFIG = {
     long: { paragraphs: 20, ageRange: '5-8', minutes: 15, sentencesPerParagraph: 4 }
 };
 
+const STORY_STRUCTURE_GUIDE: Record<StoryPrompt['duration'], { en: string; tr: string }> = {
+    short: {
+        en: 'Paragraphs 1-2 setup, 3-6 gentle challenge and help, 7-8 cozy resolution.',
+        tr: '1-2. paragraflar giriş, 3-6. paragraflar küçük zorluk ve destek, 7-8. paragraflar sıcak çözüm.'
+    },
+    medium: {
+        en: 'Paragraphs 1-3 setup, 4-10 journey with small discoveries, 11-14 comforting resolution.',
+        tr: '1-3. paragraflar giriş, 4-10. paragraflar keşif dolu yolculuk, 11-14. paragraflar rahatlatıcı çözüm.'
+    },
+    long: {
+        en: 'Paragraphs 1-4 setup, 5-15 layered journey with kind actions, 16-20 calm wrap-up and bedtime closure.',
+        tr: '1-4. paragraflar giriş, 5-15. paragraflar katmanlı yolculuk ve iyilik anları, 16-20. paragraflar sakin kapanış.'
+    }
+};
+
+const STORY_OPENERS: Record<StoryPrompt['language'], string[]> = {
+    en: ['Soon after,', 'A little later,', 'Before long,', 'As night continued,', 'In the meantime,'],
+    tr: ['Biraz sonra,', 'Derken,', 'Az sonra,', 'Gecenin ilerleyen saatlerinde,', 'Bu sırada,']
+};
+
+const GENTLE_ENDING_SENTENCES: Record<StoryPrompt['language'], string[]> = {
+    en: [
+        'At last, everyone felt safe and ready for sleep.',
+        'With calm hearts, they drifted toward sweet dreams.',
+        'The night ended softly, wrapped in warmth and peace.'
+    ],
+    tr: [
+        'Sonunda herkes kendini güvende hissedip uykuya hazırlandı.',
+        'Sakin kalplerle tatlı rüyalara doğru usulca yol aldılar.',
+        'Gece, sıcaklık ve huzurla yumuşakça sona erdi.'
+    ]
+};
+
+const SLEEP_ENDING_KEYWORDS: Record<StoryPrompt['language'], string[]> = {
+    en: ['sleep', 'dream', 'blanket', 'pillow', 'goodnight', 'calm', 'rest'],
+    tr: ['uyku', 'rüya', 'ruya', 'battaniye', 'yastık', 'iyi geceler', 'huzur', 'dinlen']
+};
+
 // Build the prompt for Gemini
 function buildStoryPrompt(options: StoryPrompt): string {
     const { theme, tone, duration, childName, language, isInteractive } = options;
     const durationConfig = DURATION_CONFIG[duration];
     const themeDesc = THEME_PROMPTS[theme as keyof typeof THEME_PROMPTS]?.[language] || theme;
     const toneDesc = TONE_PROMPTS[tone as keyof typeof TONE_PROMPTS]?.[language] || tone;
+    const structureGuide = STORY_STRUCTURE_GUIDE[duration][language];
 
     const childReference = childName ?
         (language === 'en' ? `The main character could be named ${childName} or a friendly animal.` :
@@ -164,12 +203,14 @@ You must respond ONLY with a valid JSON object (no markdown, no explanation) in 
 }
 
 Requirements:
-- Create 4-5 different possible endings
-- Each branch should have 4-6 short paragraphs
-- Choices should be meaningful and child-appropriate
+- Create 7-9 branches total, with at least 4 different endings
+- Non-ending branches should have 3-4 short paragraphs
+- Ending branches should have 2-3 short paragraphs
+- Choice text should be child-friendly and concise (max 8 words)
 - Include emojis that match each choice
+- Keep all outcomes bedtime-safe and emotionally gentle
+- Avoid repeating the same sentence openings across paragraphs
 - Make it ${toneDesc}
-- The story should be calming and suitable for bedtime
 - Keep clear beginning, middle, and ending structure in each branch` :
 
             `Çocuklar için interaktif bir "kendi maceranı seç" uyku hikayesi oluştur.
@@ -202,12 +243,14 @@ SADECE geçerli bir JSON nesnesi ile yanıt ver (markdown yok, açıklama yok), 
 }
 
 Gereksinimler:
-- 4-5 farklı olası son oluştur
-- Her dal 4-6 kısa paragraf içermeli
-- Seçimler anlamlı ve çocuklara uygun olmalı
+- Toplam 7-9 dal oluştur, en az 4 farklı son olsun
+- Son olmayan dallar 3-4 kısa paragraf içersin
+- Son dallar 2-3 kısa paragraf içersin
+- Seçim metinleri kısa ve çocuk dostu olsun (en fazla 8 kelime)
 - Her seçime uygun emoji ekle
+- Tüm sonuçlar uyku saatine uygun, güvenli ve yumuşak olsun
+- Paragraflarda aynı cümle başlangıçlarını tekrar etme
 - ${toneDesc} olmalı
-- Hikaye sakinleştirici ve uyku vakti için uygun olmalı
 - Her dalda giriş, gelişme ve sonuç hissi olmalı`;
     }
 
@@ -238,11 +281,13 @@ You must respond ONLY with a valid JSON object (no markdown, no explanation) in 
 
 Requirements:
 - Create exactly ${durationConfig.paragraphs} paragraphs
-- Each paragraph should be 3-4 sentences
+- Each paragraph should be 3-4 sentences, each sentence short and clear
 - Use simple words appropriate for ${durationConfig.ageRange} year olds
+- Story flow guide: ${structureGuide}
 - Make it ${toneDesc}
 - End with a gentle, positive conclusion
 - The story should be calming and suitable for bedtime
+- Avoid repeating the same first 3 words at the beginning of paragraphs
 - Keep story arc strong: setup, challenge, warm resolution` :
 
         `Çocuklar için bir uyku hikayesi oluştur.
@@ -270,11 +315,13 @@ SADECE geçerli bir JSON nesnesi ile yanıt ver (markdown yok, açıklama yok), 
 
 Gereksinimler:
 - Tam olarak ${durationConfig.paragraphs} paragraf oluştur
-- Her paragraf 3-4 cümle olmalı
+- Her paragraf 3-4 cümle olsun, cümleler kısa ve anlaşılır olsun
 - ${durationConfig.ageRange} yaş için uygun basit kelimeler kullan
+- Akış rehberi: ${structureGuide}
 - ${toneDesc} olmalı
 - Nazik, olumlu bir sonuçla bitir
 - Hikaye sakinleştirici ve uyku vakti için uygun olmalı
+- Paragrafların başında aynı ilk 3 kelimeyi tekrar etme
 - Hikaye akışı net olsun: giriş, küçük bir zorluk, sıcak bir çözüm`;
 }
 
@@ -421,6 +468,79 @@ function enrichParagraph(paragraph: string, language: StoryPrompt['language'], m
     return result;
 }
 
+function cleanParagraphText(paragraph: string): string {
+    return paragraph
+        .replace(/\s+/g, ' ')
+        .replace(/\s+([,.!?…;:])/g, '$1')
+        .replace(/([,.!?…;:])([^\s])/g, '$1 $2')
+        .replace(/([!?]){2,}/g, '$1')
+        .replace(/\.{3,}/g, '…')
+        .trim();
+}
+
+function paragraphStartKey(paragraph: string): string {
+    return cleanParagraphText(paragraph)
+        .toLowerCase()
+        .replace(/[^a-z0-9çğıöşüâîûéèàùêëïöüäßñ\s]/gi, ' ')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 3)
+        .join(' ');
+}
+
+function addVariedOpener(paragraph: string, language: StoryPrompt['language'], seedIndex: number): string {
+    const openerList = STORY_OPENERS[language];
+    const opener = openerList[seedIndex % openerList.length];
+    const trimmed = cleanParagraphText(paragraph);
+    if (!trimmed) return trimmed;
+
+    const first = trimmed.charAt(0).toLowerCase();
+    const rest = trimmed.slice(1);
+    return cleanParagraphText(`${opener} ${first}${rest}`);
+}
+
+function ensureGentleEnding(paragraph: string, language: StoryPrompt['language'], seedIndex: number): string {
+    const cleaned = cleanParagraphText(paragraph);
+    if (!cleaned) return cleaned;
+
+    const lowered = cleaned.toLowerCase();
+    const alreadyGentle = SLEEP_ENDING_KEYWORDS[language].some(keyword => lowered.includes(keyword));
+    if (alreadyGentle) return cleaned;
+
+    const sentence = GENTLE_ENDING_SENTENCES[language][seedIndex % GENTLE_ENDING_SENTENCES[language].length];
+    return cleanParagraphText(`${cleaned} ${sentence}`);
+}
+
+function polishParagraphSequence(
+    paragraphs: string[],
+    language: StoryPrompt['language'],
+    ensureSleepEnding: boolean
+): string[] {
+    const usedStarts = new Set<string>();
+    const polished: string[] = [];
+
+    for (let index = 0; index < paragraphs.length; index += 1) {
+        let paragraph = cleanParagraphText(paragraphs[index] || '');
+        if (!paragraph) continue;
+
+        const startKey = paragraphStartKey(paragraph);
+        if (index > 0 && startKey && usedStarts.has(startKey)) {
+            paragraph = addVariedOpener(paragraph, language, index);
+        }
+
+        const normalizedStart = paragraphStartKey(paragraph);
+        if (normalizedStart) usedStarts.add(normalizedStart);
+        polished.push(paragraph);
+    }
+
+    if (ensureSleepEnding && polished.length > 0) {
+        const lastIndex = polished.length - 1;
+        polished[lastIndex] = ensureGentleEnding(polished[lastIndex], language, polished.length);
+    }
+
+    return polished;
+}
+
 function normalizeParagraphs(
     paragraphs: string[],
     targetCount: number,
@@ -441,7 +561,8 @@ function normalizeParagraphs(
         normalized.push(enrichParagraph(filler, language, minSentencesPerParagraph, index));
     }
 
-    return normalized.slice(0, targetCount);
+    const trimmed = normalized.slice(0, targetCount);
+    return polishParagraphSequence(trimmed, language, true);
 }
 
 function resolveOptions(input: StoryPrompt | StoryPrompt['language']): StoryPrompt {
@@ -703,9 +824,9 @@ function normalizeInteractiveStory(
             if (!branchRecord) return null;
 
             const id = asString(branchRecord.id) || `branch_${branchIndex + 1}`;
-            const branchParagraphs = asStringArray(branchRecord.paragraphs)
+            const rawBranchParagraphs = asStringArray(branchRecord.paragraphs)
                 .map((paragraph, paragraphIndex) => enrichParagraph(paragraph, options.language, 3, paragraphIndex));
-            if (branchParagraphs.length === 0) return null;
+            if (rawBranchParagraphs.length === 0) return null;
 
             const inputChoices = Array.isArray(branchRecord.choices) ? branchRecord.choices : [];
             const choices: StoryChoiceType[] = inputChoices
@@ -726,6 +847,10 @@ function normalizeInteractiveStory(
                     };
                 })
                 .filter((choice): choice is StoryChoiceType => Boolean(choice));
+
+            const branchShouldEnd = Boolean(branchRecord.isEnding) || choices.length === 0;
+            const branchParagraphs = polishParagraphSequence(rawBranchParagraphs, options.language, branchShouldEnd);
+            if (branchParagraphs.length === 0) return null;
 
             const branch: StoryBranchType = {
                 id,

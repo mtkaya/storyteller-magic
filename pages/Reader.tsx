@@ -33,12 +33,104 @@ const LANGUAGE_VOICE_HINTS: Record<'en' | 'tr', string[]> = {
   tr: ['yelda', 'filiz', 'mert', 'cem', 'tr']
 };
 
+const SPEECH_SYMBOL_REPLACEMENTS: Record<'en' | 'tr', Array<[RegExp, string]>> = {
+  en: [
+    [/%/g, ' percent '],
+    [/\+/g, ' plus '],
+    [/\//g, ' over '],
+    [/@/g, ' at '],
+    [/#/g, ' number '],
+    [/&/g, ' and ']
+  ],
+  tr: [
+    [/%/g, ' yüzde '],
+    [/\+/g, ' artı '],
+    [/\//g, ' bölü '],
+    [/@/g, ' et '],
+    [/#/g, ' numara '],
+    [/&/g, ' ve ']
+  ]
+};
+
+const splitByWordBudget = (text: string, maxLength: number): string[] => {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [];
+
+  const parts: string[] = [];
+  let buffer = '';
+
+  for (const word of words) {
+    const candidate = buffer ? `${buffer} ${word}` : word;
+    if (candidate.length <= maxLength || !buffer) {
+      buffer = candidate;
+    } else {
+      parts.push(buffer);
+      buffer = word;
+    }
+  }
+
+  if (buffer) parts.push(buffer);
+  return parts;
+};
+
+const splitLongSentenceForSpeech = (sentence: string, maxLength: number): string[] => {
+  const clauses = sentence.match(/[^,;:]+[,;:]?/g) || [sentence];
+  const chunks: string[] = [];
+  let buffer = '';
+
+  for (const clause of clauses) {
+    const nextClause = clause.trim();
+    if (!nextClause) continue;
+
+    if (!buffer) {
+      if (nextClause.length <= maxLength) {
+        buffer = nextClause;
+      } else {
+        const splitParts = splitByWordBudget(nextClause, maxLength);
+        chunks.push(...splitParts.slice(0, -1));
+        buffer = splitParts[splitParts.length - 1] || '';
+      }
+      continue;
+    }
+
+    const candidate = `${buffer} ${nextClause}`;
+    if (candidate.length <= maxLength) {
+      buffer = candidate;
+      continue;
+    }
+
+    chunks.push(buffer);
+    if (nextClause.length <= maxLength) {
+      buffer = nextClause;
+    } else {
+      const splitParts = splitByWordBudget(nextClause, maxLength);
+      chunks.push(...splitParts.slice(0, -1));
+      buffer = splitParts[splitParts.length - 1] || '';
+    }
+  }
+
+  if (buffer) chunks.push(buffer);
+  return chunks;
+};
+
 const sanitizeTextForSpeech = (rawText: string, currentLanguage: 'en' | 'tr'): string => {
-  const ampersandReplacement = currentLanguage === 'tr' ? ' ve ' : ' and ';
-  return rawText
-    .replace(/&/g, ampersandReplacement)
+  let text = rawText
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/\.{4,}/g, '…')
+    .replace(/--+/g, ', ')
+    .replace(/[_*~`]/g, ' ')
     .replace(/[\u{1F300}-\u{1FAFF}]/gu, ' ')
+    .replace(/[()[\]{}]/g, ' ')
+    .trim();
+
+  for (const [pattern, replacement] of SPEECH_SYMBOL_REPLACEMENTS[currentLanguage]) {
+    text = text.replace(pattern, replacement);
+  }
+
+  return text
     .replace(/\s+/g, ' ')
+    .replace(/\s+([,.!?…;:])/g, '$1')
     .trim();
 };
 
@@ -46,29 +138,23 @@ const splitTextForSpeech = (rawText: string, currentLanguage: 'en' | 'tr'): stri
   const normalized = sanitizeTextForSpeech(rawText, currentLanguage);
   if (!normalized) return [];
 
-  const maxChunkLength = currentLanguage === 'tr' ? 170 : 200;
+  const maxChunkLength = currentLanguage === 'tr' ? 155 : 180;
   const sentences = normalized.match(/[^.!?…]+[.!?…]?/g) || [normalized];
   const chunks: string[] = [];
-  let buffer = '';
 
   for (const sentence of sentences) {
-    const next = sentence.trim();
-    if (!next) continue;
+    const nextSentence = sentence.trim();
+    if (!nextSentence) continue;
 
-    if (!buffer) {
-      buffer = next;
+    if (nextSentence.length <= maxChunkLength) {
+      chunks.push(nextSentence);
       continue;
     }
 
-    if ((buffer.length + 1 + next.length) <= maxChunkLength) {
-      buffer = `${buffer} ${next}`;
-    } else {
-      chunks.push(buffer);
-      buffer = next;
-    }
+    const splitChunks = splitLongSentenceForSpeech(nextSentence, maxChunkLength);
+    chunks.push(...splitChunks);
   }
 
-  if (buffer) chunks.push(buffer);
   return chunks.length > 0 ? chunks : [normalized];
 };
 
@@ -77,11 +163,14 @@ const chunkPauseMs = (chunk: string): number => {
   if (!trimmed) return 120;
 
   const lastChar = trimmed[trimmed.length - 1];
-  if (lastChar === '.') return 180;
-  if (lastChar === '!' || lastChar === '?') return 240;
-  if (lastChar === '…') return 300;
-  if (lastChar === ',' || lastChar === ';' || lastChar === ':') return 140;
-  return 120;
+  const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+  const pacingBoost = Math.min(180, wordCount * 8);
+
+  if (lastChar === '.') return 180 + pacingBoost;
+  if (lastChar === '!' || lastChar === '?') return 240 + pacingBoost;
+  if (lastChar === '…') return 320 + pacingBoost;
+  if (lastChar === ',' || lastChar === ';' || lastChar === ':') return 150 + Math.round(pacingBoost * 0.6);
+  return 120 + Math.round(pacingBoost * 0.5);
 };
 
 const pickBestVoice = (voices: SpeechSynthesisVoice[], currentLanguage: 'en' | 'tr'): SpeechSynthesisVoice | null => {
@@ -357,9 +446,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     }
   };
 
-  const tryPlayPremiumTts = async (text: string, sessionId: number, playbackRate: number): Promise<boolean> => {
-    if (!premiumTtsAvailableRef.current) return false;
-
+  const playPremiumChunk = async (textChunk: string, sessionId: number, playbackRate: number): Promise<boolean> => {
     try {
       const controller = new AbortController();
       const timeoutId = window.setTimeout(() => controller.abort(), PREMIUM_TTS_TIMEOUT_MS);
@@ -372,7 +459,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
           },
           signal: controller.signal,
           body: JSON.stringify({
-            text,
+            text: textChunk,
             language,
             speed: playbackRate
           })
@@ -382,7 +469,6 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       }
 
       if (!response.ok) {
-        // Configuration/auth errors should disable premium TTS attempts for this session.
         if (PREMIUM_TTS_DISABLE_STATUSES.has(response.status)) {
           premiumTtsAvailableRef.current = false;
         }
@@ -449,6 +535,13 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     }
   };
 
+  const tryPlayPremiumTts = async (text: string, sessionId: number, playbackRate: number): Promise<boolean> => {
+    if (!premiumTtsAvailableRef.current) return false;
+    if (!text) return false;
+    if (sessionId !== speechSessionRef.current || !isPlayingRef.current) return false;
+    return playPremiumChunk(text, sessionId, playbackRate);
+  };
+
   // Speak paragraph
   const speakParagraph = async (text: string) => {
     const chunks = splitTextForSpeech(text, language);
@@ -457,11 +550,11 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     cancelSpeech();
     const sessionId = speechSessionRef.current;
     const effectiveRate = language === 'tr'
-      ? Math.min(1.0, Math.max(0.75, speechRate))
-      : Math.min(1.1, Math.max(0.8, speechRate));
+      ? Math.min(0.96, Math.max(0.72, speechRate))
+      : Math.min(1.05, Math.max(0.78, speechRate));
 
     setIsSpeaking(true);
-    const premiumPlayed = await tryPlayPremiumTts(text, sessionId, effectiveRate);
+    const premiumPlayed = await tryPlayPremiumTts(chunks.join(' '), sessionId, effectiveRate);
     if (premiumPlayed) {
       finalizeParagraphPlayback(sessionId);
       return;
