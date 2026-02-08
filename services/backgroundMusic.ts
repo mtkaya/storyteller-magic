@@ -349,9 +349,13 @@ class BackgroundMusicService {
             audio.loop = true;
             audio.preload = 'auto';
             audio.volume = this.volume;
+            (audio as HTMLAudioElement & { stopRequested?: boolean }).stopRequested = false;
 
             audio.addEventListener('error', () => {
-                this.unavailableFileTracks.add(type);
+                const stopRequested = (audio as HTMLAudioElement & { stopRequested?: boolean }).stopRequested;
+                if (!stopRequested) {
+                    this.unavailableFileTracks.add(type);
+                }
             }, { once: true });
 
             await audio.play();
@@ -418,6 +422,7 @@ class BackgroundMusicService {
         }
 
         if (this.htmlAudio) {
+            (this.htmlAudio as HTMLAudioElement & { stopRequested?: boolean }).stopRequested = true;
             this.htmlAudio.pause();
             this.htmlAudio.currentTime = 0;
             this.htmlAudio.src = '';
