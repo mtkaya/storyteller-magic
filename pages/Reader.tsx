@@ -295,6 +295,35 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     ? activeStory.branches!.find(b => b.id === (currentBranchId || activeStory.startBranchId)) || null
     : null;
 
+  const normalizeBranchReference = (value: string): string =>
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9çğıöşü_-]/gi, '');
+
+  const resolveSafeNextBranchId = (targetBranchId: string, fromBranchId?: string): string | null => {
+    if (!activeStory.branches || activeStory.branches.length === 0) return null;
+
+    const exactMatch = activeStory.branches.find(branch => branch.id === targetBranchId);
+    if (exactMatch) return exactMatch.id;
+
+    const normalizedTarget = normalizeBranchReference(targetBranchId);
+    if (normalizedTarget) {
+      const normalizedMatch = activeStory.branches.find(
+        branch => normalizeBranchReference(branch.id) === normalizedTarget
+      );
+      if (normalizedMatch) return normalizedMatch.id;
+    }
+
+    const preferredEnding = activeStory.branches.find(
+      branch => branch.isEnding && branch.id !== fromBranchId
+    );
+    if (preferredEnding) return preferredEnding.id;
+
+    const alternate = activeStory.branches.find(branch => branch.id !== fromBranchId);
+    return alternate?.id || null;
+  };
+
   // Get content based on story type and language
   const getContent = (): string[] => {
     if (isInteractiveStory && currentBranch) {
@@ -344,6 +373,24 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       setCurrentBranchId(null);
     }
   }, [activeStory.id, isInteractiveStory, initialBranchId]);
+
+  // Recover from malformed branch IDs by jumping to the best available start branch.
+  useEffect(() => {
+    if (!isInteractiveStory || currentBranch || !activeStory.branches?.length) return;
+
+    const safeStart =
+      activeStory.branches.find(branch => branch.id === initialBranchId) ||
+      activeStory.branches.find(branch => (branch.choices?.length || 0) > 0) ||
+      activeStory.branches[0];
+
+    if (!safeStart) return;
+
+    setCurrentBranchId(safeStart.id);
+    setCurrentParagraph(0);
+    setShowChoices(false);
+    setIsEnding(false);
+    setNavigationError(null);
+  }, [isInteractiveStory, currentBranch, activeStory.branches, initialBranchId]);
 
   // Keep paragraph index in bounds when language/content changes
   useEffect(() => {
@@ -664,8 +711,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     cancelSpeech();
     setIsPlaying(false);
 
-    const hasTargetBranch = activeStory.branches?.some(branch => branch.id === choice.nextBranchId);
-    if (!hasTargetBranch) {
+    const resolvedNextBranchId = resolveSafeNextBranchId(choice.nextBranchId, currentBranch?.id);
+    if (!resolvedNextBranchId) {
       setNavigationError(
         language === 'tr'
           ? 'Bu yol şu an açık değil. Lütfen başka bir seçim dene.'
@@ -690,7 +737,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     soundEffects.play('choice_select');
 
     // Navigate to the next branch
-    setCurrentBranchId(choice.nextBranchId);
+    setCurrentBranchId(resolvedNextBranchId);
     setCurrentParagraph(0);
     setShowChoices(false);
     setIsEnding(false);
