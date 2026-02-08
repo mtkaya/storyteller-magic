@@ -24,7 +24,6 @@ interface IllustrationCoverInput {
   icon?: string;
 }
 
-const ILLUSTRATION_ONLY_MODE = (import.meta.env.VITE_ILLUSTRATION_ONLY_MODE ?? 'false').toLowerCase() === 'true';
 const ILLUSTRATION_STYLE_OVERRIDE = parseTechniqueOverride(import.meta.env.VITE_ILLUSTRATION_STYLE_OVERRIDE);
 
 const THEME_PALETTES: Record<string, Palette> = {
@@ -290,7 +289,7 @@ function buildIllustrationDataUri(input: IllustrationCoverInput): string {
 }
 
 export function getIllustratedImageUrl(input: IllustrationCoverInput): string {
-  if (!ILLUSTRATION_ONLY_MODE && input.src) return input.src;
+  if (input.src) return input.src;
   return buildIllustrationDataUri(input);
 }
 
