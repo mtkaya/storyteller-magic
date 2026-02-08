@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { IMAGES } from '../data';
+import { getIllustratedImageUrl } from '../services/illustrationCovers';
 
 interface OnboardingProps {
     onComplete: () => void;
@@ -99,7 +100,15 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             <div className="flex-1 relative overflow-hidden">
                 <div
                     className="absolute inset-0 bg-cover bg-center transition-all duration-500"
-                    style={{ backgroundImage: `url("${currentSlide.image}")` }}
+                    style={{
+                        backgroundImage: `url("${getIllustratedImageUrl({
+                            title: currentSlide.title,
+                            subtitle: currentSlide.description,
+                            theme: currentSlide.title,
+                            src: currentSlide.image,
+                            icon: currentSlide.icon
+                        })}")`
+                    }}
                 >
                     <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/40 to-transparent" />
                 </div>

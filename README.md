@@ -7,7 +7,7 @@ Storyteller Magic is a React + TypeScript app for creating bedtime stories with 
 - AI story generation with Gemini (`gemini-1.5-flash`)
 - Interactive "choose your own adventure" stories
 - English and Turkish language support
-- Built-in voice narration using browser Speech Synthesis
+- Premium voice narration via OpenAI TTS (`/api/tts`) with browser Speech Synthesis fallback
 - Profiles, favorites, badges, streaks, and parent-oriented stats
 - Daily reading limits and parental gate flow
 - Mobile-ready setup with Capacitor (iOS + Android folders included)
@@ -30,12 +30,21 @@ Copy `.env.example` to `.env.local` and set:
 
 ```bash
 GEMINI_API_KEY=your_gemini_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
+# Optional TTS tuning:
+# OPENAI_TTS_MODEL=gpt-4o-mini-tts
+# OPENAI_TTS_VOICE=alloy
+# OPENAI_TTS_FORMAT=mp3
 VITE_STORY_API_URL=
+# Optional: force illustrated covers (default true)
+# VITE_ILLUSTRATION_ONLY_MODE=true
 ```
 
 - `GEMINI_API_KEY` is read only by the backend proxy (`server/story-api.mjs`).
+- `OPENAI_API_KEY` enables premium TTS (`/api/tts`). If missing, app uses browser voices automatically.
 - `VITE_STORY_API_URL` is optional. Leave empty if frontend and backend share the same domain.
 - For mobile builds, set `VITE_STORY_API_URL` to your deployed backend URL (for example `https://api.example.com`).
+- `VITE_ILLUSTRATION_ONLY_MODE` controls cover style. Default is illustration-first (`true`) to avoid photo-real covers.
 
 ## Local Development
 
@@ -117,7 +126,7 @@ npm run cap:run:android
 |- data/            # static story collections
 |- pages/           # screen-level pages
 |- services/        # AI generation, audio, notifications
-|- server/          # backend proxy for Gemini API
+|- server/          # backend proxy for Gemini story + OpenAI TTS APIs
 |- android/         # Capacitor Android native project
 |- ios/             # Capacitor iOS native project
 |- App.tsx          # app shell + navigation flow
@@ -128,8 +137,14 @@ npm run cap:run:android
 ## Fallback Behavior
 
 If Gemini is unavailable or times out, the app automatically shows a locally generated fallback story so the reading flow continues.
+If OpenAI TTS is unavailable or not configured, the reader falls back to browser Speech Synthesis.
 
 ## API Guardrails
 
-- Story API uses IP-based rate limiting (`20` requests per minute per IP).
-- Story API caches identical prompts for `10` minutes (in memory) to reduce repeated Gemini calls.
+- `/api/generate-story` and `/api/tts` share IP-based rate limiting (`20` requests per minute per IP).
+- Story API caches identical prompt responses for `10` minutes (in memory) to reduce repeated Gemini calls.
+
+## Art Direction
+
+- Illustration prompt pack: `docs/illustration-prompts.md`
+- Result screen now includes a ready-to-copy illustration cover prompt.

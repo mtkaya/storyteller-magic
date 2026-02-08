@@ -3,6 +3,7 @@ import { Story } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppState } from '../context/AppStateContext';
 import { LIBRARY_STORIES } from '../data';
+import { getStoryCoverUrl } from '../services/illustrationCovers';
 
 interface StoryMapProps {
     onStorySelect: (story: Story) => void;
@@ -143,7 +144,7 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                                                         <div className={`w-16 h-20 rounded-lg overflow-hidden border-2 ${isFavorite(story.id) ? 'border-red-400' : 'border-white/20'
                                                             }`}>
                                                             <img
-                                                                src={story.coverUrl}
+                                                                src={getStoryCoverUrl(story)}
                                                                 alt={story.title}
                                                                 className="w-full h-full object-cover"
                                                             />

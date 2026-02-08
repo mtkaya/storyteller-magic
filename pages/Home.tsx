@@ -3,6 +3,7 @@ import { ScreenName, Story } from '../types';
 import { RECENT_STORIES, IMAGES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppState } from '../context/AppStateContext';
+import { getIllustratedImageUrl, getStoryCoverUrl } from '../services/illustrationCovers';
 
 interface HomeProps {
   onNavigate: (screen: ScreenName) => void;
@@ -18,10 +19,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
   const { activeProfile, stats, favorites, isFavorite, addFavorite, removeFavorite } = useAppState();
 
   const themes = [
-    { name: language === 'tr' ? 'Uyku' : 'Bedtime', image: IMAGES.SLEEPING_CLOUD, icon: 'bedtime' },
-    { name: language === 'tr' ? 'Macera' : 'Adventure', image: IMAGES.FLYING_CARPET, icon: 'explore' },
-    { name: language === 'tr' ? 'Doğa' : 'Nature', image: IMAGES.TURTLE_RABBIT, icon: 'forest' },
-    { name: language === 'tr' ? 'Sihir' : 'Magic', image: IMAGES.WAND_UI, icon: 'auto_fix' }
+    { name: language === 'tr' ? 'Uyku' : 'Bedtime', image: IMAGES.SLEEPING_CLOUD, icon: 'bedtime', visualIcon: '🌙', theme: 'bedtime' },
+    { name: language === 'tr' ? 'Macera' : 'Adventure', image: IMAGES.FLYING_CARPET, icon: 'explore', visualIcon: '🧭', theme: 'adventure' },
+    { name: language === 'tr' ? 'Doğa' : 'Nature', image: IMAGES.TURTLE_RABBIT, icon: 'forest', visualIcon: '🌿', theme: 'nature' },
+    { name: language === 'tr' ? 'Sihir' : 'Magic', image: IMAGES.WAND_UI, icon: 'auto_fix', visualIcon: '✨', theme: 'magic' }
   ];
 
   // Get greeting based on time
@@ -122,7 +123,18 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
       {/* Hero CTA */}
       <div className="p-6 pt-2">
         <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border border-white/10 group cursor-pointer" onClick={() => onNavigate('create_story')}>
-          <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url("${IMAGES.MAGIC_QUILL}")` }}>
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+            style={{
+              backgroundImage: `url("${getIllustratedImageUrl({
+                title: language === 'tr' ? 'Sihirli Hikaye' : 'Magic Story',
+                subtitle: language === 'tr' ? 'Oluştur' : 'Create',
+                theme: 'magic',
+                src: IMAGES.MAGIC_QUILL,
+                icon: '✨'
+              })}")`
+            }}
+          >
             <div className="absolute inset-0 bg-gradient-to-t from-[#1e1f44] via-[#1e1f44]/40 to-transparent"></div>
           </div>
           <div className="relative z-10 p-6 pt-32 flex flex-col items-start gap-3">
@@ -153,7 +165,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             {RECENT_STORIES.filter(s => favorites.includes(s.id)).slice(0, 5).map((story) => (
               <div key={story.id} className="snap-start min-w-[140px] flex flex-col gap-3 group cursor-pointer" onClick={() => onStorySelect(story)}>
                 <div className="w-full aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg border border-red-400/30">
-                  <img src={story.coverUrl} alt={story.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <img src={getStoryCoverUrl(story)} alt={story.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 </div>
                 <p className="text-white text-sm font-bold truncate">{story.title}</p>
               </div>
@@ -176,7 +188,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
         {RECENT_STORIES.map((story) => (
           <div key={story.id} className="snap-start min-w-[160px] flex flex-col gap-3 group cursor-pointer relative">
             <div className="w-full aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg border border-white/5" onClick={() => onStorySelect(story)}>
-              <img src={story.coverUrl} alt={story.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              <img src={getStoryCoverUrl(story)} alt={story.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
               {/* Favorite button */}
               <button
                 onClick={(e) => {
@@ -227,7 +239,17 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
         <div className="grid grid-cols-2 gap-4">
           {themes.map((theme) => (
             <div key={theme.name} className="relative h-24 rounded-2xl overflow-hidden cursor-pointer group border border-white/10 shadow-lg" onClick={() => onNavigate('library')}>
-              <img src={theme.image} alt={theme.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <img
+                src={getIllustratedImageUrl({
+                  title: theme.name,
+                  subtitle: language === 'tr' ? 'Popüler Tema' : 'Popular Theme',
+                  theme: theme.theme,
+                  src: theme.image,
+                  icon: theme.visualIcon
+                })}
+                alt={theme.name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors"></div>
               <div className="absolute inset-0 flex items-center justify-center gap-2">
                 <span className="material-symbols-outlined text-white drop-shadow-md">{theme.icon}</span>

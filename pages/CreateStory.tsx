@@ -3,6 +3,8 @@ import { CreateStep, Story } from '../types';
 import { IMAGES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { generateStoryWithAI, getFallbackStory, StoryPrompt, GeneratedStory } from '../services/storyGenerator';
+import { getIllustratedImageUrl } from '../services/illustrationCovers';
+import { buildIllustrationCoverPrompt } from '../services/coverPrompt';
 
 interface CreateStoryProps {
   onBack: () => void;
@@ -24,14 +26,15 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
   // Generated story
   const [generatedStory, setGeneratedStory] = useState<GeneratedStory | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copyPromptStatus, setCopyPromptStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const themes = [
-    { id: 'adventure', name: t.create_themes.adventure, icon: IMAGES.BRAVE_LION },
-    { id: 'friendship', name: t.create_themes.friendship, icon: IMAGES.TEA_PARTY },
-    { id: 'magic', name: t.create_themes.magic, icon: IMAGES.ENCHANTED_CHEST },
-    { id: 'nature', name: t.create_themes.nature, icon: IMAGES.GRATEFUL_DEER },
-    { id: 'space', name: t.create_themes.space, icon: IMAGES.MAGIC_CARPET },
-    { id: 'underwater', name: t.create_themes.underwater, icon: IMAGES.SLEEPING_ANIMALS }
+    { id: 'adventure', name: t.create_themes.adventure, icon: IMAGES.BRAVE_LION, visualIcon: '🧭' },
+    { id: 'friendship', name: t.create_themes.friendship, icon: IMAGES.TEA_PARTY, visualIcon: '🤝' },
+    { id: 'magic', name: t.create_themes.magic, icon: IMAGES.ENCHANTED_CHEST, visualIcon: '✨' },
+    { id: 'nature', name: t.create_themes.nature, icon: IMAGES.GRATEFUL_DEER, visualIcon: '🌿' },
+    { id: 'space', name: t.create_themes.space, icon: IMAGES.MAGIC_CARPET, visualIcon: '🚀' },
+    { id: 'underwater', name: t.create_themes.underwater, icon: IMAGES.SLEEPING_ANIMALS, visualIcon: '🐠' }
   ];
 
   const tones = [
@@ -131,7 +134,17 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/30 animate-spin-slow"></div>
             <div className="absolute inset-4 rounded-full border-4 border-primary/20"></div>
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
-              <img src={IMAGES.MAGIC_QUILL} alt="Magic Quill" className="w-40 h-40 object-contain opacity-90 drop-shadow-[0_0_15px_rgba(238,140,43,0.6)] animate-pulse-slow" />
+              <img
+                src={getIllustratedImageUrl({
+                  title: language === 'tr' ? 'Sihir' : 'Magic',
+                  subtitle: language === 'tr' ? 'Hikaye Üretimi' : 'Story Generation',
+                  theme: 'magic',
+                  src: IMAGES.MAGIC_QUILL,
+                  icon: '✨'
+                })}
+                alt="Magic Quill"
+                className="w-40 h-40 object-contain opacity-90 drop-shadow-[0_0_15px_rgba(238,140,43,0.6)] animate-pulse-slow"
+              />
             </div>
           </div>
 
@@ -155,15 +168,59 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
   // Result screen
   if (step === CreateStep.RESULT && generatedStory) {
     const storyForReader = convertToStory(generatedStory);
+    const coverPrompt = buildIllustrationCoverPrompt({
+      title: generatedStory.title,
+      subtitle: generatedStory.subtitle,
+      theme: generatedStory.theme,
+      character: generatedStory.character,
+      moral: generatedStory.moral,
+      tone: selectedTone,
+      language
+    });
+
+    const copyCoverPrompt = async () => {
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(coverPrompt);
+          setCopyPromptStatus('copied');
+        } else {
+          throw new Error('Clipboard API unavailable');
+        }
+      } catch {
+        setCopyPromptStatus('failed');
+      } finally {
+        setTimeout(() => setCopyPromptStatus('idle'), 2000);
+      }
+    };
 
     return (
       <div className="flex flex-col h-screen bg-bg-dark relative">
-        <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: `url("${themes.find(t => t.id === generatedStory.theme)?.icon || IMAGES.MOON_RESULT}")` }}></div>
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-30"
+          style={{
+            backgroundImage: `url("${getIllustratedImageUrl({
+              title: generatedStory.title,
+              subtitle: generatedStory.subtitle,
+              theme: generatedStory.theme,
+              src: themes.find(t => t.id === generatedStory.theme)?.icon || IMAGES.MOON_RESULT,
+              icon: themes.find(t => t.id === generatedStory.theme)?.visualIcon
+            })}")`
+          }}
+        ></div>
         <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/80 to-transparent"></div>
 
         <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6 text-center">
           <div className="w-48 h-48 rounded-2xl overflow-hidden shadow-2xl border-2 border-primary/30 mb-8 mx-auto">
-            <img src={themes.find(t => t.id === generatedStory.theme)?.icon || IMAGES.MOON_RESULT} className="w-full h-full object-cover" />
+            <img
+              src={getIllustratedImageUrl({
+                title: generatedStory.title,
+                subtitle: generatedStory.subtitle,
+                theme: generatedStory.theme,
+                src: themes.find(t => t.id === generatedStory.theme)?.icon || IMAGES.MOON_RESULT,
+                icon: themes.find(t => t.id === generatedStory.theme)?.visualIcon
+              })}
+              className="w-full h-full object-cover"
+            />
           </div>
 
           {generatedStory.isInteractive && (
@@ -183,6 +240,25 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
               <p className="text-sm text-amber-100/90">{error}</p>
             </div>
           )}
+
+          <div className="w-full mb-5 rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-left">
+            <p className="text-xs font-semibold text-white/80 mb-2">
+              {language === 'tr' ? 'Illustrator Prompt (Kapak)' : 'Illustrator Prompt (Cover)'}
+            </p>
+            <pre className="max-h-40 overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-white/75 bg-black/20 rounded-lg p-3 border border-white/10">
+              {coverPrompt}
+            </pre>
+            <button
+              onClick={copyCoverPrompt}
+              className="mt-3 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 border border-white/20 text-xs font-semibold text-white transition-colors"
+            >
+              {copyPromptStatus === 'copied'
+                ? (language === 'tr' ? 'Kopyalandi' : 'Copied')
+                : copyPromptStatus === 'failed'
+                  ? (language === 'tr' ? 'Kopyalama Basarisiz' : 'Copy Failed')
+                  : (language === 'tr' ? 'Promptu Kopyala' : 'Copy Prompt')}
+            </button>
+          </div>
 
           <button
             onClick={() => onComplete(storyForReader)}
@@ -253,7 +329,17 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
                 }`}
             >
               <div className="w-full aspect-square rounded-lg bg-[#2d2e4d] mb-2 overflow-hidden shadow-inner">
-                <img src={theme.icon} alt={theme.name} className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+                <img
+                  src={getIllustratedImageUrl({
+                    title: theme.name,
+                    subtitle: language === 'tr' ? 'Tema' : 'Theme',
+                    theme: theme.id,
+                    src: theme.icon,
+                    icon: theme.visualIcon
+                  })}
+                  alt={theme.name}
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                />
               </div>
               <span className="font-medium text-xs">{theme.name}</span>
             </button>

@@ -3,6 +3,7 @@ import { STORY_COLLECTIONS } from '../data/collections';
 import { LIBRARY_STORIES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { Story, ScreenName } from '../types';
+import { getIllustratedImageUrl, getStoryCoverUrl } from '../services/illustrationCovers';
 
 interface CollectionsPageProps {
     onBack: () => void;
@@ -29,7 +30,13 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
                 {/* Header with Cover */}
                 <div className="relative h-56">
                     <img
-                        src={activeCollection.coverImage}
+                        src={getIllustratedImageUrl({
+                            title: language === 'tr' ? activeCollection.nameTr : activeCollection.name,
+                            subtitle: language === 'tr' ? activeCollection.descriptionTr : activeCollection.description,
+                            theme: activeCollection.theme,
+                            src: activeCollection.coverImage,
+                            icon: activeCollection.icon
+                        })}
                         alt={activeCollection.name}
                         className="absolute inset-0 w-full h-full object-cover"
                     />
@@ -74,7 +81,7 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
                             className="w-full flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-left"
                         >
                             <div className="w-20 h-24 rounded-xl overflow-hidden flex-shrink-0">
-                                <img src={story.coverUrl} alt={story.title} className="w-full h-full object-cover" />
+                                <img src={getStoryCoverUrl(story)} alt={story.title} className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-white font-bold truncate">{story.title}</p>
@@ -131,7 +138,13 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
                         className="w-full relative h-36 rounded-2xl overflow-hidden group"
                     >
                         <img
-                            src={collection.coverImage}
+                            src={getIllustratedImageUrl({
+                                title: language === 'tr' ? collection.nameTr : collection.name,
+                                subtitle: language === 'tr' ? collection.descriptionTr : collection.description,
+                                theme: collection.theme,
+                                src: collection.coverImage,
+                                icon: collection.icon
+                            })}
                             alt={collection.name}
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />

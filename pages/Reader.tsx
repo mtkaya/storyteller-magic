@@ -6,6 +6,7 @@ import { useAppState } from '../context/AppStateContext';
 import { useLanguage } from '../context/LanguageContext';
 import { MusicType } from '../services/backgroundMusic';
 import { soundEffects } from '../services/soundEffects';
+import { getStoryCoverUrl } from '../services/illustrationCovers';
 
 interface ReaderProps {
   story: Story | null;
@@ -14,6 +15,16 @@ interface ReaderProps {
   onMusicChange?: (music: MusicType) => void;
   onMusicClick?: () => void;
 }
+
+const STORY_API_BASE_URL = import.meta.env.VITE_STORY_API_URL?.trim() || '';
+const TTS_API_PATH = '/api/tts';
+const PREMIUM_TTS_TIMEOUT_MS = 35_000;
+const PREMIUM_TTS_DISABLE_STATUSES = new Set([400, 401, 403, 404, 405, 500, 501]);
+
+const resolveTtsApiEndpoint = (): string => {
+  if (!STORY_API_BASE_URL) return TTS_API_PATH;
+  return `${STORY_API_BASE_URL.replace(/\/+$/, '')}${TTS_API_PATH}`;
+};
 
 const HIGH_QUALITY_VOICE_HINTS = ['neural', 'natural', 'premium', 'enhanced', 'wavenet', 'google', 'siri', 'apple', 'microsoft'];
 const LOW_QUALITY_VOICE_HINTS = ['espeak', 'compact', 'default'];
@@ -131,16 +142,34 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [sleepControllerActive, setSleepControllerActive] = useState(false);
 
   const synthRef = useRef<SpeechSynthesis | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
   const preferredVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
+  const premiumTtsAvailableRef = useRef(true);
   const isPlayingRef = useRef(false);
   const speechSessionRef = useRef(0);
   const storyStartTime = useRef<number>(Date.now());
   const completionEventRef = useRef<string | null>(null);
   const discoveredEndingKeysRef = useRef<Set<string>>(new Set());
 
+  const stopPremiumAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+      audioRef.current.load();
+      audioRef.current = null;
+    }
+
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = null;
+    }
+  };
+
   const cancelSpeech = () => {
     speechSessionRef.current += 1;
     if (synthRef.current) synthRef.current.cancel();
+    stopPremiumAudio();
     setIsSpeaking(false);
   };
 
@@ -314,23 +343,140 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     return undefined;
   }, [language]);
 
+  const finalizeParagraphPlayback = (sessionId: number) => {
+    if (sessionId !== speechSessionRef.current) return;
+
+    setIsSpeaking(false);
+    // Auto-advance (but not past the last paragraph if choices are available)
+    if (hasContent && currentParagraph < content.length - 1 && isPlayingRef.current) {
+      setTimeout(() => {
+        setCurrentParagraph(prev => prev + 1);
+      }, 800);
+    } else if (currentParagraph >= content.length - 1) {
+      setIsPlaying(false);
+    }
+  };
+
+  const tryPlayPremiumTts = async (text: string, sessionId: number, playbackRate: number): Promise<boolean> => {
+    if (!premiumTtsAvailableRef.current) return false;
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), PREMIUM_TTS_TIMEOUT_MS);
+      let response: Response;
+      try {
+        response = await fetch(resolveTtsApiEndpoint(), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            text,
+            language,
+            speed: playbackRate
+          })
+        });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+
+      if (!response.ok) {
+        // Configuration/auth errors should disable premium TTS attempts for this session.
+        if (PREMIUM_TTS_DISABLE_STATUSES.has(response.status)) {
+          premiumTtsAvailableRef.current = false;
+        }
+        return false;
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.startsWith('audio/')) {
+        return false;
+      }
+
+      const audioBlob = await response.blob();
+      if (audioBlob.size === 0) {
+        return false;
+      }
+
+      if (sessionId !== speechSessionRef.current || !isPlayingRef.current) {
+        return false;
+      }
+
+      const objectUrl = URL.createObjectURL(audioBlob);
+      stopPremiumAudio();
+      audioUrlRef.current = objectUrl;
+
+      const audio = new Audio(objectUrl);
+      audio.preload = 'auto';
+      audio.playbackRate = playbackRate;
+      audioRef.current = audio;
+
+      const played = await new Promise<boolean>((resolve) => {
+        let settled = false;
+        const finish = (ok: boolean) => {
+          if (settled) return;
+          settled = true;
+          audio.onended = null;
+          audio.onerror = null;
+          audio.onpause = null;
+          resolve(ok);
+        };
+
+        audio.onended = () => finish(true);
+        audio.onerror = () => finish(false);
+        audio.onpause = () => {
+          const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
+          const isCompleted = duration > 0 && audio.currentTime >= duration - 0.05;
+          finish(isCompleted);
+        };
+
+        audio.play().catch(() => finish(false));
+      });
+
+      if (audioUrlRef.current === objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+        audioUrlRef.current = null;
+      }
+
+      if (audioRef.current === audio) {
+        audioRef.current = null;
+      }
+
+      return played;
+    } catch {
+      return false;
+    }
+  };
+
   // Speak paragraph
-  const speakParagraph = (text: string) => {
-    if (!synthRef.current) return;
+  const speakParagraph = async (text: string) => {
     const chunks = splitTextForSpeech(text, language);
     if (chunks.length === 0) return;
 
     cancelSpeech();
     const sessionId = speechSessionRef.current;
-    let chunkIndex = 0;
-
-    const voices = synthRef.current.getVoices();
-    const preferredVoice = pickBestVoice(voices, language);
-    preferredVoiceRef.current = preferredVoice;
-
     const effectiveRate = language === 'tr'
       ? Math.min(1.0, Math.max(0.75, speechRate))
       : Math.min(1.1, Math.max(0.8, speechRate));
+
+    setIsSpeaking(true);
+    const premiumPlayed = await tryPlayPremiumTts(text, sessionId, effectiveRate);
+    if (premiumPlayed) {
+      finalizeParagraphPlayback(sessionId);
+      return;
+    }
+
+    if (sessionId !== speechSessionRef.current) return;
+
+    if (!synthRef.current) {
+      setIsSpeaking(false);
+      return;
+    }
+
+    let chunkIndex = 0;
+    const voices = synthRef.current.getVoices();
+    preferredVoiceRef.current = pickBestVoice(voices, language);
 
     const speakNextChunk = () => {
       if (!synthRef.current || sessionId !== speechSessionRef.current) return;
@@ -362,15 +508,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
           return;
         }
 
-        setIsSpeaking(false);
-        // Auto-advance (but not past the last paragraph if choices are available)
-        if (hasContent && currentParagraph < content.length - 1 && isPlayingRef.current) {
-          setTimeout(() => {
-            setCurrentParagraph(prev => prev + 1);
-          }, 800);
-        } else if (currentParagraph >= content.length - 1) {
-          setIsPlaying(false);
-        }
+        finalizeParagraphPlayback(sessionId);
       };
 
       utterance.onerror = () => {
@@ -531,7 +669,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       {/* Hero Image */}
       <div className="px-4 py-2">
         <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-2xl relative">
-          <img src={activeStory.coverUrl} alt={activeStory.title} className="w-full h-full object-cover" />
+          <img src={getStoryCoverUrl(activeStory)} alt={activeStory.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-transparent"></div>
 
           {/* Story Meta Overlay */}
