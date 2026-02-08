@@ -172,6 +172,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       title: generatedStory.title,
       subtitle: generatedStory.subtitle,
       theme: generatedStory.theme,
+      ageRange: generatedStory.ageRange,
       character: generatedStory.character,
       moral: generatedStory.moral,
       tone: selectedTone,
@@ -202,6 +203,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
               title: generatedStory.title,
               subtitle: generatedStory.subtitle,
               theme: generatedStory.theme,
+              ageRange: generatedStory.ageRange,
               src: themes.find(t => t.id === generatedStory.theme)?.icon || IMAGES.MOON_RESULT,
               icon: themes.find(t => t.id === generatedStory.theme)?.visualIcon
             })}")`
@@ -216,6 +218,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
                 title: generatedStory.title,
                 subtitle: generatedStory.subtitle,
                 theme: generatedStory.theme,
+                ageRange: generatedStory.ageRange,
                 src: themes.find(t => t.id === generatedStory.theme)?.icon || IMAGES.MOON_RESULT,
                 icon: themes.find(t => t.id === generatedStory.theme)?.visualIcon
               })}

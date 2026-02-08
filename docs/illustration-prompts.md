@@ -54,6 +54,58 @@ children's book cover, dreamy cosmos, friendly planets and stars, soft nebula cl
 children's book cover, calm underwater world, glowing corals, bubbles, friendly sea creatures, bedtime serenity
 ```
 
+## Technique Presets
+
+### Watercolor
+
+```text
+watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom
+```
+
+### Gouache
+
+```text
+bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control
+```
+
+### Flat Storybook
+
+```text
+flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective
+```
+
+### Cut-Paper
+
+```text
+cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation
+```
+
+## Age Direction Profiles
+
+### Ages 2-4
+
+```text
+very simple forms, large focal character, low visual noise, high readability
+```
+
+### Ages 4-6
+
+```text
+clear emotions, simple environment cues, medium detail, friendly rhythm
+```
+
+### Ages 6-8
+
+```text
+richer environment details, layered storytelling props, balanced complexity
+```
+
+### Ages 8+
+
+```text
+cinematic framing, nuanced lighting, deeper world detail, stronger atmosphere
+```
+
 ## Full Prompt Template
 
 ```text
@@ -62,11 +114,23 @@ Theme: {THEME}.
 Main character: {CHARACTER}.
 Mood: {TONE}.
 Scene: {SCENE_DESCRIPTION}.
+Technique preset: {TECHNIQUE}.
+Age direction: {AGE_PROFILE}.
 Style: children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm.
 Color direction: rich but gentle palette, warm highlights, soft contrast.
 Framing: vertical 3:4, centered focal character, readable cover composition.
 Negative prompt: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo.
 ```
+
+## App Defaults
+
+- Theme-based technique auto-selection:
+  - `adventure`, `courage`: `gouache`
+  - `friendship`, `nature`, `bedtime`, `kindness`, `family`: `watercolor`
+  - `space`, `calm`: `flat-storybook`
+  - `magic`, `underwater`: `cut-paper`
+- Age range auto-adjusts composition density and text hierarchy.
+- Optional override: `VITE_ILLUSTRATION_STYLE_OVERRIDE=watercolor|gouache|flat-storybook|cut-paper`
 
 ## Quick Try
 

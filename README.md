@@ -38,6 +38,8 @@ OPENAI_API_KEY=your_openai_api_key_here
 VITE_STORY_API_URL=
 # Optional: force illustrated covers (default true)
 # VITE_ILLUSTRATION_ONLY_MODE=true
+# Optional: force one illustration technique globally
+# VITE_ILLUSTRATION_STYLE_OVERRIDE=
 ```
 
 - `GEMINI_API_KEY` is read only by the backend proxy (`server/story-api.mjs`).
@@ -45,6 +47,7 @@ VITE_STORY_API_URL=
 - `VITE_STORY_API_URL` is optional. Leave empty if frontend and backend share the same domain.
 - For mobile builds, set `VITE_STORY_API_URL` to your deployed backend URL (for example `https://api.example.com`).
 - `VITE_ILLUSTRATION_ONLY_MODE` controls cover style. Default is illustration-first (`true`) to avoid photo-real covers.
+- `VITE_ILLUSTRATION_STYLE_OVERRIDE` optionally locks one visual technique globally (`watercolor`, `gouache`, `flat-storybook`, `cut-paper`).
 
 ## Local Development
 
@@ -148,3 +151,4 @@ If OpenAI TTS is unavailable or not configured, the reader falls back to browser
 
 - Illustration prompt pack: `docs/illustration-prompts.md`
 - Result screen now includes a ready-to-copy illustration cover prompt.
+- Covers now auto-tune technique by theme and detail level by age range.
