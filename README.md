@@ -31,6 +31,9 @@ Copy `.env.example` to `.env.local` and set:
 ```bash
 GEMINI_API_KEY=your_gemini_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
+# Optional security controls (recommended in production):
+# TRUST_PROXY=false
+# CORS_ALLOWED_ORIGINS=https://yourapp.com,https://www.yourapp.com
 # Optional TTS tuning:
 # OPENAI_TTS_MODEL=gpt-4o-mini-tts
 # OPENAI_TTS_VOICE=alloy
@@ -46,6 +49,8 @@ VITE_STORY_API_URL=
 
 - `GEMINI_API_KEY` is read only by the backend proxy (`server/story-api.mjs`).
 - `OPENAI_API_KEY` enables premium TTS (`/api/tts`). If missing, app uses browser voices automatically.
+- `TRUST_PROXY` controls whether `x-forwarded-for`/`x-real-ip` headers are trusted for rate limiting. Keep `false` unless you are behind a trusted reverse proxy.
+- `CORS_ALLOWED_ORIGINS` is a comma-separated allowlist for browser origins. Set this explicitly in production.
 - `VITE_STORY_API_URL` is optional. Leave empty if frontend and backend share the same domain.
 - For mobile builds, set `VITE_STORY_API_URL` to your deployed backend URL (for example `https://api.example.com`).
 - `VITE_ILLUSTRATION_ONLY_MODE` controls cover style. Default is original story images (`false`). Set `true` for illustration-only mode.
@@ -170,6 +175,7 @@ Optional file names:
 
 - `/api/generate-story` and `/api/tts` share IP-based rate limiting (`20` requests per minute per IP).
 - Story API caches identical prompt responses for `10` minutes (in memory) to reduce repeated Gemini calls.
+- CORS is origin-allowlist based (`CORS_ALLOWED_ORIGINS`), and proxy IP headers are opt-in only (`TRUST_PROXY=true`).
 
 ## Art Direction
 
