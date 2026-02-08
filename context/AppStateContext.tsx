@@ -319,6 +319,12 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
         const lastReadDate = stats.lastReadDate?.split('T')[0];
         const isConsecutiveDay = lastReadDate === new Date(Date.now() - 86400000).toISOString().split('T')[0];
         const isSameDay = lastReadDate === today;
+        const updatedThemeCounts: Record<string, number> = {
+            ...stats.themeCounts,
+            [theme]: (stats.themeCounts[theme] || 0) + 1,
+        };
+        const favoriteTheme = (Object.entries(updatedThemeCounts) as Array<[string, number]>)
+            .sort(([, a], [, b]) => b - a)[0]?.[0] || theme;
 
         const updatedStats: ReadingStats = {
             ...stats,
@@ -328,14 +334,8 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
             currentStreak: isConsecutiveDay ? stats.currentStreak + 1 : (isSameDay ? stats.currentStreak : 1),
             longestStreak: Math.max(stats.longestStreak, isConsecutiveDay ? stats.currentStreak + 1 : 1),
             lastReadDate: new Date().toISOString(),
-            themeCounts: {
-                ...stats.themeCounts,
-                [theme]: (stats.themeCounts[theme] || 0) + 1,
-            },
-            favoriteTheme: Object.entries({
-                ...stats.themeCounts,
-                [theme]: (stats.themeCounts[theme] || 0) + 1,
-            }).sort(([, a], [, b]) => b - a)[0]?.[0] || theme,
+            themeCounts: updatedThemeCounts,
+            favoriteTheme,
         };
 
         updateProfile(activeProfile.id, { stats: updatedStats });

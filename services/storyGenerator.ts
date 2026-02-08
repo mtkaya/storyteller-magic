@@ -846,7 +846,7 @@ function normalizeInteractiveStory(
                         consequence: asString(choiceRecord.consequence) || undefined
                     };
                 })
-                .filter((choice): choice is StoryChoiceType => Boolean(choice));
+                .filter((choice) => choice !== null) as StoryChoiceType[];
 
             const branchShouldEnd = Boolean(branchRecord.isEnding) || choices.length === 0;
             const branchParagraphs = polishParagraphSequence(rawBranchParagraphs, options.language, branchShouldEnd);

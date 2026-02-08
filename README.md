@@ -34,6 +34,8 @@ OPENAI_API_KEY=your_openai_api_key_here
 # Optional TTS tuning:
 # OPENAI_TTS_MODEL=gpt-4o-mini-tts
 # OPENAI_TTS_VOICE=alloy
+# OPENAI_TTS_VOICE_TR=alloy
+# OPENAI_TTS_VOICE_EN=alloy
 # OPENAI_TTS_FORMAT=mp3
 VITE_STORY_API_URL=
 # Optional: force illustrated covers (default false)
@@ -110,8 +112,11 @@ npm run cap:run:android
 
 - `npm run dev`: start Vite dev server
 - `npm run dev:api`: run Node backend proxy at `http://localhost:8787`
+- `npm run typecheck`: run TypeScript checks
 - `npm run build`: build web app into `dist/`
 - `npm run preview`: serve production build locally
+- `npm run smoke`: run quick health checks (typecheck + build + data integrity)
+- `npm run smoke:full`: run smoke + API endpoint checks (`SMOKE_API=1`)
 - `npm run cap:sync`: sync web build/plugins into native projects
 - `npm run build:mobile`: build + sync for mobile
 - `npm run cap:open:ios`: open iOS project in Xcode
@@ -152,3 +157,7 @@ If OpenAI TTS is unavailable or not configured, the reader falls back to browser
 - Illustration prompt pack: `docs/illustration-prompts.md`
 - Result screen now includes a ready-to-copy illustration cover prompt.
 - Covers now auto-tune technique by theme and detail level by age range.
+
+## Program Design
+
+- Product and content flow plan: `docs/program-kurgusu-v2.md`

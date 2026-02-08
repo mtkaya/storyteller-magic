@@ -76,10 +76,6 @@ class NotificationService {
                 body: messages[language].body,
                 tag: 'bedtime-reminder',
                 requireInteraction: true,
-                actions: [
-                    { action: 'open', title: language === 'tr' ? 'Hikaye Oku' : 'Read Story' },
-                    { action: 'snooze', title: language === 'tr' ? 'Ertele' : 'Snooze' },
-                ],
             });
 
             // Reschedule for next day

@@ -6,8 +6,11 @@
   "scripts": {
     "dev": "vite",
     "dev:api": "node server/story-api.mjs",
+    "typecheck": "tsc --noEmit",
     "build": "vite build",
     "preview": "vite preview",
+    "smoke": "node scripts/smoke-check.mjs",
+    "smoke:full": "SMOKE_API=1 node scripts/smoke-check.mjs",
     "cap:sync": "npx cap sync",
     "cap:open:ios": "npx cap open ios",
     "cap:open:android": "npx cap open android",
