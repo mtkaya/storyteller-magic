@@ -18,7 +18,8 @@ import ProfileSelector from './components/ProfileSelector';
 import MusicSelector from './components/MusicSelector';
 import StoryMap from './components/StoryMap';
 import DailyGoals from './components/DailyGoals';
-import { LanguageProvider } from './context/LanguageContext';
+import CloudIntro from './components/CloudIntro';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AppStateProvider, useAppState } from './context/AppStateContext';
 import { MusicType, backgroundMusic } from './services/backgroundMusic';
 import { soundEffects } from './services/soundEffects';
@@ -34,8 +35,39 @@ const AppContent: React.FC = () => {
   const [showDailyGoals, setShowDailyGoals] = useState(false);
   const [currentMusic, setCurrentMusic] = useState<MusicType>('none');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showCloudIntro, setShowCloudIntro] = useState(true);
 
   const { isLimitReached, settings } = useAppState();
+  const { language } = useLanguage();
+
+  useEffect(() => {
+    soundEffects.setEnabled(settings.soundEffects);
+    soundEffects.setVolume(settings.effectsVolume);
+    backgroundMusic.setVolume(settings.musicVolume);
+  }, [settings.soundEffects, settings.effectsVolume, settings.musicVolume]);
+
+  useEffect(() => {
+    let activated = false;
+
+    const unlockAudio = async () => {
+      if (activated) return;
+      activated = true;
+      await Promise.allSettled([soundEffects.unlock(), backgroundMusic.warmup()]);
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('touchstart', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, []);
 
   // Check for first launch / onboarding
   useEffect(() => {
@@ -86,7 +118,11 @@ const AppContent: React.FC = () => {
 
     // Check daily limit before navigating to reader
     if (screen === 'reader' && isLimitReached) {
-      alert('Daily reading limit reached! Come back tomorrow. 🌙');
+      alert(
+        language === 'tr'
+          ? 'Günlük okuma limitine ulaşıldı! Yarın tekrar gel. 🌙'
+          : 'Daily reading limit reached! Come back tomorrow. 🌙'
+      );
       return;
     }
 
@@ -115,7 +151,11 @@ const AppContent: React.FC = () => {
   const handleStorySelect = (story: Story) => {
     playClickSound();
     if (isLimitReached) {
-      alert('Daily reading limit reached! Come back tomorrow. 🌙');
+      alert(
+        language === 'tr'
+          ? 'Günlük okuma limitine ulaşıldı! Yarın tekrar gel. 🌙'
+          : 'Daily reading limit reached! Come back tomorrow. 🌙'
+      );
       return;
     }
     setSelectedStory(story);
@@ -209,12 +249,9 @@ const AppContent: React.FC = () => {
   // Screens that should show the bottom navigation
   const showNav = ['home', 'library', 'achievements'].includes(currentScreen);
 
-  // Show onboarding on first launch
-  if (showOnboarding) {
-    return <Onboarding onComplete={handleOnboardingComplete} />;
-  }
-
-  return (
+  const appScreen = showOnboarding ? (
+    <Onboarding onComplete={handleOnboardingComplete} />
+  ) : (
     <div className={`max-w-[430px] mx-auto bg-bg-dark min-h-screen relative shadow-2xl overflow-hidden ${isNightMode ? 'night-mode' : ''}`}>
       {renderScreen()}
 
@@ -276,15 +313,17 @@ const AppContent: React.FC = () => {
       {/* Daily Limit Warning */}
       {isLimitReached && (
         <div className="fixed bottom-20 left-4 right-4 bg-orange-500/90 text-white p-4 rounded-xl text-center max-w-[400px] mx-auto z-50">
-          <p className="font-bold">📵 Daily limit reached!</p>
-          <p className="text-sm opacity-80">Come back tomorrow for more stories.</p>
+          <p className="font-bold">{language === 'tr' ? '📵 Günlük limit doldu!' : '📵 Daily limit reached!'}</p>
+          <p className="text-sm opacity-80">
+            {language === 'tr' ? 'Daha fazla hikaye için yarın tekrar gel.' : 'Come back tomorrow for more stories.'}
+          </p>
         </div>
       )}
 
       {/* Night Mode Indicator */}
       {isNightMode && (
         <div className="fixed top-4 right-4 bg-purple-500/80 text-white px-3 py-1 rounded-full text-xs flex items-center gap-1 z-50">
-          <span>🌙</span> Night Mode
+          <span>🌙</span> {language === 'tr' ? 'Gece Modu' : 'Night Mode'}
         </div>
       )}
 
@@ -294,6 +333,15 @@ const AppContent: React.FC = () => {
         }
       `}</style>
     </div>
+  );
+
+  return (
+    <>
+      {appScreen}
+      {showCloudIntro && (
+        <CloudIntro onFinish={() => setShowCloudIntro(false)} />
+      )}
+    </>
   );
 };
 

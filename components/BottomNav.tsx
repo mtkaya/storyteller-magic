@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScreenName } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 interface BottomNavProps {
   activeScreen: ScreenName;
@@ -7,6 +8,8 @@ interface BottomNavProps {
 }
 
 const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, onNavigate }) => {
+  const { language, t } = useLanguage();
+
   const getIconClass = (screen: ScreenName) => {
     return activeScreen === screen ? 'text-primary' : 'text-gray-400 hover:text-white transition-colors';
   };
@@ -19,7 +22,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, onNavigate }) => {
           className={`flex flex-1 flex-col items-center justify-center gap-1 ${getIconClass('home')}`}
         >
           <span className="material-symbols-outlined text-2xl">home</span>
-          <p className="text-[10px] font-medium leading-normal tracking-wide uppercase">Home</p>
+          <p className="text-[10px] font-medium leading-normal tracking-wide uppercase">{t.nav_home}</p>
         </button>
 
         <button 
@@ -27,7 +30,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, onNavigate }) => {
           className={`flex flex-1 flex-col items-center justify-center gap-1 ${getIconClass('library')}`}
         >
           <span className="material-symbols-outlined text-2xl">auto_stories</span>
-          <p className="text-[10px] font-medium leading-normal tracking-wide uppercase">Library</p>
+          <p className="text-[10px] font-medium leading-normal tracking-wide uppercase">{t.nav_library}</p>
         </button>
 
         <button 
@@ -35,7 +38,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, onNavigate }) => {
           className={`flex flex-1 flex-col items-center justify-center gap-1 ${getIconClass('achievements')}`}
         >
           <span className="material-symbols-outlined text-2xl">emoji_events</span>
-          <p className="text-[10px] font-medium leading-normal tracking-wide uppercase">Badges</p>
+          <p className="text-[10px] font-medium leading-normal tracking-wide uppercase">{t.nav_achievements}</p>
         </button>
 
         <button 
@@ -43,7 +46,9 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, onNavigate }) => {
           className={`flex flex-1 flex-col items-center justify-center gap-1 ${getIconClass('parental_settings')}`}
         >
           <span className="material-symbols-outlined text-2xl">settings</span>
-          <p className="text-[10px] font-medium leading-normal tracking-wide uppercase">Parents</p>
+          <p className="text-[10px] font-medium leading-normal tracking-wide uppercase">
+            {language === 'tr' ? 'Ebeveyn' : 'Parents'}
+          </p>
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ParentalGateProps {
   onUnlock: () => void;
@@ -6,6 +7,7 @@ interface ParentalGateProps {
 }
 
 const ParentalGate: React.FC<ParentalGateProps> = ({ onUnlock, onClose }) => {
+  const { language } = useLanguage();
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState(false);
 
@@ -30,9 +32,11 @@ const ParentalGate: React.FC<ParentalGateProps> = ({ onUnlock, onClose }) => {
             <span className="material-symbols-outlined text-primary text-4xl">lock_person</span>
           </div>
           
-          <h3 className="text-white text-xl font-bold mb-2">Parental Control</h3>
+          <h3 className="text-white text-xl font-bold mb-2">
+            {language === 'tr' ? 'Ebeveyn Kontrolü' : 'Parental Control'}
+          </h3>
           <p className="text-gray-400 text-sm mb-6">
-            Please solve to continue:<br/>
+            {language === 'tr' ? 'Devam etmek için çöz:' : 'Please solve to continue:'}<br/>
             <span className="text-2xl font-bold text-primary mt-2 block">12 + 8 = ?</span>
           </p>
 
@@ -40,7 +44,7 @@ const ParentalGate: React.FC<ParentalGateProps> = ({ onUnlock, onClose }) => {
             type="number"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
-            placeholder="Enter answer"
+            placeholder={language === 'tr' ? 'Cevabı yaz' : 'Enter answer'}
             className={`w-full bg-white/5 border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl p-4 text-center text-white text-xl font-bold mb-4 focus:outline-none focus:ring-2 focus:ring-primary`}
           />
 
@@ -48,12 +52,12 @@ const ParentalGate: React.FC<ParentalGateProps> = ({ onUnlock, onClose }) => {
             onClick={handleSubmit}
             className="w-full bg-primary hover:bg-orange-600 text-white font-bold py-4 rounded-xl transition-colors shadow-lg shadow-primary/20"
           >
-            Enter Area
+            {language === 'tr' ? 'Alana Gir' : 'Enter Area'}
           </button>
           
           <div className="mt-4">
             <button className="text-primary text-sm font-semibold border-2 border-primary/20 px-6 py-2 rounded-full hover:bg-primary/10">
-              Hold for 3 seconds
+              {language === 'tr' ? '3 saniye basılı tut' : 'Hold for 3 seconds'}
             </button>
           </div>
         </div>

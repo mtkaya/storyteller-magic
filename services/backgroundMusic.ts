@@ -44,14 +44,16 @@ class BackgroundMusicService {
 
     private currentTrack: MusicType = 'none';
     private isPlaying = false;
-    private volume = 0.3;
+    private userVolume = 0.3;
+    private duckingMultiplier = 1;
+    private duckingTimer: number | null = null;
 
     private async initAudioContext() {
         if (!this.audioContext) {
             const AudioContextCtor: typeof AudioContext = window.AudioContext || (window as any).webkitAudioContext;
             this.audioContext = new AudioContextCtor();
             this.gainNode = this.audioContext.createGain();
-            this.gainNode.gain.value = this.volume;
+            this.gainNode.gain.value = this.userVolume;
             this.gainNode.connect(this.audioContext.destination);
         }
 
@@ -60,6 +62,24 @@ class BackgroundMusicService {
         }
 
         return this.audioContext;
+    }
+
+    private getEffectiveVolume(): number {
+        return Math.max(0, Math.min(1, this.userVolume * this.duckingMultiplier));
+    }
+
+    private applyVolume() {
+        const effectiveVolume = this.getEffectiveVolume();
+        if (this.gainNode) {
+            this.gainNode.gain.value = effectiveVolume;
+        }
+        if (this.htmlAudio) {
+            this.htmlAudio.volume = effectiveVolume;
+        }
+    }
+
+    async warmup(): Promise<void> {
+        await this.initAudioContext();
     }
 
     private clearFadeTimer() {
@@ -348,7 +368,7 @@ class BackgroundMusicService {
             const audio = new Audio(filePath);
             audio.loop = true;
             audio.preload = 'auto';
-            audio.volume = this.volume;
+            audio.volume = this.getEffectiveVolume();
             (audio as HTMLAudioElement & { stopRequested?: boolean }).stopRequested = false;
 
             audio.addEventListener('error', () => {
@@ -411,6 +431,11 @@ class BackgroundMusicService {
 
     stop(): void {
         this.clearFadeTimer();
+        if (this.duckingTimer !== null) {
+            clearInterval(this.duckingTimer);
+            this.duckingTimer = null;
+        }
+        this.duckingMultiplier = 1;
 
         if (this.currentSource) {
             try {
@@ -434,17 +459,12 @@ class BackgroundMusicService {
     }
 
     setVolume(volume: number): void {
-        this.volume = Math.max(0, Math.min(1, volume));
-        if (this.gainNode) {
-            this.gainNode.gain.value = this.volume;
-        }
-        if (this.htmlAudio) {
-            this.htmlAudio.volume = this.volume;
-        }
+        this.userVolume = Math.max(0, Math.min(1, volume));
+        this.applyVolume();
     }
 
     getVolume(): number {
-        return this.volume;
+        return this.userVolume;
     }
 
     getCurrentTrack(): MusicType {
@@ -455,13 +475,39 @@ class BackgroundMusicService {
         return this.isPlaying;
     }
 
+    setDucking(shouldDuck: boolean, targetMultiplier = 0.42, duration = 220): void {
+        const target = shouldDuck ? Math.max(0.15, Math.min(1, targetMultiplier)) : 1;
+        const start = this.duckingMultiplier;
+
+        if (Math.abs(start - target) < 0.001) return;
+        if (this.duckingTimer !== null) {
+            clearInterval(this.duckingTimer);
+            this.duckingTimer = null;
+        }
+
+        const startTime = Date.now();
+        this.duckingTimer = window.setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(1, elapsed / duration);
+            this.duckingMultiplier = start + (target - start) * progress;
+            this.applyVolume();
+
+            if (progress >= 1) {
+                if (this.duckingTimer !== null) {
+                    clearInterval(this.duckingTimer);
+                    this.duckingTimer = null;
+                }
+            }
+        }, 20);
+    }
+
     async fadeIn(type: MusicType, duration = 2000): Promise<void> {
         if (type === 'none') {
             this.stop();
             return;
         }
 
-        const targetVolume = this.volume;
+        const targetVolume = this.userVolume;
         this.setVolume(0);
         await this.play(type);
 
@@ -480,7 +526,7 @@ class BackgroundMusicService {
 
     fadeOut(duration = 2000): Promise<void> {
         return new Promise((resolve) => {
-            const startVolume = this.volume;
+            const startVolume = this.userVolume;
             const startTime = Date.now();
 
             this.clearFadeTimer();

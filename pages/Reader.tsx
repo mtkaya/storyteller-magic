@@ -4,7 +4,7 @@ import { LIBRARY_STORIES } from '../data';
 import SleepController from '../components/SleepController';
 import { useAppState } from '../context/AppStateContext';
 import { useLanguage } from '../context/LanguageContext';
-import { MusicType } from '../services/backgroundMusic';
+import { MusicType, backgroundMusic } from '../services/backgroundMusic';
 import { soundEffects } from '../services/soundEffects';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
 
@@ -211,7 +211,7 @@ const pickBestVoice = (voices: SpeechSynthesisVoice[], currentLanguage: 'en' | '
 };
 
 const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange, onMusicClick }) => {
-  const { recordStoryRead, recordChoice, recordEnding } = useAppState();
+  const { recordStoryRead, recordChoice, recordEnding, settings } = useAppState();
   const { language } = useLanguage();
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -268,6 +268,18 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     isPlayingRef.current = isPlaying;
   }, [isPlaying]);
 
+  useEffect(() => {
+    if (!currentMusic || currentMusic === 'none') {
+      backgroundMusic.setDucking(false);
+      return;
+    }
+
+    backgroundMusic.setDucking(isSpeaking);
+    return () => {
+      backgroundMusic.setDucking(false);
+    };
+  }, [isSpeaking, currentMusic]);
+
   // Handle sleep detection - goodnight and close
   const handleSleepDetected = () => {
     setIsPlaying(false);
@@ -282,9 +294,51 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     // User is still listening, continue
   };
 
-  // Use provided story or fallback
-  const defaultStory = LIBRARY_STORIES.find(s => s.content || s.isInteractive) || LIBRARY_STORIES[0];
-  const activeStory = story || defaultStory;
+  const hasPlayableStoryData = (candidate: Story | null | undefined) =>
+    Boolean(
+      candidate &&
+      ((candidate.content && candidate.content.length > 0) ||
+        (candidate.branches && candidate.branches.length > 0))
+    );
+
+  // Use provided story or fallback. If selected card has no paragraphs/branches,
+  // hydrate it with the closest playable story to avoid "empty story" screens.
+  const defaultStory = LIBRARY_STORIES.find(s => hasPlayableStoryData(s)) || LIBRARY_STORIES[0];
+  const activeStory = React.useMemo(() => {
+    if (!story) return defaultStory;
+    if (hasPlayableStoryData(story)) return story;
+
+    const sameIdStory = LIBRARY_STORIES.find(
+      candidate => candidate.id === story.id && hasPlayableStoryData(candidate)
+    );
+    if (sameIdStory) {
+      return {
+        ...sameIdStory,
+        ...story,
+        content: sameIdStory.content,
+        contentTr: sameIdStory.contentTr,
+        branches: sameIdStory.branches,
+        isInteractive: sameIdStory.isInteractive,
+        startBranchId: sameIdStory.startBranchId,
+      };
+    }
+
+    const sameThemeStory = LIBRARY_STORIES.find(
+      candidate => candidate.theme === story.theme && hasPlayableStoryData(candidate)
+    );
+    if (sameThemeStory) {
+      return {
+        ...sameThemeStory,
+        id: story.id,
+        title: story.title,
+        subtitle: story.subtitle || sameThemeStory.subtitle,
+        coverUrl: story.coverUrl || sameThemeStory.coverUrl,
+        theme: story.theme || sameThemeStory.theme,
+      };
+    }
+
+    return defaultStory;
+  }, [story, defaultStory]);
 
   // Check if this is an interactive story
   const isInteractiveStory = activeStory.isInteractive && activeStory.branches && activeStory.branches.length > 0;
@@ -543,6 +597,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       const audio = new Audio(objectUrl);
       audio.preload = 'auto';
       audio.playbackRate = playbackRate;
+      audio.volume = settings.narrationVolume;
       audioRef.current = audio;
 
       const played = await new Promise<boolean>((resolve) => {
@@ -626,7 +681,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       const utterance = new SpeechSynthesisUtterance(chunk);
       utterance.rate = effectiveRate;
       utterance.pitch = language === 'tr' ? 0.98 : 1.0;
-      utterance.volume = 1;
+      utterance.volume = settings.narrationVolume;
       utterance.lang = language === 'tr' ? 'tr-TR' : 'en-US';
 
       if (preferredVoiceRef.current) {

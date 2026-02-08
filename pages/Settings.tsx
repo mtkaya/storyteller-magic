@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ScreenName } from '../types';
 import { useLanguage, languageOptions } from '../context/LanguageContext';
+import { useAppState } from '../context/AppStateContext';
 
 interface SettingsProps {
     onNavigate: (screen: ScreenName) => void;
@@ -10,8 +11,8 @@ interface SettingsProps {
 
 const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport }) => {
     const { language, setLanguage, t } = useLanguage();
+    const { settings, updateSettings } = useAppState();
     const [sleepTimer, setSleepTimer] = useState(30); // seconds
-    const [soundEffects, setSoundEffects] = useState(true);
     const [notifications, setNotifications] = useState(false);
     const [readingSpeed, setReadingSpeed] = useState(0.9);
 
@@ -140,16 +141,67 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                         {language === 'tr' ? 'Uygulama Ayarları' : 'App Settings'}
                     </h3>
                     <div className="bg-white/5 rounded-2xl overflow-hidden border border-white/5 space-y-[1px]">
+                        <div className="p-4 bg-bg-card">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-white/60">music_note</span>
+                                    <span>{language === 'tr' ? 'Müzik Sesi' : 'Music Volume'}</span>
+                                </div>
+                                <span className="text-primary font-bold text-sm">{Math.round(settings.musicVolume * 100)}%</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={Math.round(settings.musicVolume * 100)}
+                                onChange={(e) => updateSettings({ musicVolume: Math.min(1, Math.max(0, Number(e.target.value) / 100)) })}
+                                className="w-full accent-primary h-2 rounded-full"
+                            />
+                        </div>
+                        <div className="p-4 bg-bg-card">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-white/60">graphic_eq</span>
+                                    <span>{language === 'tr' ? 'Efekt Sesi' : 'Effects Volume'}</span>
+                                </div>
+                                <span className="text-secondary font-bold text-sm">{Math.round(settings.effectsVolume * 100)}%</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={Math.round(settings.effectsVolume * 100)}
+                                onChange={(e) => updateSettings({ effectsVolume: Math.min(1, Math.max(0, Number(e.target.value) / 100)) })}
+                                className="w-full accent-secondary h-2 rounded-full"
+                            />
+                        </div>
+                        <div className="p-4 bg-bg-card">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-white/60">record_voice_over</span>
+                                    <span>{language === 'tr' ? 'Anlatım Sesi' : 'Narration Volume'}</span>
+                                </div>
+                                <span className="text-accent-peach font-bold text-sm">{Math.round(settings.narrationVolume * 100)}%</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={Math.round(settings.narrationVolume * 100)}
+                                onChange={(e) => updateSettings({ narrationVolume: Math.min(1, Math.max(0, Number(e.target.value) / 100)) })}
+                                className="w-full accent-primary h-2 rounded-full"
+                            />
+                        </div>
                         <div className="flex items-center justify-between p-4 bg-bg-card">
                             <div className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-white/60">volume_up</span>
                                 <span>{language === 'tr' ? 'Ses Efektleri' : 'Sound Effects'}</span>
                             </div>
                             <button
-                                onClick={() => setSoundEffects(!soundEffects)}
-                                className={`w-12 h-7 rounded-full relative transition-colors ${soundEffects ? 'bg-primary' : 'bg-white/10'}`}
+                                onClick={() => updateSettings({ soundEffects: !settings.soundEffects })}
+                                className={`w-12 h-7 rounded-full relative transition-colors ${settings.soundEffects ? 'bg-primary' : 'bg-white/10'}`}
                             >
-                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${soundEffects ? 'right-1' : 'left-1'}`}></div>
+                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${settings.soundEffects ? 'right-1' : 'left-1'}`}></div>
                             </button>
                         </div>
                         <div className="flex items-center justify-between p-4 bg-bg-card">

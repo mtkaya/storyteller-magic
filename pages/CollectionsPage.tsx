@@ -1,6 +1,6 @@
 import React from 'react';
 import { STORY_COLLECTIONS } from '../data/collections';
-import { LIBRARY_STORIES } from '../data';
+import { LIBRARY_STORIES, RECENT_STORIES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { Story, ScreenName } from '../types';
 import { getIllustratedImageUrl, getStoryCoverUrl } from '../services/illustrationCovers';
@@ -14,8 +14,31 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
     const { language } = useLanguage();
     const [selectedCollection, setSelectedCollection] = React.useState<string | null>(null);
 
+    const storyLookup = React.useMemo(() => {
+        const map = new Map<string, Story>();
+        const hasPlayableContent = (story: Story) =>
+            Boolean((story.content && story.content.length > 0) || (story.branches && story.branches.length > 0));
+
+        [...RECENT_STORIES, ...LIBRARY_STORIES].forEach((story) => {
+            const existing = map.get(story.id);
+            if (!existing) {
+                map.set(story.id, story);
+                return;
+            }
+
+            // Prefer entries that contain readable content/branches.
+            if (!hasPlayableContent(existing) && hasPlayableContent(story)) {
+                map.set(story.id, story);
+            }
+        });
+
+        return map;
+    }, []);
+
     const getStoriesForCollection = (storyIds: string[]): Story[] => {
-        return LIBRARY_STORIES.filter(story => storyIds.includes(story.id));
+        return storyIds
+            .map((storyId) => storyLookup.get(storyId))
+            .filter((story): story is Story => Boolean(story));
     };
 
     const activeCollection = selectedCollection

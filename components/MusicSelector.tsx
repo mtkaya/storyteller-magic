@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAppState } from '../context/AppStateContext';
 import { backgroundMusic, MUSIC_TRACKS, MusicType } from '../services/backgroundMusic';
 
 interface MusicSelectorProps {
@@ -11,17 +12,20 @@ interface MusicSelectorProps {
 
 const MusicSelector: React.FC<MusicSelectorProps> = ({ isOpen, onClose, currentTrack, onSelect }) => {
     const { language } = useLanguage();
-    const [volume, setVolume] = useState(30);
+    const { settings, updateSettings } = useAppState();
+    const [volume, setVolume] = useState(Math.round(settings.musicVolume * 100));
     const [previewTrack, setPreviewTrack] = useState<MusicType | null>(null);
 
     useEffect(() => {
-        // Set initial volume
-        backgroundMusic.setVolume(volume / 100);
-    }, []);
+        setVolume(Math.round(settings.musicVolume * 100));
+        backgroundMusic.setVolume(settings.musicVolume);
+    }, [settings.musicVolume]);
 
     const handleVolumeChange = (newVolume: number) => {
         setVolume(newVolume);
-        backgroundMusic.setVolume(newVolume / 100);
+        const normalized = Math.min(1, Math.max(0, newVolume / 100));
+        backgroundMusic.setVolume(normalized);
+        updateSettings({ musicVolume: normalized });
     };
 
     const handlePreview = (trackId: MusicType) => {
