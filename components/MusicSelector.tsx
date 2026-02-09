@@ -41,6 +41,12 @@ const MusicSelector: React.FC<MusicSelectorProps> = ({ isOpen, onClose, currentT
     };
 
     const handleSelect = (trackId: MusicType) => {
+        if (trackId !== 'none' && settings.musicVolume <= 0) {
+            const safeVolume = 0.5;
+            setVolume(Math.round(safeVolume * 100));
+            backgroundMusic.setVolume(safeVolume);
+            updateSettings({ musicVolume: safeVolume });
+        }
         onSelect(trackId);
         setPreviewTrack(null);
         onClose();

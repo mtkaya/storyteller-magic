@@ -36,8 +36,9 @@ const AppContent: React.FC = () => {
   const [currentMusic, setCurrentMusic] = useState<MusicType>('none');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCloudIntro, setShowCloudIntro] = useState(true);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
 
-  const { isLimitReached, settings } = useAppState();
+  const { isLimitReached, settings, updateSettings } = useAppState();
   const { language } = useLanguage();
 
   useEffect(() => {
@@ -53,6 +54,7 @@ const AppContent: React.FC = () => {
       if (activated) return;
       activated = true;
       await Promise.allSettled([soundEffects.unlock(), backgroundMusic.warmup()]);
+      setAudioUnlocked(true);
       window.removeEventListener('pointerdown', unlockAudio);
       window.removeEventListener('touchstart', unlockAudio);
       window.removeEventListener('keydown', unlockAudio);
@@ -68,6 +70,17 @@ const AppContent: React.FC = () => {
       window.removeEventListener('keydown', unlockAudio);
     };
   }, []);
+
+  useEffect(() => {
+    if (!audioUnlocked) return;
+    if (currentMusic !== 'none') return;
+
+    const savedTrack = settings.backgroundMusic as MusicType | null;
+    if (!savedTrack || savedTrack === 'none') return;
+
+    setCurrentMusic(savedTrack);
+    void backgroundMusic.fadeIn(savedTrack, 900);
+  }, [audioUnlocked, currentMusic, settings.backgroundMusic]);
 
   // Check for first launch / onboarding
   useEffect(() => {
@@ -184,10 +197,14 @@ const AppContent: React.FC = () => {
 
   const handleMusicChange = (music: MusicType) => {
     setCurrentMusic(music);
+    updateSettings({ backgroundMusic: music === 'none' ? null : music });
     if (music === 'none') {
-      backgroundMusic.fadeOut();
+      void backgroundMusic.fadeOut(600);
     } else {
-      backgroundMusic.fadeIn(music);
+      void (async () => {
+        await backgroundMusic.warmup();
+        await backgroundMusic.fadeIn(music, 1000);
+      })();
     }
   };
 

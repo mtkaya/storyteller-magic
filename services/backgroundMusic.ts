@@ -58,7 +58,12 @@ class BackgroundMusicService {
         }
 
         if (this.audioContext.state === 'suspended') {
-            await this.audioContext.resume();
+            try {
+                await this.audioContext.resume();
+            } catch {
+                // On some mobile browsers resume may require a stricter user gesture.
+                // Keep context instance alive so a later interaction can unlock it.
+            }
         }
 
         return this.audioContext;
@@ -402,10 +407,13 @@ class BackgroundMusicService {
         this.stop();
 
         try {
+            // Warm audio context first so procedural fallback can still play when
+            // local file tracks are missing or blocked.
+            await this.initAudioContext();
+
             const playedFromFile = await this.tryPlayFileTrack(type);
             if (playedFromFile) return;
 
-            await this.initAudioContext();
             const buffer = await this.createAmbientSound(type);
             if (!buffer || !this.audioContext || !this.gainNode) return;
 
