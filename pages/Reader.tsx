@@ -210,6 +210,51 @@ const pickBestVoice = (voices: SpeechSynthesisVoice[], currentLanguage: 'en' | '
   return scored[0]?.voice || null;
 };
 
+const splitParagraphForReader = (paragraph: string): string[] => {
+  const cleaned = paragraph.trim();
+  if (!cleaned) return [];
+
+  const sentences = cleaned
+    .match(/[^.!?…]+[.!?…]?/g)
+    ?.map((segment) => segment.trim())
+    .filter(Boolean) || [cleaned];
+
+  if (sentences.length <= 2) return [cleaned];
+
+  const chunks: string[] = [];
+  for (let i = 0; i < sentences.length; i += 2) {
+    chunks.push(sentences.slice(i, i + 2).join(' ').trim());
+  }
+  return chunks.filter(Boolean);
+};
+
+const ensureMinimumLinearParagraphs = (paragraphs: string[], language: 'en' | 'tr'): string[] => {
+  const targetCount = 8;
+  const seeded = [...paragraphs];
+  if (seeded.length >= targetCount) return seeded;
+
+  const fillers =
+    language === 'tr'
+      ? [
+        'Gece biraz daha sakinleşti ve herkes derin bir nefes aldı.',
+        'Ay ışığı, yolun üstüne yumuşak bir huzur serdi.',
+        'Küçük kahramanımız, kalbindeki cesaretle gülümsemeye devam etti.',
+        'Sessizce esen rüzgar, herkese güven veren bir ninni gibi duyuldu.',
+      ]
+      : [
+        'The night grew calmer, and everyone took a deep gentle breath.',
+        'Moonlight spread a soft layer of comfort across the path.',
+        'Our little hero kept smiling with quiet courage in their heart.',
+        'A soft breeze sounded like a lullaby and made everyone feel safe.',
+      ];
+
+  while (seeded.length < targetCount) {
+    seeded.push(fillers[seeded.length % fillers.length]);
+  }
+
+  return seeded;
+};
+
 const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange, onMusicClick }) => {
   const { recordStoryRead, recordChoice, recordEnding, settings } = useAppState();
   const { language } = useLanguage();
@@ -378,22 +423,36 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     return alternate?.id || null;
   };
 
-  // Get content based on story type and language
-  const getContent = (): string[] => {
-    if (isInteractiveStory && currentBranch) {
-      if (language === 'tr' && currentBranch.paragraphsTr) {
-        return currentBranch.paragraphsTr;
+  // Get content based on story type/language and expand short linear stories.
+  const content = React.useMemo(() => {
+    const rawContent = (() => {
+      if (isInteractiveStory && currentBranch) {
+        if (language === 'tr' && currentBranch.paragraphsTr) {
+          return currentBranch.paragraphsTr;
+        }
+        return currentBranch.paragraphs;
       }
-      return currentBranch.paragraphs;
-    }
 
-    if (language === 'tr' && activeStory.contentTr) {
-      return activeStory.contentTr;
-    }
-    return activeStory.content || [];
-  };
+      if (language === 'tr' && activeStory.contentTr) {
+        return activeStory.contentTr;
+      }
+      return activeStory.content || [];
+    })();
 
-  const content = getContent();
+    const segmented = rawContent
+      .flatMap(splitParagraphForReader)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+
+    if (isInteractiveStory) return segmented;
+    return ensureMinimumLinearParagraphs(segmented, language);
+  }, [
+    isInteractiveStory,
+    currentBranch,
+    language,
+    activeStory.content,
+    activeStory.contentTr
+  ]);
   const hasContent = content.length > 0;
 
   // Get localized text helper

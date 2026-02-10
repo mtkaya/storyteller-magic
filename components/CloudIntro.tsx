@@ -67,7 +67,6 @@ const CloudIntro: React.FC<CloudIntroProps> = ({ onFinish, durationMs = 5000 }) 
 
       <div className="relative z-10 flex h-full items-center justify-center px-8">
         <div className="cloud-intro-center">
-          <div className="cloud-intro-glow" />
           <img
             src="/images/logo-storyteller.jpg"
             alt="Storyteller"
@@ -105,8 +104,8 @@ const CloudIntro: React.FC<CloudIntroProps> = ({ onFinish, durationMs = 5000 }) 
           position: absolute;
           inset: 0;
           background:
-            radial-gradient(80% 55% at 50% 92%, rgba(255, 255, 255, 0.26) 0, rgba(255, 255, 255, 0) 74%),
-            radial-gradient(65% 40% at 50% 12%, rgba(255, 255, 255, 0.16) 0, rgba(255, 255, 255, 0) 70%);
+            radial-gradient(80% 55% at 50% 92%, rgba(255, 255, 255, 0.12) 0, rgba(255, 255, 255, 0) 74%),
+            radial-gradient(65% 40% at 50% 12%, rgba(255, 255, 255, 0.08) 0, rgba(255, 255, 255, 0) 70%);
           animation: cloud-intro-mist 1.55s ease-out forwards;
         }
 
@@ -180,31 +179,24 @@ const CloudIntro: React.FC<CloudIntroProps> = ({ onFinish, durationMs = 5000 }) 
 
         .cloud-intro-center {
           position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
           text-align: center;
-          transform: translateY(8px) scale(0.98);
+          width: 100%;
+          max-width: 320px;
+          transform: translateY(0) scale(1);
           animation: cloud-intro-center 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
-        }
-
-        .cloud-intro-glow {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          width: min(72vw, 320px);
-          height: min(72vw, 320px);
-          transform: translate(-50%, -50%);
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(255, 204, 150, 0.38) 0%, rgba(255, 204, 150, 0) 74%);
-          filter: blur(6px);
         }
 
         .cloud-intro-logo {
           position: relative;
-          width: min(44vw, 190px);
+          width: min(46vw, 196px);
           aspect-ratio: 1;
           object-fit: cover;
-          border-radius: 30%;
-          border: 3px solid rgba(246, 240, 255, 0.72);
-          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.38), 0 0 0 10px rgba(255, 255, 255, 0.1);
+          border-radius: 28%;
+          border: none;
+          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
           animation:
             cloud-intro-logo-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both,
             cloud-intro-logo-float 2.8s ease-in-out 1.1s infinite;

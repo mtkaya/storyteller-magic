@@ -41,33 +41,26 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
   return (
     <div className="flex flex-col min-h-screen pb-24">
       {/* Header */}
-      <div className="flex items-center p-6 pb-2 justify-between">
+      <div className="flex items-start gap-3 p-4 pb-2 justify-between">
         <button
           onClick={onProfileClick}
-          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          className="flex min-w-0 flex-1 items-center gap-3 hover:opacity-80 transition-opacity"
         >
           <div className="size-11 rounded-full border-2 border-primary/30 overflow-hidden shadow-lg bg-bg-card flex items-center justify-center text-2xl">
             {activeProfile?.avatar || '🧒'}
           </div>
-          <div>
-            <h2 className="text-white text-xl font-bold leading-tight">{getGreeting()},</h2>
-            <p className="text-accent-peach text-sm font-semibold">{activeProfile?.name || 'Little Explorer'}</p>
+          <div className="min-w-0">
+            <h2 className="text-white text-xl font-bold leading-tight truncate">{getGreeting()},</h2>
+            <p className="text-accent-peach text-sm font-semibold truncate">{activeProfile?.name || 'Little Explorer'}</p>
           </div>
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {/* Goals Button */}
           <button
             onClick={onGoalsClick}
             className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
           >
             <span className="material-symbols-outlined text-white">flag</span>
-          </button>
-          {/* Map Button */}
-          <button
-            onClick={onMapClick}
-            className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
-          >
-            <span className="material-symbols-outlined text-white">map</span>
           </button>
           {/* Stats Button */}
           <button
@@ -96,6 +89,17 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             <span className="material-symbols-outlined text-white">settings</span>
           </button>
         </div>
+      </div>
+
+      {/* Map Shortcut (moved below top menu to prevent overflow) */}
+      <div className="px-4 pb-2 flex justify-end">
+        <button
+          onClick={onMapClick}
+          className="h-9 rounded-full bg-white/5 flex items-center justify-center gap-2 px-3 hover:bg-white/10 transition-colors"
+        >
+          <span className="material-symbols-outlined text-white text-[20px]">map</span>
+          <span className="text-white/80 text-xs font-semibold">{language === 'tr' ? 'Harita' : 'Map'}</span>
+        </button>
       </div>
 
       {/* Quick Stats Bar */}
