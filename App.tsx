@@ -217,7 +217,6 @@ const AppContent: React.FC = () => {
             onStorySelect={handleStorySelect}
             onProfileClick={() => { playClickSound(); setShowProfileSelector(true); }}
             onMusicClick={() => { playClickSound(); setShowMusicSelector(true); }}
-            onMapClick={() => { playClickSound(); setShowStoryMap(true); }}
             onGoalsClick={() => { playClickSound(); setShowDailyGoals(true); }}
           />
         );
@@ -273,7 +272,14 @@ const AppContent: React.FC = () => {
       {renderScreen()}
 
       {showNav && (
-        <BottomNav activeScreen={currentScreen} onNavigate={handleNavigate} />
+        <BottomNav
+          activeScreen={currentScreen}
+          onNavigate={handleNavigate}
+          onMapClick={() => {
+            playClickSound();
+            setShowStoryMap(true);
+          }}
+        />
       )}
 
       {showParentalGate && (

@@ -10,11 +10,10 @@ interface HomeProps {
   onStorySelect: (story: Story) => void;
   onProfileClick?: () => void;
   onMusicClick?: () => void;
-  onMapClick?: () => void;
   onGoalsClick?: () => void;
 }
 
-const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, onMusicClick, onMapClick, onGoalsClick }) => {
+const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, onMusicClick, onGoalsClick }) => {
   const { language, t } = useLanguage();
   const { activeProfile, stats, favorites, isFavorite, addFavorite, removeFavorite } = useAppState();
 
@@ -89,17 +88,6 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             <span className="material-symbols-outlined text-white">settings</span>
           </button>
         </div>
-      </div>
-
-      {/* Map Shortcut (moved below top menu to prevent overflow) */}
-      <div className="px-4 pb-2 flex justify-end">
-        <button
-          onClick={onMapClick}
-          className="h-9 rounded-full bg-white/5 flex items-center justify-center gap-2 px-3 hover:bg-white/10 transition-colors"
-        >
-          <span className="material-symbols-outlined text-white text-[20px]">map</span>
-          <span className="text-white/80 text-xs font-semibold">{language === 'tr' ? 'Harita' : 'Map'}</span>
-        </button>
       </div>
 
       {/* Quick Stats Bar */}
