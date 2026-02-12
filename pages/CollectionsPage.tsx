@@ -4,6 +4,7 @@ import { LIBRARY_STORIES, RECENT_STORIES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { Story, ScreenName } from '../types';
 import { getIllustratedImageUrl, getStoryCoverUrl } from '../services/illustrationCovers';
+import { getLocalizedStorySubtitle, getLocalizedStoryTitle } from '../services/storyLocalization';
 
 interface CollectionsPageProps {
     onBack: () => void;
@@ -13,8 +14,8 @@ interface CollectionsPageProps {
 const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect }) => {
     const { language } = useLanguage();
     const [selectedCollection, setSelectedCollection] = React.useState<string | null>(null);
-    const getStoryTitle = (story: Story) => (language === 'tr' ? story.titleTr || story.title : story.title);
-    const getStorySubtitle = (story: Story) => (language === 'tr' ? story.subtitleTr || story.subtitle : story.subtitle);
+    const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
+    const getStorySubtitle = (story: Story) => getLocalizedStorySubtitle(story, language);
 
     const storyLookup = React.useMemo(() => {
         const map = new Map<string, Story>();

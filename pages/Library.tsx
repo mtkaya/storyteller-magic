@@ -11,6 +11,7 @@ import {
   parseDurationMinutes,
   rankStoriesForLibrary,
 } from '../services/storyCuration';
+import { getLocalizedStorySubtitle, getLocalizedStoryTitle } from '../services/storyLocalization';
 
 interface LibraryProps {
   onNavigate: (screen: ScreenName) => void;
@@ -72,8 +73,8 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
     [language, dynamicThemeFilters]
   );
 
-  const getStoryTitle = (story: Story) => (language === 'tr' ? story.titleTr || story.title : story.title);
-  const getStorySubtitle = (story: Story) => (language === 'tr' ? story.subtitleTr || story.subtitle : story.subtitle);
+  const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
+  const getStorySubtitle = (story: Story) => getLocalizedStorySubtitle(story, language);
 
   // Filter stories
   const filteredStories = rankedStories.filter((story) => {

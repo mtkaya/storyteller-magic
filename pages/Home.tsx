@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAppState } from '../context/AppStateContext';
 import { getIllustratedImageUrl, getStoryCoverUrl } from '../services/illustrationCovers';
 import { buildStoryPool, getCuratedHomeShelves } from '../services/storyCuration';
+import { getLocalizedStorySubtitle, getLocalizedStoryTitle } from '../services/storyLocalization';
 
 interface HomeProps {
   onNavigate: (screen: ScreenName) => void;
@@ -34,8 +35,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
     [storyPool, favorites, stats.themeCounts, currentHour]
   );
 
-  const getStoryTitle = (story: Story) => (language === 'tr' ? story.titleTr || story.title : story.title);
-  const getStorySubtitle = (story: Story) => (language === 'tr' ? story.subtitleTr || story.subtitle : story.subtitle);
+  const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
+  const getStorySubtitle = (story: Story) => getLocalizedStorySubtitle(story, language);
 
   const themes = [
     { name: language === 'tr' ? 'Uyku' : 'Bedtime', image: IMAGES.SLEEPING_CLOUD, icon: 'bedtime', visualIcon: '🌙', theme: 'bedtime' },

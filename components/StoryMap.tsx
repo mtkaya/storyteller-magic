@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAppState } from '../context/AppStateContext';
 import { LIBRARY_STORIES } from '../data';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
+import { getLocalizedStoryTitle } from '../services/storyLocalization';
 
 interface StoryMapProps {
     onStorySelect: (story: Story) => void;
@@ -13,6 +14,7 @@ interface StoryMapProps {
 const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
     const { language } = useLanguage();
     const { stats, favorites, isFavorite } = useAppState();
+    const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
 
     // Group stories by theme
     const storiesByTheme = LIBRARY_STORIES.reduce((acc, story) => {
@@ -145,12 +147,12 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                                                             }`}>
                                                             <img
                                                                 src={getStoryCoverUrl(story)}
-                                                                alt={story.title}
+                                                                alt={getStoryTitle(story)}
                                                                 className="w-full h-full object-cover"
                                                             />
                                                         </div>
                                                         <p className="text-white text-[10px] mt-1 truncate text-center">
-                                                            {story.title.split(' ').slice(0, 2).join(' ')}
+                                                            {getStoryTitle(story).split(' ').slice(0, 2).join(' ')}
                                                         </p>
                                                     </button>
                                                 ))}
