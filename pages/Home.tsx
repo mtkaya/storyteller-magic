@@ -1,9 +1,10 @@
 import React from 'react';
 import { ScreenName, Story } from '../types';
-import { RECENT_STORIES, IMAGES } from '../data';
+import { RECENT_STORIES, LIBRARY_STORIES, IMAGES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppState } from '../context/AppStateContext';
 import { getIllustratedImageUrl, getStoryCoverUrl } from '../services/illustrationCovers';
+import { buildStoryPool, getCuratedHomeShelves } from '../services/storyCuration';
 
 interface HomeProps {
   onNavigate: (screen: ScreenName) => void;
@@ -16,6 +17,25 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, onMusicClick, onGoalsClick }) => {
   const { language, t } = useLanguage();
   const { activeProfile, stats, favorites, isFavorite, addFavorite, removeFavorite } = useAppState();
+  const currentHour = new Date().getHours();
+
+  const storyPool = React.useMemo(
+    () => buildStoryPool(RECENT_STORIES, LIBRARY_STORIES),
+    []
+  );
+
+  const curatedShelves = React.useMemo(
+    () =>
+      getCuratedHomeShelves(storyPool, {
+        favorites,
+        themeCounts: stats.themeCounts,
+        hour: currentHour,
+      }),
+    [storyPool, favorites, stats.themeCounts, currentHour]
+  );
+
+  const getStoryTitle = (story: Story) => (language === 'tr' ? story.titleTr || story.title : story.title);
+  const getStorySubtitle = (story: Story) => (language === 'tr' ? story.subtitleTr || story.subtitle : story.subtitle);
 
   const themes = [
     { name: language === 'tr' ? 'Uyku' : 'Bedtime', image: IMAGES.SLEEPING_CLOUD, icon: 'bedtime', visualIcon: '🌙', theme: 'bedtime' },
@@ -145,7 +165,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
       </div>
 
       {/* Favorites Section (if any) */}
-      {favorites.length > 0 && (
+      {curatedShelves.favoriteStories.length > 0 && (
         <>
           <div className="flex items-center justify-between px-6 pb-4">
             <h3 className="text-white text-lg font-bold flex items-center gap-2">
@@ -154,22 +174,22 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             </h3>
           </div>
           <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 pb-6 gap-4">
-            {RECENT_STORIES.filter(s => favorites.includes(s.id)).slice(0, 5).map((story) => (
+            {curatedShelves.favoriteStories.map((story) => (
               <div key={story.id} className="snap-start min-w-[140px] flex flex-col gap-3 group cursor-pointer" onClick={() => onStorySelect(story)}>
                 <div className="w-full aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg border border-red-400/30">
-                  <img src={getStoryCoverUrl(story)} alt={story.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <img src={getStoryCoverUrl(story)} alt={getStoryTitle(story)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 </div>
-                <p className="text-white text-sm font-bold truncate">{story.title}</p>
+                <p className="text-white text-sm font-bold truncate">{getStoryTitle(story)}</p>
               </div>
             ))}
           </div>
         </>
       )}
 
-      {/* Recently Read */}
+      {/* Curated Picks */}
       <div className="flex items-center justify-between px-6 pb-4">
         <h3 className="text-white text-lg font-bold">
-          {language === 'tr' ? 'Son Okunanlar' : 'Recently Read'}
+          {language === 'tr' ? 'Sana Özel Seçkiler' : 'Picks For You'}
         </h3>
         <button className="text-accent-peach text-sm font-semibold" onClick={() => onNavigate('library')}>
           {language === 'tr' ? 'Tümünü Gör' : 'View All'}
@@ -177,10 +197,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
       </div>
 
       <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 pb-6 gap-4">
-        {RECENT_STORIES.map((story) => (
+        {curatedShelves.featured.map((story) => (
           <div key={story.id} className="snap-start min-w-[160px] flex flex-col gap-3 group cursor-pointer relative">
             <div className="w-full aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg border border-white/5" onClick={() => onStorySelect(story)}>
-              <img src={getStoryCoverUrl(story)} alt={story.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              <img src={getStoryCoverUrl(story)} alt={getStoryTitle(story)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
               {/* Favorite button */}
               <button
                 onClick={(e) => {
@@ -201,12 +221,66 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
               )}
             </div>
             <div onClick={() => onStorySelect(story)}>
-              <p className="text-white text-base font-bold truncate">{story.title}</p>
-              <p className="text-white/50 text-xs mt-0.5">{story.subtitle}</p>
+              <p className="text-white text-base font-bold truncate">{getStoryTitle(story)}</p>
+              <p className="text-white/50 text-xs mt-0.5">{getStorySubtitle(story)}</p>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Bedtime Picks */}
+      {curatedShelves.bedtime.length > 0 && (
+        <>
+          <div className="flex items-center justify-between px-6 pb-4">
+            <h3 className="text-white text-lg font-bold">
+              {language === 'tr' ? 'Uyku Öncesi Kısa Masallar' : 'Short Bedtime Stories'}
+            </h3>
+          </div>
+          <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 pb-6 gap-4">
+            {curatedShelves.bedtime.map((story) => (
+              <div key={`bedtime-${story.id}`} className="snap-start min-w-[160px] flex flex-col gap-3 group cursor-pointer">
+                <div className="w-full aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg border border-white/5" onClick={() => onStorySelect(story)}>
+                  <img src={getStoryCoverUrl(story)} alt={getStoryTitle(story)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
+                    <span className="text-[10px] font-bold text-white">{story.duration}</span>
+                  </div>
+                </div>
+                <div onClick={() => onStorySelect(story)}>
+                  <p className="text-white text-base font-bold truncate">{getStoryTitle(story)}</p>
+                  <p className="text-white/50 text-xs mt-0.5">{getStorySubtitle(story)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Interactive Picks */}
+      {curatedShelves.interactive.length > 0 && (
+        <>
+          <div className="flex items-center justify-between px-6 pb-4">
+            <h3 className="text-white text-lg font-bold">
+              {language === 'tr' ? 'İnteraktif Seçkiler' : 'Interactive Adventures'}
+            </h3>
+          </div>
+          <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 pb-6 gap-4">
+            {curatedShelves.interactive.map((story) => (
+              <div key={`interactive-${story.id}`} className="snap-start min-w-[160px] flex flex-col gap-3 group cursor-pointer">
+                <div className="w-full aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg border border-secondary/40" onClick={() => onStorySelect(story)}>
+                  <img src={getStoryCoverUrl(story)} alt={getStoryTitle(story)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute top-2 left-2 bg-secondary/90 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold text-white">🎮 {language === 'tr' ? 'İnteraktif' : 'Interactive'}</span>
+                  </div>
+                </div>
+                <div onClick={() => onStorySelect(story)}>
+                  <p className="text-white text-base font-bold truncate">{getStoryTitle(story)}</p>
+                  <p className="text-white/50 text-xs mt-0.5">{getStorySubtitle(story)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Collections Banner */}
       <div className="px-6 pb-4">

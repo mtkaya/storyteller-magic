@@ -261,7 +261,9 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                     </button>
                 </section>
 
-                <p className="text-center text-white/20 text-xs py-4">Version 1.1.0</p>
+                <p className="text-center text-white/20 text-xs py-4">
+                    {language === 'tr' ? 'Sürüm' : 'Version'} 1.1.0
+                </p>
             </div>
         </div>
     );

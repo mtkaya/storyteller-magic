@@ -257,7 +257,7 @@ const ensureMinimumLinearParagraphs = (paragraphs: string[], language: 'en' | 't
 
 const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange, onMusicClick }) => {
   const { recordStoryRead, recordChoice, recordEnding, settings } = useAppState();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState(0);
@@ -901,7 +901,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
               </span>
               {isInteractiveStory && (
                 <span className="text-[10px] text-primary bg-primary/20 px-2 py-0.5 rounded-full">
-                  🎮 Interactive
+                  🎮 {language === 'tr' ? 'İnteraktif' : 'Interactive'}
                 </span>
               )}
             </div>
@@ -953,7 +953,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
           {isSpeaking && (
             <div className="absolute top-4 right-4 flex items-center gap-2 bg-primary/90 backdrop-blur-md px-3 py-1.5 rounded-full animate-pulse">
               <span className="material-symbols-outlined text-bg-dark text-sm">graphic_eq</span>
-              <span className="text-xs text-bg-dark font-bold">Reading...</span>
+              <span className="text-xs text-bg-dark font-bold">{t.reader_reading}</span>
             </div>
           )}
         </div>
