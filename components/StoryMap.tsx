@@ -44,18 +44,25 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] bg-bg-dark overflow-y-auto">
+        <div
+            className="fixed inset-0 z-[100] bg-bg-dark overflow-y-auto overscroll-y-contain"
+            style={{ paddingTop: 'max(env(safe-area-inset-top), 8px)' }}
+        >
             {/* Header */}
-            <div className="sticky top-0 z-50 bg-bg-dark/95 backdrop-blur-md border-b border-white/5 p-4">
+            <div className="sticky top-0 z-50 bg-bg-dark/95 backdrop-blur-md border-b border-white/5 px-4 py-3">
                 <div className="flex items-center justify-between">
-                    <button onClick={onClose} className="size-10 flex items-center justify-center rounded-full hover:bg-white/5 text-white">
+                    <button
+                        onClick={onClose}
+                        className="size-11 shrink-0 flex items-center justify-center rounded-full hover:bg-white/10 active:scale-95 text-white touch-manipulation"
+                        style={{ touchAction: 'manipulation' }}
+                    >
                         <span className="material-symbols-outlined">close</span>
                     </button>
-                    <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                    <h1 className="text-xl font-bold text-white flex items-center justify-center gap-2 min-w-0 px-2">
                         <span>🗺️</span>
-                        {language === 'tr' ? 'Hikaye Haritası' : 'Story Map'}
+                        <span className="truncate">{language === 'tr' ? 'Hikaye Haritası' : 'Story Map'}</span>
                     </h1>
-                    <div className="size-10" />
+                    <div className="size-11 shrink-0" />
                 </div>
             </div>
 
@@ -85,7 +92,7 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                 {/* Theme Islands */}
                 <div className="relative">
                     {/* Connecting paths (decorative) */}
-                    <svg className="absolute inset-0 w-full h-full pointer-events-none -z-10" style={{ minHeight: '800px' }}>
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" style={{ minHeight: '800px' }}>
                         <defs>
                             <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                                 <stop offset="0%" stopColor="rgba(238, 140, 43, 0.3)" />
@@ -102,7 +109,7 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                     </svg>
 
                     {/* Theme Cards */}
-                    <div className="space-y-6">
+                    <div className="space-y-6 relative z-10">
                         {Object.entries(storiesByTheme).map(([theme, stories], index) => {
                             const config = themeConfig[theme] || themeConfig.other;
                             const progress = getThemeProgress(theme);
@@ -141,7 +148,8 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                                                     <button
                                                         key={story.id}
                                                         onClick={() => onStorySelect(story)}
-                                                        className="flex-shrink-0 w-16"
+                                                        className="flex-shrink-0 w-16 touch-manipulation"
+                                                        style={{ touchAction: 'manipulation' }}
                                                     >
                                                         <div className={`w-16 h-20 rounded-lg overflow-hidden border-2 ${isFavorite(story.id) ? 'border-red-400' : 'border-white/20'
                                                             }`}>
