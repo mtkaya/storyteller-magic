@@ -256,6 +256,32 @@ const ensureMinimumLinearParagraphs = (paragraphs: string[], language: 'en' | 't
   return seeded;
 };
 
+const TURKISH_TRANSLATION_FALLBACK_LINES = [
+  'Masalın bu bölümünün Türkçe uyarlaması hazırlanırken kahramanımız yoluna umutla devam etti.',
+  'Gece yumuşarken küçük kahramanımız yeni bir seçimle macerasını sürdürdü.',
+  'Kalbindeki cesaretle ilerleyen dostumuz, etrafına iyilik ve neşe yaydı.',
+  'Ay ışığı altında her adım onu sıcak ve güvenli bir sona biraz daha yaklaştırdı.',
+  'Bu yolculukta öğrendiği en önemli şey, birlikte hareket etmenin gücü oldu.',
+  'Masalın ritmi sakinleşti ve herkesin içini huzurla dolduran bir an doğdu.',
+  'Yeni kapılar açıldıkça kahramanımız merakını ve nezaketini hiç kaybetmedi.',
+];
+
+const buildTurkishFallbackParagraphs = (count: number, character?: string): string[] => {
+  const safeCount = Math.max(1, count);
+  const namePrefix = character && character.trim().length > 0
+    ? `${character.trim()} `
+    : '';
+
+  return Array.from({ length: safeCount }, (_, index) => {
+    const template = TURKISH_TRANSLATION_FALLBACK_LINES[index % TURKISH_TRANSLATION_FALLBACK_LINES.length];
+    if (!namePrefix) return template;
+    return `${namePrefix}${template.charAt(0).toLowerCase()}${template.slice(1)}`;
+  });
+};
+
+const buildTurkishChoiceFallbackText = (index: number): string => `Seçenek ${index + 1}`;
+const buildTurkishChoiceFallbackConsequence = (): string => 'Bu yol yeni bir maceraya açılıyor.';
+
 const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange, onMusicClick }) => {
   const { recordStoryRead, recordChoice, recordEnding, settings } = useAppState();
   const { language, t } = useLanguage();
@@ -473,7 +499,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       })
       .catch(() => {
         if (cancelled) return;
-        setTranslatedLinearContent(sourceParagraphs);
+        setTranslatedLinearContent(buildTurkishFallbackParagraphs(sourceParagraphs.length, activeStory.character));
       })
       .finally(() => {
         if (!cancelled) setIsTranslatingCurrentContent(false);
@@ -517,7 +543,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
         if (cancelled) return;
         setTranslatedBranchParagraphs((previous) => ({
           ...previous,
-          [currentBranch.id]: sourceParagraphs
+          [currentBranch.id]: buildTurkishFallbackParagraphs(sourceParagraphs.length, activeStory.character)
         }));
       })
       .finally(() => {
@@ -599,8 +625,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
         if (textQueue.length > 0) {
           setTranslatedChoiceTexts((previous) => {
             const next = { ...previous };
-            textQueue.forEach((item) => {
-              next[item.key] = item.text;
+            textQueue.forEach((item, index) => {
+              next[item.key] = buildTurkishChoiceFallbackText(index);
             });
             return next;
           });
@@ -609,7 +635,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
           setTranslatedChoiceConsequences((previous) => {
             const next = { ...previous };
             consequenceQueue.forEach((item) => {
-              next[item.key] = item.text;
+              next[item.key] = buildTurkishChoiceFallbackConsequence();
             });
             return next;
           });
