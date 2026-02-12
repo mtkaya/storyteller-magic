@@ -5,192 +5,274 @@ interface SubscriptionProps {
   onBack: () => void;
 }
 
+interface PremiumPlan {
+  id: string;
+  name: string;
+  oldPrice?: string;
+  price: string;
+  period: string;
+  savingsBadge: string;
+  description: string;
+  cta: string;
+  badge?: string;
+  features: string[];
+  cardGradient: string;
+  buttonGradient: string;
+}
+
 const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
   const { language } = useLanguage();
-  const [selectedPlan, setSelectedPlan] = useState<string>('premium');
+  const isTr = language === 'tr';
+  const [selectedPlan, setSelectedPlan] = useState<string>('weekly');
 
-  const plans = [
-    {
-      id: 'free',
-      name: language === 'tr' ? 'Ücretsiz' : 'Free',
-      price: language === 'tr' ? '₺0' : '$0',
-      period: language === 'tr' ? '/ay' : '/month',
-      icon: '🌙',
-      color: 'bg-white/5',
-      features: [
-        language === 'tr' ? '3 hikaye/gün' : '3 stories/day',
-        language === 'tr' ? 'Temel temalar' : 'Basic themes',
-        language === 'tr' ? 'Standart sesler' : 'Standard voices',
-        language === 'tr' ? 'Reklamlı' : 'With ads',
-      ],
-      buttonText: language === 'tr' ? 'Mevcut Plan' : 'Current Plan',
-      isPopular: false,
-    },
-    {
-      id: 'premium',
-      name: 'Premium',
-      price: language === 'tr' ? '₺99' : '$9.99',
-      period: language === 'tr' ? '/ay' : '/month',
-      icon: '⭐',
-      color: 'bg-gradient-to-br from-primary/20 to-secondary/20',
-      features: [
-        language === 'tr' ? 'Sınırsız hikaye' : 'Unlimited stories',
-        language === 'tr' ? 'Tüm temalar' : 'All themes',
-        language === 'tr' ? 'Premium sesler' : 'Premium voices',
-        language === 'tr' ? 'Reklamsız' : 'Ad-free',
-        language === 'tr' ? 'Çevrimdışı mod' : 'Offline mode',
-        language === 'tr' ? 'İnteraktif hikayeler' : 'Interactive stories',
-      ],
-      buttonText: language === 'tr' ? 'Şimdi Başla' : 'Start Now',
-      isPopular: true,
-    },
-    {
-      id: 'family',
-      name: language === 'tr' ? 'Aile' : 'Family',
-      price: language === 'tr' ? '₺149' : '$14.99',
-      period: language === 'tr' ? '/ay' : '/month',
-      icon: '👨‍👩‍👧‍👦',
-      color: 'bg-gradient-to-br from-blue-500/20 to-purple-500/20',
-      features: [
-        language === 'tr' ? 'Tüm Premium özellikler' : 'All Premium features',
-        language === 'tr' ? '5 çocuk profili' : '5 child profiles',
-        language === 'tr' ? 'Ebeveyn raporları' : 'Parent reports',
-        language === 'tr' ? 'Özel hikaye oluşturma' : 'Custom story creation',
-        language === 'tr' ? 'Öncelikli destek' : 'Priority support',
-      ],
-      buttonText: language === 'tr' ? 'Aileyi Başlat' : 'Start Family',
-      isPopular: false,
-    },
-  ];
-
-  const premiumFeatures = [
-    { icon: '✨', title: language === 'tr' ? 'AI Hikaye Oluşturma' : 'AI Story Creation', desc: language === 'tr' ? 'Kişiselleştirilmiş hikayeler' : 'Personalized adventures' },
-    { icon: '🎮', title: language === 'tr' ? 'İnteraktif Maceralar' : 'Interactive Adventures', desc: language === 'tr' ? 'Seçimlerle hikaye' : 'Choose your path' },
-    { icon: '🎵', title: language === 'tr' ? 'Premium Sesler' : 'Premium Audio', desc: language === 'tr' ? 'Profesyonel seslendirme' : 'Professional voices' },
-    { icon: '📚', title: language === 'tr' ? 'Özel Koleksiyonlar' : 'Exclusive Collections', desc: language === 'tr' ? 'Sadece premium içerik' : 'Premium-only content' },
-    { icon: '🌙', title: language === 'tr' ? 'Uyku Modu' : 'Sleep Mode', desc: language === 'tr' ? 'Gelişmiş uyku özellikleri' : 'Advanced sleep features' },
-    { icon: '📊', title: language === 'tr' ? 'Detaylı Raporlar' : 'Detailed Reports', desc: language === 'tr' ? 'Öğrenme takibi' : 'Learning insights' },
-  ];
+  const plans: PremiumPlan[] = isTr
+    ? [
+      {
+        id: 'weekly',
+        name: 'Masal Avcısı',
+        oldPrice: '₺149,99',
+        price: '₺99,99',
+        period: '/Hafta',
+        savingsBadge: 'Haftada ₺50,00 tasarruf et',
+        description: 'Hareket halindeki masalcılar için ideal, haftalık 10 masal oluştur ve premium özellikleri keşfet.',
+        cta: 'Şimdi Satın Al',
+        features: [
+          'Haftalık 10 yapay zeka destekli masal oluştur',
+          'Tüm masal türlerine ve temalarına sınırsız erişim',
+          'Premium görsel tarzlara erişim',
+          'Her sahne için benzersiz görseller',
+          'Her masal için 25 sahne',
+          'Sınırsız masalı toplulukta yayınla',
+          'Reklamsız deneyimin keyfini çıkar'
+        ],
+        cardGradient: 'from-[#27145d] to-[#1a0f43]',
+        buttonGradient: 'from-[#3f33ff] to-[#7e35ff]'
+      },
+      {
+        id: 'monthly',
+        name: 'Usta Masalcı',
+        oldPrice: '₺499,99',
+        price: '₺299,99',
+        period: '/Ay',
+        savingsBadge: 'Aylık ₺200,00 tasarruf et',
+        description: 'En popüler tercih. Her gün yeni hikayeler üret, çocuk profilleriyle ilerlemeyi takip et.',
+        cta: 'Aylığı Başlat',
+        badge: 'En Popüler',
+        features: [
+          'Aylık 45 yapay zeka destekli masal',
+          'Tüm interaktif hikaye dallarına tam erişim',
+          'Sınırsız ses ve müzik seçeneği',
+          'Ebeveyn raporları ve okuma istatistikleri',
+          'Öncelikli üretim kuyruğu',
+          'Yeni çıkan özelliklere erken erişim',
+          'Reklamsız ve kesintisiz kullanım'
+        ],
+        cardGradient: 'from-[#201455] to-[#160b3e]',
+        buttonGradient: 'from-[#5a39ff] to-[#9a40ff]'
+      },
+      {
+        id: 'yearly',
+        name: 'Aile Büyüsü',
+        oldPrice: '₺3.999,99',
+        price: '₺2.499,99',
+        period: '/Yıl',
+        savingsBadge: 'Yıllık ₺1.500,00 tasarruf et',
+        description: 'Aileler için en ekonomik plan. Çoklu profil, uzun dönem takip ve tüm premium içerik bir arada.',
+        cta: 'Yıllığı Başlat',
+        features: [
+          'Yıllık 600 yapay zeka destekli masal',
+          '5 farklı çocuk profili oluşturma',
+          'Hikaye haritası ve rozet takibinde detaylı görünüm',
+          'Sınırsız kapak ve sahne görsel stili',
+          'Tüm premium seslendirme seçenekleri',
+          'Öncelikli teknik destek',
+          'Otomatik yenileme öncesi hatırlatma'
+        ],
+        cardGradient: 'from-[#1d1450] to-[#130a36]',
+        buttonGradient: 'from-[#6a3cff] to-[#b14bff]'
+      }
+    ]
+    : [
+      {
+        id: 'weekly',
+        name: 'Story Hunter',
+        oldPrice: '$4.99',
+        price: '$2.99',
+        period: '/Week',
+        savingsBadge: 'Save $2.00 every week',
+        description: 'Great for active readers. Generate 10 stories per week and unlock premium features.',
+        cta: 'Buy Now',
+        features: [
+          'Create 10 AI-powered stories weekly',
+          'Unlimited access to all themes',
+          'Premium illustration styles',
+          'Unique images for each scene',
+          'Up to 25 scenes per story',
+          'Publish unlimited stories to community',
+          'Ad-free reading experience'
+        ],
+        cardGradient: 'from-[#27145d] to-[#1a0f43]',
+        buttonGradient: 'from-[#3f33ff] to-[#7e35ff]'
+      },
+      {
+        id: 'monthly',
+        name: 'Story Master',
+        oldPrice: '$19.99',
+        price: '$11.99',
+        period: '/Month',
+        savingsBadge: 'Save $8.00 every month',
+        description: 'Most popular. Generate fresh stories daily and track progress with child profiles.',
+        cta: 'Start Monthly',
+        badge: 'Most Popular',
+        features: [
+          '45 AI-powered stories each month',
+          'Full access to interactive branching stories',
+          'Unlimited voice and music options',
+          'Parent insights and reading analytics',
+          'Priority generation queue',
+          'Early access to new features',
+          'No ads, no interruptions'
+        ],
+        cardGradient: 'from-[#201455] to-[#160b3e]',
+        buttonGradient: 'from-[#5a39ff] to-[#9a40ff]'
+      },
+      {
+        id: 'yearly',
+        name: 'Family Magic',
+        oldPrice: '$119.99',
+        price: '$79.99',
+        period: '/Year',
+        savingsBadge: 'Save $40.00 yearly',
+        description: 'Best value for families. Multi-profile access, long-term tracking, and full premium content.',
+        cta: 'Start Yearly',
+        features: [
+          '600 AI-powered stories yearly',
+          'Create up to 5 child profiles',
+          'Detailed map and badge progression tracking',
+          'Unlimited cover and scene style options',
+          'All premium voice narrators',
+          'Priority support',
+          'Renewal reminder before billing'
+        ],
+        cardGradient: 'from-[#1d1450] to-[#130a36]',
+        buttonGradient: 'from-[#6a3cff] to-[#b14bff]'
+      }
+    ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-bg-dark">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#060024] text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(107,66,255,0.3),transparent_40%),radial-gradient(circle_at_80%_22%,rgba(83,72,242,0.22),transparent_38%)]" />
+
       {/* Header */}
-      <div className="flex items-center p-4">
-        <button onClick={onBack} className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 text-white">
+      <div className="relative z-10 flex items-center justify-between px-4 pb-2 pt-4">
+        <div className="text-left">
+          <p className="text-xs text-white/70">
+            {isTr ? 'App Store' : 'App Store'}
+          </p>
+          <p className="text-[11px] text-white/45">
+            {isTr ? 'Premium yükseltme ekranı' : 'Premium upgrade'}
+          </p>
+        </div>
+        <button
+          onClick={onBack}
+          className="size-10 rounded-full border border-white/15 bg-white/5 text-white hover:bg-white/10 active:scale-95"
+        >
           <span className="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-8">
-        {/* Hero */}
-        <div className="px-6 pb-6 text-center">
-          <div className="inline-flex items-center justify-center size-20 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 mb-4">
-            <span className="text-4xl">✨</span>
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-2">
-            {language === 'tr' ? 'Sihri Aç' : 'Unlock the Magic'}
+      <div className="relative z-10 flex-1 overflow-y-auto pb-8">
+        <div className="px-4 pb-2">
+          <h1 className="text-center text-[28px] font-extrabold tracking-tight">
+            {isTr ? 'Premium Masal Planları' : 'Premium Story Plans'}
           </h1>
-          <p className="text-white/60 text-sm">
-            {language === 'tr'
-              ? 'Sınırsız hikaye oluştur ve hayal gücünü serbest bırak'
-              : 'Create unlimited stories and let your imagination soar'}
+          <p className="mt-2 text-center text-sm text-white/65">
+            {isTr
+              ? 'Aşağıdaki planlardan birini seç, masal dünyasının kilidini aç.'
+              : 'Choose a plan below and unlock your full story world.'}
           </p>
         </div>
 
-        {/* Premium Features Grid */}
-        <div className="px-4 mb-6">
-          <div className="grid grid-cols-2 gap-3">
-            {premiumFeatures.map((feature, idx) => (
-              <div key={idx} className="bg-white/5 rounded-xl p-3 border border-white/5">
-                <span className="text-2xl mb-2 block">{feature.icon}</span>
-                <h4 className="text-white font-bold text-sm">{feature.title}</h4>
-                <p className="text-white/50 text-[10px]">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Plans */}
-        <div className="px-4 space-y-4">
+        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 pt-2 no-scrollbar">
           {plans.map((plan) => (
-            <button
+            <article
               key={plan.id}
               onClick={() => setSelectedPlan(plan.id)}
-              className={`relative w-full rounded-2xl p-4 border text-left transition-all ${selectedPlan === plan.id
-                  ? 'border-primary shadow-lg shadow-primary/20'
-                  : plan.isPopular
-                    ? 'border-secondary/50'
-                    : 'border-white/10'
-                } ${plan.color}`}
+              className={`relative snap-start shrink-0 w-[88%] max-w-[360px] rounded-[30px] border bg-gradient-to-b p-5 text-left shadow-[0_12px_34px_rgba(0,0,0,0.34)] transition-all ${
+                selectedPlan === plan.id
+                  ? 'border-[#5d4dff] scale-[1.01]'
+                  : 'border-[#4437c7]'
+              } ${plan.cardGradient}`}
             >
-              {plan.isPopular && (
-                <div className="absolute -top-2 left-4 bg-secondary text-white text-[10px] font-bold px-3 py-0.5 rounded-full uppercase">
-                  {language === 'tr' ? 'En Popüler' : 'Most Popular'}
+              {plan.badge && (
+                <div className="absolute -top-3 left-5 rounded-full border border-white/25 bg-[#5b44d4] px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                  {plan.badge}
                 </div>
               )}
 
-              <div className="flex items-center gap-3">
-                <div className="size-12 rounded-full bg-white/10 flex items-center justify-center text-2xl">
-                  {plan.icon}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-white">{plan.name}</h3>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-bold text-white">{plan.price}</span>
-                    <span className="text-xs text-white/50">{plan.period}</span>
-                  </div>
-                </div>
-                <div className={`size-6 rounded-full border-2 flex items-center justify-center ${selectedPlan === plan.id
-                    ? 'border-primary bg-primary'
-                    : 'border-white/30'
-                  }`}>
-                  {selectedPlan === plan.id && (
-                    <span className="material-symbols-outlined text-sm text-white">check</span>
-                  )}
+              <h3 className="text-4xl font-extrabold leading-none tracking-tight">{plan.name}</h3>
+
+              <div className="mt-5 text-center">
+                {plan.oldPrice && (
+                  <p className="text-3xl font-semibold text-white/45 line-through decoration-2">
+                    {plan.oldPrice}
+                  </p>
+                )}
+                <div className="mt-1 flex items-end justify-center gap-1">
+                  <span className="text-5xl font-extrabold leading-none">{plan.price}</span>
+                  <span className="pb-1 text-2xl text-white/70">{plan.period}</span>
                 </div>
               </div>
 
-              <ul className="mt-3 space-y-1">
-                {plan.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-xs text-white/70">
-                    <span className="material-symbols-outlined text-xs text-green-400">check</span>
-                    {feature}
+              <div className="mx-auto mt-4 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-semibold text-white/90">
+                {plan.savingsBadge}
+              </div>
+
+              <p className="mt-5 text-center text-lg leading-relaxed text-white/90">
+                {plan.description}
+              </p>
+
+              <button
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setSelectedPlan(plan.id);
+                }}
+                className={`mt-6 w-full rounded-full bg-gradient-to-r py-3.5 text-center text-3xl font-extrabold text-white shadow-[0_12px_28px_rgba(92,64,255,0.35)] active:scale-[0.98] ${plan.buttonGradient}`}
+              >
+                {plan.cta}
+              </button>
+
+              <ul className="mt-6 flex flex-col gap-3 text-[18px] leading-snug text-white/95">
+                {plan.features.map((feature) => (
+                  <li key={`${plan.id}-${feature}`} className="flex items-start gap-2">
+                    <span className="pt-0.5 text-lg text-white">✦</span>
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
-            </button>
+
+              <div className="mt-8 border-t border-white/15 pt-4 text-center text-sm text-white/70">
+                {isTr ? 'Otomatik yenilenir, dilediğinde iptal et' : 'Auto renews, cancel anytime'}
+              </div>
+            </article>
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="px-4 mt-6">
-          <button className="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg shadow-primary/30 hover:shadow-xl transition-all">
-            {selectedPlan === 'free'
-              ? (language === 'tr' ? 'Devam Et' : 'Continue')
-              : (language === 'tr' ? 'Premium Başlat' : 'Start Premium')}
-          </button>
-
-          <p className="text-center text-white/40 text-[10px] mt-3">
-            {language === 'tr'
-              ? '7 gün ücretsiz deneme. İstediğin zaman iptal et.'
-              : '7-day free trial. Cancel anytime.'}
-          </p>
+        <div className="mt-2 flex items-center justify-center gap-2">
+          {plans.map((plan) => (
+            <span
+              key={`dot-${plan.id}`}
+              className={`h-2.5 rounded-full transition-all ${
+                selectedPlan === plan.id ? 'w-8 bg-white' : 'w-2.5 bg-white/30'
+              }`}
+            />
+          ))}
         </div>
 
-        {/* Trust badges */}
-        <div className="flex items-center justify-center gap-6 mt-6 px-4">
-          <div className="text-center">
-            <span className="text-2xl">🔒</span>
-            <p className="text-white/40 text-[10px]">{language === 'tr' ? 'Güvenli Ödeme' : 'Secure Payment'}</p>
-          </div>
-          <div className="text-center">
-            <span className="text-2xl">💯</span>
-            <p className="text-white/40 text-[10px]">{language === 'tr' ? 'İade Garantisi' : 'Money Back'}</p>
-          </div>
-          <div className="text-center">
-            <span className="text-2xl">⭐</span>
-            <p className="text-white/40 text-[10px]">4.9 {language === 'tr' ? 'Puan' : 'Rating'}</p>
-          </div>
+        <div className="mt-5 px-6 text-center text-[11px] text-white/45">
+          {isTr
+            ? 'Ödeme App Store/Google Play üzerinden güvenli şekilde alınır. Fiyatlar bölgeye göre değişebilir.'
+            : 'Payments are securely processed by App Store/Google Play. Prices may vary by region.'}
         </div>
       </div>
     </div>
