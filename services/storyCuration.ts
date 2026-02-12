@@ -109,9 +109,9 @@ function pickUniqueStories(candidates: Story[], limit: number, excludedIds: Set<
 
 export function rankStoriesForLibrary(stories: Story[], options: StoryRankOptions): Story[] {
   const ranked = rankStories(stories, options);
-  const playable = ranked.filter((item) => hasPlayableStoryData(item.story)).map((item) => item.story);
-  const placeholders = ranked.filter((item) => !hasPlayableStoryData(item.story)).map((item) => item.story);
-  return [...playable, ...placeholders];
+  return ranked
+    .filter((item) => hasPlayableStoryData(item.story))
+    .map((item) => item.story);
 }
 
 export function getTopThemeFilters(stories: Story[], limit: number = 6): Array<{ id: string; label: string; count: number }> {

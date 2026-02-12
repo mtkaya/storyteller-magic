@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { Story, ScreenName } from '../types';
 import { getIllustratedImageUrl, getStoryCoverUrl } from '../services/illustrationCovers';
 import { getLocalizedStorySubtitle, getLocalizedStoryTitle } from '../services/storyLocalization';
+import { buildStoryPool, hasPlayableStoryData, normalizeStoryTheme } from '../services/storyCuration';
 
 interface CollectionsPageProps {
     onBack: () => void;
@@ -16,11 +17,13 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
     const [selectedCollection, setSelectedCollection] = React.useState<string | null>(null);
     const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
     const getStorySubtitle = (story: Story) => getLocalizedStorySubtitle(story, language);
+    const storyPool = React.useMemo(
+        () => buildStoryPool(RECENT_STORIES, LIBRARY_STORIES),
+        []
+    );
 
     const storyLookup = React.useMemo(() => {
         const map = new Map<string, Story>();
-        const hasPlayableContent = (story: Story) =>
-            Boolean((story.content && story.content.length > 0) || (story.branches && story.branches.length > 0));
 
         [...RECENT_STORIES, ...LIBRARY_STORIES].forEach((story) => {
             const existing = map.get(story.id);
@@ -30,7 +33,7 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
             }
 
             // Prefer entries that contain readable content/branches.
-            if (!hasPlayableContent(existing) && hasPlayableContent(story)) {
+            if (!hasPlayableStoryData(existing) && hasPlayableStoryData(story)) {
                 map.set(story.id, story);
             }
         });
@@ -38,10 +41,33 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
         return map;
     }, []);
 
+    const resolvePlayableStory = React.useCallback((story: Story): Story | null => {
+        if (hasPlayableStoryData(story)) return story;
+
+        const sameId = storyPool.find(candidate => candidate.id === story.id && hasPlayableStoryData(candidate));
+        if (sameId) return sameId;
+
+        const theme = normalizeStoryTheme(story.theme);
+        const byTheme = storyPool.find(candidate =>
+            hasPlayableStoryData(candidate) && normalizeStoryTheme(candidate.theme) === theme
+        );
+
+        return byTheme || null;
+    }, [storyPool]);
+
     const getStoriesForCollection = (storyIds: string[]): Story[] => {
-        return storyIds
+        const resolved = storyIds
             .map((storyId) => storyLookup.get(storyId))
+            .filter((story): story is Story => Boolean(story))
+            .map(resolvePlayableStory)
             .filter((story): story is Story => Boolean(story));
+
+        const uniqueById = new Map<string, Story>();
+        resolved.forEach((story) => {
+            if (!uniqueById.has(story.id)) uniqueById.set(story.id, story);
+        });
+
+        return Array.from(uniqueById.values());
     };
 
     const activeCollection = selectedCollection

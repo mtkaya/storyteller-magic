@@ -23,6 +23,8 @@ import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AppStateProvider, useAppState } from './context/AppStateContext';
 import { MusicType, backgroundMusic } from './services/backgroundMusic';
 import { soundEffects } from './services/soundEffects';
+import { LIBRARY_STORIES, RECENT_STORIES } from './data';
+import { buildStoryPool, hasPlayableStoryData, normalizeStoryTheme } from './services/storyCuration';
 
 const AppContent: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenName>('home');
@@ -40,6 +42,29 @@ const AppContent: React.FC = () => {
 
   const { isLimitReached, settings, updateSettings } = useAppState();
   const { language } = useLanguage();
+  const storyPool = React.useMemo(
+    () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES),
+    []
+  );
+
+  const resolvePlayableStorySelection = React.useCallback((candidate: Story): Story => {
+    if (hasPlayableStoryData(candidate)) return candidate;
+
+    const byId = storyPool.find(
+      (story) => story.id === candidate.id && hasPlayableStoryData(story)
+    );
+    if (byId) return byId;
+
+    const targetTheme = normalizeStoryTheme(candidate.theme);
+    const byTheme = storyPool.find((story) => {
+      if (!hasPlayableStoryData(story)) return false;
+      if (normalizeStoryTheme(story.theme) !== targetTheme) return false;
+      if (candidate.isInteractive && !story.isInteractive) return false;
+      return true;
+    });
+
+    return byTheme || candidate;
+  }, [storyPool]);
 
   useEffect(() => {
     soundEffects.setEnabled(settings.soundEffects);
@@ -171,7 +196,7 @@ const AppContent: React.FC = () => {
       );
       return;
     }
-    setSelectedStory(story);
+    setSelectedStory(resolvePlayableStorySelection(story));
     setCurrentScreen('reader');
   };
 

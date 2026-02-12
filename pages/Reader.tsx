@@ -378,14 +378,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       candidate => candidate.theme === story.theme && hasPlayableStoryData(candidate)
     );
     if (sameThemeStory) {
-      return {
-        ...sameThemeStory,
-        id: story.id,
-        title: story.title,
-        subtitle: story.subtitle || sameThemeStory.subtitle,
-        coverUrl: story.coverUrl || sameThemeStory.coverUrl,
-        theme: story.theme || sameThemeStory.theme,
-      };
+      return sameThemeStory;
     }
 
     return defaultStory;
