@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { MusicType, backgroundMusic } from '../services/backgroundMusic';
 import { soundEffects } from '../services/soundEffects';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
+import { translateSegmentsToTurkish } from '../services/storyTranslation';
 
 interface ReaderProps {
   story: Story | null;
@@ -271,6 +272,11 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [showChoices, setShowChoices] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
   const [navigationError, setNavigationError] = useState<string | null>(null);
+  const [translatedLinearContent, setTranslatedLinearContent] = useState<string[] | null>(null);
+  const [translatedBranchParagraphs, setTranslatedBranchParagraphs] = useState<Record<string, string[]>>({});
+  const [translatedChoiceTexts, setTranslatedChoiceTexts] = useState<Record<string, string>>({});
+  const [translatedChoiceConsequences, setTranslatedChoiceConsequences] = useState<Record<string, string>>({});
+  const [isTranslatingCurrentContent, setIsTranslatingCurrentContent] = useState(false);
 
   // Sleep controller state
   const [sleepControllerActive, setSleepControllerActive] = useState(false);
@@ -394,6 +400,28 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     ? activeStory.branches!.find(b => b.id === (currentBranchId || activeStory.startBranchId)) || null
     : null;
 
+  const buildChoiceTranslationKey = (branchId: string, choiceId: string) => `${branchId}:${choiceId}`;
+
+  const getLocalizedChoiceText = (choice: StoryChoice, branchId?: string | null): string => {
+    if (language !== 'tr') return choice.text;
+    if (choice.textTr && choice.textTr.trim().length > 0) return choice.textTr;
+    if (branchId) {
+      const translated = translatedChoiceTexts[buildChoiceTranslationKey(branchId, choice.id)];
+      if (translated) return translated;
+    }
+    return choice.text;
+  };
+
+  const getLocalizedChoiceConsequence = (choice: StoryChoice, branchId?: string | null): string | undefined => {
+    if (language !== 'tr') return choice.consequence;
+    if (choice.consequenceTr && choice.consequenceTr.trim().length > 0) return choice.consequenceTr;
+    if (branchId) {
+      const translated = translatedChoiceConsequences[buildChoiceTranslationKey(branchId, choice.id)];
+      if (translated) return translated;
+    }
+    return choice.consequence;
+  };
+
   const normalizeBranchReference = (value: string): string =>
     value
       .trim()
@@ -423,18 +451,217 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     return alternate?.id || null;
   };
 
+  useEffect(() => {
+    setTranslatedLinearContent(null);
+    setTranslatedBranchParagraphs({});
+    setTranslatedChoiceTexts({});
+    setTranslatedChoiceConsequences({});
+    setIsTranslatingCurrentContent(false);
+  }, [activeStory.id, language]);
+
+  useEffect(() => {
+    if (language !== 'tr') return;
+    if (isInteractiveStory) return;
+    if (activeStory.contentTr && activeStory.contentTr.length > 0) return;
+    if (translatedLinearContent && translatedLinearContent.length > 0) return;
+
+    const sourceParagraphs = (activeStory.content || [])
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+    if (sourceParagraphs.length === 0) return;
+
+    let cancelled = false;
+    setIsTranslatingCurrentContent(true);
+
+    translateSegmentsToTurkish(sourceParagraphs, { contextLabel: `story:${activeStory.id}:linear` })
+      .then((translated) => {
+        if (cancelled) return;
+        setTranslatedLinearContent(translated);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setTranslatedLinearContent(sourceParagraphs);
+      })
+      .finally(() => {
+        if (!cancelled) setIsTranslatingCurrentContent(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    language,
+    isInteractiveStory,
+    activeStory.id,
+    activeStory.content,
+    activeStory.contentTr,
+    translatedLinearContent
+  ]);
+
+  useEffect(() => {
+    if (language !== 'tr') return;
+    if (!isInteractiveStory || !currentBranch) return;
+    if (currentBranch.paragraphsTr && currentBranch.paragraphsTr.length > 0) return;
+    if (translatedBranchParagraphs[currentBranch.id]?.length) return;
+
+    const sourceParagraphs = currentBranch.paragraphs
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+    if (sourceParagraphs.length === 0) return;
+
+    let cancelled = false;
+    setIsTranslatingCurrentContent(true);
+
+    translateSegmentsToTurkish(sourceParagraphs, { contextLabel: `story:${activeStory.id}:branch:${currentBranch.id}` })
+      .then((translated) => {
+        if (cancelled) return;
+        setTranslatedBranchParagraphs((previous) => ({
+          ...previous,
+          [currentBranch.id]: translated
+        }));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setTranslatedBranchParagraphs((previous) => ({
+          ...previous,
+          [currentBranch.id]: sourceParagraphs
+        }));
+      })
+      .finally(() => {
+        if (!cancelled) setIsTranslatingCurrentContent(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    language,
+    isInteractiveStory,
+    currentBranch,
+    activeStory.id,
+    translatedBranchParagraphs
+  ]);
+
+  useEffect(() => {
+    if (language !== 'tr') return;
+    if (!isInteractiveStory || !currentBranch?.choices?.length) return;
+
+    const branchId = currentBranch.id;
+    const textQueue = currentBranch.choices
+      .filter((choice) =>
+        !choice.textTr && !translatedChoiceTexts[buildChoiceTranslationKey(branchId, choice.id)]
+      )
+      .map((choice) => ({ key: buildChoiceTranslationKey(branchId, choice.id), text: choice.text }));
+
+    const consequenceQueue = currentBranch.choices
+      .filter((choice) =>
+        Boolean(choice.consequence) &&
+        !choice.consequenceTr &&
+        !translatedChoiceConsequences[buildChoiceTranslationKey(branchId, choice.id)]
+      )
+      .map((choice) => ({
+        key: buildChoiceTranslationKey(branchId, choice.id),
+        text: choice.consequence as string
+      }));
+
+    if (textQueue.length === 0 && consequenceQueue.length === 0) return;
+
+    let cancelled = false;
+
+    const translateChoices = async () => {
+      try {
+        if (textQueue.length > 0) {
+          const translatedTexts = await translateSegmentsToTurkish(
+            textQueue.map((item) => item.text),
+            { contextLabel: `story:${activeStory.id}:branch:${branchId}:choices` }
+          );
+          if (!cancelled) {
+            setTranslatedChoiceTexts((previous) => {
+              const next = { ...previous };
+              textQueue.forEach((item, index) => {
+                next[item.key] = translatedTexts[index] || item.text;
+              });
+              return next;
+            });
+          }
+        }
+
+        if (consequenceQueue.length > 0) {
+          const translatedConsequences = await translateSegmentsToTurkish(
+            consequenceQueue.map((item) => item.text),
+            { contextLabel: `story:${activeStory.id}:branch:${branchId}:consequences` }
+          );
+          if (!cancelled) {
+            setTranslatedChoiceConsequences((previous) => {
+              const next = { ...previous };
+              consequenceQueue.forEach((item, index) => {
+                next[item.key] = translatedConsequences[index] || item.text;
+              });
+              return next;
+            });
+          }
+        }
+      } catch {
+        if (cancelled) return;
+        if (textQueue.length > 0) {
+          setTranslatedChoiceTexts((previous) => {
+            const next = { ...previous };
+            textQueue.forEach((item) => {
+              next[item.key] = item.text;
+            });
+            return next;
+          });
+        }
+        if (consequenceQueue.length > 0) {
+          setTranslatedChoiceConsequences((previous) => {
+            const next = { ...previous };
+            consequenceQueue.forEach((item) => {
+              next[item.key] = item.text;
+            });
+            return next;
+          });
+        }
+      }
+    };
+
+    void translateChoices();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    language,
+    isInteractiveStory,
+    currentBranch,
+    activeStory.id,
+    translatedChoiceTexts,
+    translatedChoiceConsequences
+  ]);
+
   // Get content based on story type/language and expand short linear stories.
   const content = React.useMemo(() => {
     const rawContent = (() => {
       if (isInteractiveStory && currentBranch) {
-        if (language === 'tr' && currentBranch.paragraphsTr) {
-          return currentBranch.paragraphsTr;
+        if (language === 'tr') {
+          if (currentBranch.paragraphsTr && currentBranch.paragraphsTr.length > 0) {
+            return currentBranch.paragraphsTr;
+          }
+          if (translatedBranchParagraphs[currentBranch.id] && translatedBranchParagraphs[currentBranch.id].length > 0) {
+            return translatedBranchParagraphs[currentBranch.id];
+          }
+          return [];
         }
         return currentBranch.paragraphs;
       }
 
-      if (language === 'tr' && activeStory.contentTr) {
-        return activeStory.contentTr;
+      if (language === 'tr') {
+        if (activeStory.contentTr && activeStory.contentTr.length > 0) {
+          return activeStory.contentTr;
+        }
+        if (translatedLinearContent && translatedLinearContent.length > 0) {
+          return translatedLinearContent;
+        }
+        return [];
       }
       return activeStory.content || [];
     })();
@@ -451,7 +678,9 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     currentBranch,
     language,
     activeStory.content,
-    activeStory.contentTr
+    activeStory.contentTr,
+    translatedLinearContent,
+    translatedBranchParagraphs
   ]);
   const hasContent = content.length > 0;
 
@@ -843,7 +1072,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       ...prev,
       {
         id: choice.id,
-        text: getLocalizedText(choice, 'text'),
+        text: getLocalizedChoiceText(choice, currentBranch?.id),
         emoji: choice.emoji
       }
     ]);
@@ -971,7 +1200,11 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
               </p>
             ) : (
               <div className="text-center py-10">
-                <p className="text-white/60">Story content is loading...</p>
+                <p className="text-white/60">
+                  {language === 'tr'
+                    ? (isTranslatingCurrentContent ? 'Hikaye Türkçeye çevriliyor...' : 'Hikaye içeriği yükleniyor...')
+                    : 'Story content is loading...'}
+                </p>
               </div>
             )}
 
@@ -1054,11 +1287,11 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
                     <div>
                       <span className="text-white font-medium flex items-center gap-2">
                         {choice.emoji && <span>{choice.emoji}</span>}
-                        {getLocalizedText(choice, 'text')}
+                        {getLocalizedChoiceText(choice, currentBranch?.id)}
                       </span>
-                      {getLocalizedText(choice, 'consequence') && (
+                      {getLocalizedChoiceConsequence(choice, currentBranch?.id) && (
                         <p className="text-xs text-white/60 mt-1">
-                          {getLocalizedText(choice, 'consequence')}
+                          {getLocalizedChoiceConsequence(choice, currentBranch?.id)}
                         </p>
                       )}
                     </div>
