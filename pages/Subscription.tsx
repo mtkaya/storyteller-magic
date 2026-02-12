@@ -159,117 +159,108 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
       }
     ];
 
+  const activePlan = plans.find((plan) => plan.id === selectedPlan) || plans[0];
+
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#060024] text-white">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(107,66,255,0.3),transparent_40%),radial-gradient(circle_at_80%_22%,rgba(83,72,242,0.22),transparent_38%)]" />
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-bg-dark text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(127,19,236,0.25),transparent_42%),radial-gradient(circle_at_82%_20%,rgba(238,140,43,0.08),transparent_45%)]" />
 
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between px-4 pb-2 pt-4">
+      <div className="relative z-10 flex items-center justify-between p-4 pb-2">
         <div className="text-left">
-          <p className="text-xs text-white/70">
-            {isTr ? 'App Store' : 'App Store'}
+          <p className="text-xs text-white/55">
+            {isTr ? 'Premium' : 'Premium'}
           </p>
-          <p className="text-[11px] text-white/45">
-            {isTr ? 'Premium yükseltme ekranı' : 'Premium upgrade'}
+          <p className="text-[11px] text-white/35">
+            {isTr ? 'Yükseltme seçenekleri' : 'Upgrade options'}
           </p>
         </div>
         <button
           onClick={onBack}
-          className="size-10 rounded-full border border-white/15 bg-white/5 text-white hover:bg-white/10 active:scale-95"
+          className="size-10 rounded-full bg-white/5 text-white hover:bg-white/10 active:scale-95"
         >
           <span className="material-symbols-outlined">close</span>
         </button>
       </div>
 
       <div className="relative z-10 flex-1 overflow-y-auto pb-8">
-        <div className="px-4 pb-2">
-          <h1 className="text-center text-[28px] font-extrabold tracking-tight">
+        <div className="px-5 pb-3">
+          <h1 className="text-center text-2xl font-bold tracking-tight">
             {isTr ? 'Premium Masal Planları' : 'Premium Story Plans'}
           </h1>
-          <p className="mt-2 text-center text-sm text-white/65">
+          <p className="mt-2 text-center text-sm text-white/60">
             {isTr
               ? 'Aşağıdaki planlardan birini seç, masal dünyasının kilidini aç.'
               : 'Choose a plan below and unlock your full story world.'}
           </p>
         </div>
 
-        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 pt-2 no-scrollbar">
+        <div className="flex items-center justify-center gap-2 px-4 pb-4">
           {plans.map((plan) => (
-            <article
+            <button
               key={plan.id}
               onClick={() => setSelectedPlan(plan.id)}
-              className={`relative snap-start shrink-0 w-[88%] max-w-[360px] rounded-[30px] border bg-gradient-to-b p-5 text-left shadow-[0_12px_34px_rgba(0,0,0,0.34)] transition-all ${
+              className={`rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
                 selectedPlan === plan.id
-                  ? 'border-[#5d4dff] scale-[1.01]'
-                  : 'border-[#4437c7]'
-              } ${plan.cardGradient}`}
-            >
-              {plan.badge && (
-                <div className="absolute -top-3 left-5 rounded-full border border-white/25 bg-[#5b44d4] px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-                  {plan.badge}
-                </div>
-              )}
-
-              <h3 className="text-4xl font-extrabold leading-none tracking-tight">{plan.name}</h3>
-
-              <div className="mt-5 text-center">
-                {plan.oldPrice && (
-                  <p className="text-3xl font-semibold text-white/45 line-through decoration-2">
-                    {plan.oldPrice}
-                  </p>
-                )}
-                <div className="mt-1 flex items-end justify-center gap-1">
-                  <span className="text-5xl font-extrabold leading-none">{plan.price}</span>
-                  <span className="pb-1 text-2xl text-white/70">{plan.period}</span>
-                </div>
-              </div>
-
-              <div className="mx-auto mt-4 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-semibold text-white/90">
-                {plan.savingsBadge}
-              </div>
-
-              <p className="mt-5 text-center text-lg leading-relaxed text-white/90">
-                {plan.description}
-              </p>
-
-              <button
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setSelectedPlan(plan.id);
-                }}
-                className={`mt-6 w-full rounded-full bg-gradient-to-r py-3.5 text-center text-3xl font-extrabold text-white shadow-[0_12px_28px_rgba(92,64,255,0.35)] active:scale-[0.98] ${plan.buttonGradient}`}
-              >
-                {plan.cta}
-              </button>
-
-              <ul className="mt-6 flex flex-col gap-3 text-[18px] leading-snug text-white/95">
-                {plan.features.map((feature) => (
-                  <li key={`${plan.id}-${feature}`} className="flex items-start gap-2">
-                    <span className="pt-0.5 text-lg text-white">✦</span>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-8 border-t border-white/15 pt-4 text-center text-sm text-white/70">
-                {isTr ? 'Otomatik yenilenir, dilediğinde iptal et' : 'Auto renews, cancel anytime'}
-              </div>
-            </article>
-          ))}
-        </div>
-
-        <div className="mt-2 flex items-center justify-center gap-2">
-          {plans.map((plan) => (
-            <span
-              key={`dot-${plan.id}`}
-              className={`h-2.5 rounded-full transition-all ${
-                selectedPlan === plan.id ? 'w-8 bg-white' : 'w-2.5 bg-white/30'
+                  ? 'bg-secondary text-white'
+                  : 'bg-white/8 text-white/70 hover:bg-white/12'
               }`}
-            />
+            >
+              {plan.name}
+            </button>
           ))}
         </div>
 
-        <div className="mt-5 px-6 text-center text-[11px] text-white/45">
+        <div className="px-4">
+          <article className={`relative rounded-3xl border border-white/15 bg-gradient-to-b ${activePlan.cardGradient} p-5 shadow-[0_12px_30px_rgba(0,0,0,0.28)]`}>
+            {activePlan.badge && (
+              <div className="absolute right-4 top-4 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-semibold">
+                {activePlan.badge}
+              </div>
+            )}
+
+            <h2 className="text-2xl font-bold tracking-tight">{activePlan.name}</h2>
+
+            <div className="mt-3">
+              {activePlan.oldPrice && (
+                <p className="text-sm text-white/45 line-through">{activePlan.oldPrice}</p>
+              )}
+              <div className="mt-1 flex items-end gap-1.5">
+                <span className="text-4xl font-extrabold leading-none">{activePlan.price}</span>
+                <span className="pb-0.5 text-base text-white/65">{activePlan.period}</span>
+              </div>
+            </div>
+
+            <div className="mt-3 inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold text-white/90">
+              {activePlan.savingsBadge}
+            </div>
+
+            <p className="mt-4 text-sm leading-relaxed text-white/85">
+              {activePlan.description}
+            </p>
+
+            <button
+              className={`mt-5 w-full rounded-full bg-gradient-to-r py-3 text-base font-bold text-white shadow-[0_10px_20px_rgba(92,64,255,0.28)] active:scale-[0.98] ${activePlan.buttonGradient}`}
+            >
+              {activePlan.cta}
+            </button>
+
+            <ul className="mt-5 space-y-2.5 text-sm text-white/90">
+              {activePlan.features.map((feature) => (
+                <li key={`${activePlan.id}-${feature}`} className="flex items-start gap-2">
+                  <span className="pt-0.5 text-xs">✦</span>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-5 border-t border-white/15 pt-3 text-center text-xs text-white/65">
+              {isTr ? 'Otomatik yenilenir, dilediğinde iptal et' : 'Auto renews, cancel anytime'}
+            </div>
+          </article>
+        </div>
+
+        <div className="mt-4 px-6 text-center text-[11px] text-white/45">
           {isTr
             ? 'Ödeme App Store/Google Play üzerinden güvenli şekilde alınır. Fiyatlar bölgeye göre değişebilir.'
             : 'Payments are securely processed by App Store/Google Play. Prices may vary by region.'}
