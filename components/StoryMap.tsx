@@ -4,7 +4,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAppState } from '../context/AppStateContext';
 import { LIBRARY_STORIES } from '../data';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
-import { getLocalizedStoryTitle } from '../services/storyLocalization';
+import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/storyLocalization';
+import { normalizeStoryTheme } from '../services/storyCuration';
 
 interface StoryMapProps {
     onStorySelect: (story: Story) => void;
@@ -15,14 +16,26 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
     const { language } = useLanguage();
     const { stats, favorites, isFavorite } = useAppState();
     const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
+    type ThemeBucket = { key: string; sourceTheme: string; stories: Story[] };
 
     // Group stories by theme
-    const storiesByTheme = LIBRARY_STORIES.reduce((acc, story) => {
-        const theme = story.theme || 'other';
-        if (!acc[theme]) acc[theme] = [];
-        acc[theme].push(story);
-        return acc;
-    }, {} as Record<string, Story[]>);
+    const themeBuckets: ThemeBucket[] = React.useMemo(() => {
+        const grouped = new Map<string, ThemeBucket>();
+
+        LIBRARY_STORIES.forEach((story) => {
+            const key = normalizeStoryTheme(story.theme) || 'other';
+            const sourceTheme = story.theme || 'Other';
+            const existing = grouped.get(key);
+            if (existing) {
+                existing.stories.push(story);
+                return;
+            }
+
+            grouped.set(key, { key, sourceTheme, stories: [story] });
+        });
+
+        return Array.from(grouped.values()).sort((a, b) => b.stories.length - a.stories.length);
+    }, []);
 
     const themeConfig: Record<string, { icon: string; name: string; nameTr: string; color: string }> = {
         courage: { icon: '🦁', name: 'Courage', nameTr: 'Cesaret', color: 'from-orange-500 to-red-500' },
@@ -31,13 +44,17 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
         adventure: { icon: '🗺️', name: 'Adventure', nameTr: 'Macera', color: 'from-blue-500 to-cyan-500' },
         kindness: { icon: '💖', name: 'Kindness', nameTr: 'İyilik', color: 'from-green-500 to-teal-500' },
         nature: { icon: '🌿', name: 'Nature', nameTr: 'Doğa', color: 'from-green-600 to-lime-500' },
+        mystery: { icon: '🕵️', name: 'Mystery', nameTr: 'Gizem', color: 'from-slate-500 to-indigo-500' },
+        wonder: { icon: '🌠', name: 'Wonder', nameTr: 'Hayranlık', color: 'from-violet-500 to-blue-500' },
+        wisdom: { icon: '🦉', name: 'Wisdom', nameTr: 'Bilgelik', color: 'from-amber-500 to-orange-500' },
+        family: { icon: '🏡', name: 'Family', nameTr: 'Aile', color: 'from-emerald-500 to-teal-500' },
+        calm: { icon: '🌙', name: 'Calm', nameTr: 'Sakinlik', color: 'from-indigo-500 to-purple-600' },
         bedtime: { icon: '🌙', name: 'Bedtime', nameTr: 'Uyku', color: 'from-indigo-500 to-purple-600' },
         other: { icon: '📚', name: 'Other', nameTr: 'Diğer', color: 'from-gray-500 to-slate-500' },
     };
 
     // Calculate completion for each theme
-    const getThemeProgress = (theme: string): number => {
-        const themeStories = storiesByTheme[theme] || [];
+    const getThemeProgress = (themeStories: Story[]): number => {
         if (themeStories.length === 0) return 0;
         // Simplified: assume all stories are read based on total count (in real app, track per-story)
         return Math.min(100, (stats.totalStoriesRead / themeStories.length) * 20);
@@ -110,14 +127,15 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
 
                     {/* Theme Cards */}
                     <div className="space-y-6 relative z-10">
-                        {Object.entries(storiesByTheme).map(([theme, stories], index) => {
-                            const config = themeConfig[theme] || themeConfig.other;
-                            const progress = getThemeProgress(theme);
+                        {themeBuckets.map((bucket, index) => {
+                            const config = themeConfig[bucket.key] || themeConfig.other;
+                            const localizedTheme = getLocalizedThemeName(bucket.sourceTheme, language);
+                            const progress = getThemeProgress(bucket.stories);
                             const isLeft = index % 2 === 0;
 
                             return (
                                 <div
-                                    key={theme}
+                                    key={bucket.key}
                                     className={`flex ${isLeft ? 'justify-start' : 'justify-end'}`}
                                 >
                                     <div className={`w-[85%] bg-gradient-to-br ${config.color} rounded-2xl p-1 shadow-xl`}>
@@ -129,10 +147,10 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                                                 </div>
                                                 <div className="flex-1">
                                                     <h3 className="text-white font-bold">
-                                                        {language === 'tr' ? config.nameTr : config.name}
+                                                        {localizedTheme || (language === 'tr' ? config.nameTr : config.name)}
                                                     </h3>
                                                     <p className="text-white/50 text-xs">
-                                                        {stories.length} {language === 'tr' ? 'hikaye' : 'stories'}
+                                                        {bucket.stories.length} {language === 'tr' ? 'hikaye' : 'stories'}
                                                     </p>
                                                 </div>
                                                 <div className="text-right">
@@ -144,7 +162,7 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
 
                                             {/* Stories in theme */}
                                             <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                                                {stories.slice(0, 4).map((story) => (
+                                                {bucket.stories.slice(0, 4).map((story) => (
                                                     <button
                                                         key={story.id}
                                                         onClick={() => onStorySelect(story)}
@@ -164,9 +182,9 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                                                         </p>
                                                     </button>
                                                 ))}
-                                                {stories.length > 4 && (
+                                                {bucket.stories.length > 4 && (
                                                     <div className="flex-shrink-0 w-16 h-20 rounded-lg bg-white/10 flex items-center justify-center">
-                                                        <span className="text-white/50 text-sm">+{stories.length - 4}</span>
+                                                        <span className="text-white/50 text-sm">+{bucket.stories.length - 4}</span>
                                                     </div>
                                                 )}
                                             </div>

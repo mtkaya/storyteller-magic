@@ -37,6 +37,17 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
 
   const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
   const getStorySubtitle = (story: Story) => getLocalizedStorySubtitle(story, language);
+  const displayProfileName = React.useMemo(() => {
+    const fallback = language === 'tr' ? 'Minik Okur' : 'Little Reader';
+    const currentName = activeProfile?.name?.trim();
+    if (!currentName) return fallback;
+
+    if (language === 'tr' && (currentName === 'Little Reader' || currentName === 'Little Explorer')) {
+      return 'Minik Okur';
+    }
+
+    return currentName;
+  }, [activeProfile?.name, language]);
 
   const themes = [
     { name: language === 'tr' ? 'Uyku' : 'Bedtime', image: IMAGES.SLEEPING_CLOUD, icon: 'bedtime', visualIcon: '🌙', theme: 'bedtime' },
@@ -71,7 +82,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
           </div>
           <div className="min-w-0">
             <h2 className="text-white text-xl font-bold leading-tight truncate">{getGreeting()},</h2>
-            <p className="text-accent-peach text-sm font-semibold truncate">{activeProfile?.name || 'Little Explorer'}</p>
+            <p className="text-accent-peach text-sm font-semibold truncate">{displayProfileName}</p>
           </div>
         </button>
         <div className="flex shrink-0 items-center gap-2">

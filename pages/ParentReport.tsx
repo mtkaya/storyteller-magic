@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppState } from '../context/AppStateContext';
 import { useLanguage } from '../context/LanguageContext';
+import { getLocalizedThemeName } from '../services/storyLocalization';
 
 interface ParentReportProps {
     onBack: () => void;
@@ -156,7 +157,7 @@ const ParentReport: React.FC<ParentReportProps> = ({ onBack }) => {
                                 return (
                                     <div key={theme}>
                                         <div className="flex justify-between text-sm mb-1">
-                                            <span className="text-white capitalize">{theme}</span>
+                                            <span className="text-white capitalize">{getLocalizedThemeName(theme, language)}</span>
                                             <span className="text-white/50">{count}</span>
                                         </div>
                                         <div className="h-2 bg-white/10 rounded-full overflow-hidden">

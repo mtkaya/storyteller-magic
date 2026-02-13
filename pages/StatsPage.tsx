@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppState } from '../context/AppStateContext';
 import { useLanguage } from '../context/LanguageContext';
+import { getLocalizedThemeName } from '../services/storyLocalization';
 
 const StatsPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { stats, activeProfile, badges, unlockedBadges } = useAppState();
@@ -121,7 +122,7 @@ const StatsPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             {topThemes.map(([theme, count], index) => (
                                 <div key={theme} className="flex items-center gap-3">
                                     <span className="text-xl">{['🥇', '🥈', '🥉'][index]}</span>
-                                    <span className="flex-1 capitalize">{theme}</span>
+                                    <span className="flex-1 capitalize">{getLocalizedThemeName(theme, language)}</span>
                                     <span className="text-white/60">{count} {language === 'tr' ? 'hikaye' : 'stories'}</span>
                                 </div>
                             ))}

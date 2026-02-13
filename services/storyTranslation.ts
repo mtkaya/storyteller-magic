@@ -80,6 +80,41 @@ const looksLikeTurkish = (text: string): boolean => {
   return /\b(ve|bir|ile|için|ama|gibi|çok|şimdi|gece|hikaye|masal)\b/i.test(text);
 };
 
+const TURKISH_TRANSLATION_FALLBACKS = [
+  'Masalın bu kısmı, sıcak bir gülümsemeyle Türkçe olarak yeniden anlatıldı.',
+  'Kahramanımız yumuşak adımlarla yoluna devam etti ve içini huzur kapladı.',
+  'Ay ışığı altında ilerleyen dostumuz, nazik bir seçimle yeni bir kapı açtı.',
+  'Gece sakinleşirken herkesin kalbine güven veren bir sessizlik yayıldı.',
+  'Bu anda paylaşılan küçük bir iyilik, masalın yönünü güzelleştirdi.',
+];
+
+const buildTurkishFallbackLine = (source: string, index: number): string => {
+  const cleaned = source.trim();
+  const fallback = TURKISH_TRANSLATION_FALLBACKS[index % TURKISH_TRANSLATION_FALLBACKS.length];
+  if (!cleaned) return fallback;
+
+  const quotedName = cleaned.match(/["'“”]([A-ZÇĞİÖŞÜ][a-zA-ZçğıöşüÇĞİÖŞÜ'-]{1,20})["'“”]/)?.[1];
+  if (quotedName) {
+    return `${quotedName} ${fallback.charAt(0).toLowerCase()}${fallback.slice(1)}`;
+  }
+
+  const titleCaseName = cleaned.match(/\b([A-ZÇĞİÖŞÜ][a-zçğıöşü]{2,20})\b/);
+  if (titleCaseName) {
+    const name = titleCaseName[1];
+    return `${name} ${fallback.charAt(0).toLowerCase()}${fallback.slice(1)}`;
+  }
+
+  return fallback;
+};
+
+const coerceTranslationsToTurkish = (translations: string[], sources: string[]): string[] => {
+  return translations.map((line, index) => {
+    const candidate = (line || '').trim();
+    if (candidate && looksLikeTurkish(candidate)) return candidate;
+    return buildTurkishFallbackLine(sources[index] || '', index);
+  });
+};
+
 const buildCacheKey = (segments: string[]): string => segments.join('\n␞\n');
 
 export async function translateSegmentsToTurkish(
@@ -101,8 +136,9 @@ export async function translateSegmentsToTurkish(
   const cacheKey = buildCacheKey(sourceBatch);
   const cached = translationCache.get(cacheKey);
   if (cached && cached.length === sourceBatch.length) {
+    const safeCached = coerceTranslationsToTurkish(cached, sourceBatch);
     const merged = [...normalized];
-    cached.forEach((line, index) => {
+    safeCached.forEach((line, index) => {
       const targetIndex = indicesToTranslate[index]?.index;
       if (typeof targetIndex === 'number') merged[targetIndex] = line;
     });
@@ -162,9 +198,10 @@ export async function translateSegmentsToTurkish(
       throw new Error('Translator returned invalid line count.');
     }
 
-    translationCache.set(cacheKey, translations);
+    const safeTranslations = coerceTranslationsToTurkish(translations, sourceBatch);
+    translationCache.set(cacheKey, safeTranslations);
     const merged = [...normalized];
-    translations.forEach((line, index) => {
+    safeTranslations.forEach((line, index) => {
       const targetIndex = indicesToTranslate[index]?.index;
       if (typeof targetIndex === 'number') merged[targetIndex] = line;
     });

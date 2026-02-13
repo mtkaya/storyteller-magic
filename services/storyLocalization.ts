@@ -74,10 +74,45 @@ const SUBTITLE_TERM_TR: Record<string, string> = {
   Interactive: 'İnteraktif',
 };
 
+const THEME_TERM_TR: Record<string, string> = {
+  adventure: 'Macera',
+  friendship: 'Dostluk',
+  magic: 'Sihir',
+  nature: 'Doğa',
+  calm: 'Sakinlik',
+  courage: 'Cesaret',
+  wisdom: 'Bilgelik',
+  mystery: 'Gizem',
+  family: 'Aile',
+  wonder: 'Hayranlık',
+  bedtime: 'Uyku',
+  sleep: 'Uyku',
+  dreams: 'Rüyalar',
+  discovery: 'Keşif',
+  learning: 'Öğrenme',
+  kindness: 'İyilik',
+  safety: 'Güven',
+  home: 'Yuva',
+  fun: 'Eğlence',
+  play: 'Oyun',
+  seasons: 'Mevsimler',
+  change: 'Değişim',
+  hope: 'Umut',
+  mindfulness: 'Farkındalık',
+  interactive: 'İnteraktif',
+};
+
 const translateSubtitleToken = (token: string): string => {
   const clean = token.trim();
   if (!clean) return clean;
   return SUBTITLE_TERM_TR[clean] || clean;
+};
+
+const normalizeThemeKey = (value: string | undefined): string => {
+  return (value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9çğıöşü_-]/gi, '');
 };
 
 const translateSubtitleFallback = (subtitle: string | undefined): string | undefined => {
@@ -113,4 +148,18 @@ export function getLocalizedStorySubtitle(
   if (language !== 'tr') return story.subtitle;
   if (story.subtitleTr && story.subtitleTr.trim().length > 0) return story.subtitleTr;
   return translateSubtitleFallback(story.subtitle);
+}
+
+export function getLocalizedThemeName(theme: string | undefined, language: AppLanguage): string {
+  const clean = (theme || '').trim();
+  if (!clean) return language === 'tr' ? 'Diğer' : 'Other';
+  if (language !== 'tr') return clean;
+
+  const key = normalizeThemeKey(clean);
+  if (key && THEME_TERM_TR[key]) return THEME_TERM_TR[key];
+
+  const subtitleToken = SUBTITLE_TERM_TR[clean];
+  if (subtitleToken) return subtitleToken;
+
+  return clean;
 }

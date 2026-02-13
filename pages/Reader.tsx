@@ -8,6 +8,7 @@ import { MusicType, backgroundMusic } from '../services/backgroundMusic';
 import { soundEffects } from '../services/soundEffects';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
 import { translateSegmentsToTurkish } from '../services/storyTranslation';
+import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/storyLocalization';
 
 interface ReaderProps {
   story: Story | null;
@@ -281,6 +282,19 @@ const buildTurkishFallbackParagraphs = (count: number, character?: string): stri
 
 const buildTurkishChoiceFallbackText = (index: number): string => `Seçenek ${index + 1}`;
 const buildTurkishChoiceFallbackConsequence = (): string => 'Bu yol yeni bir maceraya açılıyor.';
+const looksLikeTurkishText = (text: string): boolean => {
+  if (!text.trim()) return true;
+  if (/[ğüşöçıİĞÜŞÖÇ]/.test(text)) return true;
+  return /\b(ve|bir|ile|için|ama|gibi|çok|şimdi|gece|hikaye|masal|yol|seçenek)\b/i.test(text);
+};
+const sanitizeTurkishParagraphs = (paragraphs: string[], character?: string): string[] => {
+  const fallback = buildTurkishFallbackParagraphs(paragraphs.length, character);
+  return paragraphs.map((line, index) => {
+    const trimmed = (line || '').trim();
+    if (!trimmed) return fallback[index];
+    return looksLikeTurkishText(trimmed) ? trimmed : fallback[index];
+  });
+};
 
 const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange, onMusicClick }) => {
   const { recordStoryRead, recordChoice, recordEnding, settings } = useAppState();
@@ -420,25 +434,30 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     : null;
 
   const buildChoiceTranslationKey = (branchId: string, choiceId: string) => `${branchId}:${choiceId}`;
+  const localizedStoryTitle = getLocalizedStoryTitle(activeStory, language);
+  const localizedThemeName = getLocalizedThemeName(activeStory.theme, language);
 
   const getLocalizedChoiceText = (choice: StoryChoice, branchId?: string | null): string => {
     if (language !== 'tr') return choice.text;
-    if (choice.textTr && choice.textTr.trim().length > 0) return choice.textTr;
+    if (choice.textTr && choice.textTr.trim().length > 0 && looksLikeTurkishText(choice.textTr)) return choice.textTr;
     if (branchId) {
       const translated = translatedChoiceTexts[buildChoiceTranslationKey(branchId, choice.id)];
-      if (translated) return translated;
+      if (translated && looksLikeTurkishText(translated)) return translated;
     }
-    return choice.text;
+    const branchChoices = currentBranch?.choices || [];
+    const choiceIndex = branchChoices.findIndex((item) => item.id === choice.id);
+    return buildTurkishChoiceFallbackText(choiceIndex >= 0 ? choiceIndex : 0);
   };
 
   const getLocalizedChoiceConsequence = (choice: StoryChoice, branchId?: string | null): string | undefined => {
     if (language !== 'tr') return choice.consequence;
-    if (choice.consequenceTr && choice.consequenceTr.trim().length > 0) return choice.consequenceTr;
+    if (choice.consequenceTr && choice.consequenceTr.trim().length > 0 && looksLikeTurkishText(choice.consequenceTr)) return choice.consequenceTr;
     if (branchId) {
       const translated = translatedChoiceConsequences[buildChoiceTranslationKey(branchId, choice.id)];
-      if (translated) return translated;
+      if (translated && looksLikeTurkishText(translated)) return translated;
     }
-    return choice.consequence;
+    if (!choice.consequence) return undefined;
+    return buildTurkishChoiceFallbackConsequence();
   };
 
   const normalizeBranchReference = (value: string): string =>
@@ -481,10 +500,12 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   useEffect(() => {
     if (language !== 'tr') return;
     if (isInteractiveStory) return;
-    if (activeStory.contentTr && activeStory.contentTr.length > 0) return;
+    if (activeStory.contentTr && activeStory.contentTr.length > 0 && activeStory.contentTr.every(looksLikeTurkishText)) return;
     if (translatedLinearContent && translatedLinearContent.length > 0) return;
 
-    const sourceParagraphs = (activeStory.content || [])
+    const sourceParagraphs = ((activeStory.content && activeStory.content.length > 0)
+      ? activeStory.content
+      : (activeStory.contentTr || []))
       .map((paragraph) => paragraph.trim())
       .filter(Boolean);
     if (sourceParagraphs.length === 0) return;
@@ -520,7 +541,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   useEffect(() => {
     if (language !== 'tr') return;
     if (!isInteractiveStory || !currentBranch) return;
-    if (currentBranch.paragraphsTr && currentBranch.paragraphsTr.length > 0) return;
+    if (currentBranch.paragraphsTr && currentBranch.paragraphsTr.length > 0 && currentBranch.paragraphsTr.every(looksLikeTurkishText)) return;
     if (translatedBranchParagraphs[currentBranch.id]?.length) return;
 
     const sourceParagraphs = currentBranch.paragraphs
@@ -598,7 +619,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             setTranslatedChoiceTexts((previous) => {
               const next = { ...previous };
               textQueue.forEach((item, index) => {
-                next[item.key] = translatedTexts[index] || item.text;
+                const candidate = translatedTexts[index];
+                next[item.key] = candidate && looksLikeTurkishText(candidate)
+                  ? candidate
+                  : buildTurkishChoiceFallbackText(index);
               });
               return next;
             });
@@ -614,7 +638,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             setTranslatedChoiceConsequences((previous) => {
               const next = { ...previous };
               consequenceQueue.forEach((item, index) => {
-                next[item.key] = translatedConsequences[index] || item.text;
+                const candidate = translatedConsequences[index];
+                next[item.key] = candidate && looksLikeTurkishText(candidate)
+                  ? candidate
+                  : buildTurkishChoiceFallbackConsequence();
               });
               return next;
             });
@@ -663,10 +690,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       if (isInteractiveStory && currentBranch) {
         if (language === 'tr') {
           if (currentBranch.paragraphsTr && currentBranch.paragraphsTr.length > 0) {
-            return currentBranch.paragraphsTr;
+            return sanitizeTurkishParagraphs(currentBranch.paragraphsTr, activeStory.character);
           }
           if (translatedBranchParagraphs[currentBranch.id] && translatedBranchParagraphs[currentBranch.id].length > 0) {
-            return translatedBranchParagraphs[currentBranch.id];
+            return sanitizeTurkishParagraphs(translatedBranchParagraphs[currentBranch.id], activeStory.character);
           }
           return [];
         }
@@ -675,10 +702,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
       if (language === 'tr') {
         if (activeStory.contentTr && activeStory.contentTr.length > 0) {
-          return activeStory.contentTr;
+          return sanitizeTurkishParagraphs(activeStory.contentTr, activeStory.character);
         }
         if (translatedLinearContent && translatedLinearContent.length > 0) {
-          return translatedLinearContent;
+          return sanitizeTurkishParagraphs(translatedLinearContent, activeStory.character);
         }
         return [];
       }
@@ -698,17 +725,29 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     language,
     activeStory.content,
     activeStory.contentTr,
+    activeStory.character,
     translatedLinearContent,
     translatedBranchParagraphs
   ]);
   const hasContent = content.length > 0;
 
-  // Get localized text helper
-  const getLocalizedText = (obj: any, field: string) => {
-    if (language === 'tr' && obj[`${field}Tr`]) {
-      return obj[`${field}Tr`];
+  const getLocalizedEndingTitle = (branch?: StoryBranch | null): string => {
+    if (!branch) return language === 'tr' ? 'Son' : 'The End';
+    if (language !== 'tr') return branch.endingTitle || 'The End';
+    if (branch.endingTitleTr && branch.endingTitleTr.trim().length > 0) return branch.endingTitleTr;
+
+    switch (branch.endingType) {
+      case 'happy':
+        return 'Mutlu Son';
+      case 'adventure':
+        return 'Macera Sonu';
+      case 'lesson':
+        return 'Dersle Biten Son';
+      case 'neutral':
+        return 'Huzurlu Son';
+      default:
+        return 'Masal Sonu';
     }
-    return obj[field];
   };
 
   const getSessionDurationMinutes = () => {
@@ -1140,7 +1179,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
         <div className="text-center flex-1">
           <span className="text-sm font-serif font-medium tracking-widest uppercase text-white/60 block">
-            {activeStory.theme}
+            {localizedThemeName}
           </span>
           {hasContent && (
             <div className="flex items-center justify-center gap-2">
@@ -1171,7 +1210,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       {/* Hero Image */}
       <div className="px-4 py-2">
         <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-2xl relative">
-          <img src={getStoryCoverUrl(activeStory)} alt={activeStory.title} className="w-full h-full object-cover" />
+          <img src={getStoryCoverUrl(activeStory)} alt={localizedStoryTitle} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-transparent"></div>
 
           {/* Story Meta Overlay */}
@@ -1328,7 +1367,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
                 {getEndingEmoji(currentBranch?.endingType)}
               </div>
               <h2 className="text-2xl font-bold text-white mb-2 font-serif">
-                {getLocalizedText(currentBranch, 'endingTitle') || (language === 'tr' ? 'Son' : 'The End')}
+                {getLocalizedEndingTitle(currentBranch)}
               </h2>
               <p className="text-white/60 text-sm mb-6">
                 {language === 'tr'
