@@ -6,19 +6,37 @@ interface CloudIntroProps {
   durationMs?: number;
 }
 
-const LEFT_CLOUDS = [
-  { id: '2', src: '/images/clouds/intro-cloud-2-alpha.png', className: 'cloud-left-a' },
-  { id: '3', src: '/images/clouds/intro-cloud-3-alpha.png', className: 'cloud-left-b' },
+type IntroCloud = {
+  id: string;
+  src: string;
+  className: string;
+  delay: number;
+  duration: number;
+  opacity?: number;
+};
+
+const LEFT_CLOUDS: IntroCloud[] = [
+  { id: '2', src: '/images/clouds/intro-cloud-2-alpha.png', className: 'cloud-left-a', delay: 0.06, duration: 5.2, opacity: 0.97 },
+  { id: '3', src: '/images/clouds/intro-cloud-3-alpha.png', className: 'cloud-left-b', delay: 0.42, duration: 5.8, opacity: 0.94 },
+  { id: '5', src: '/images/clouds/intro-cloud-5-alpha.png', className: 'cloud-left-c', delay: 0.88, duration: 6.2, opacity: 0.9 },
 ];
 
-const RIGHT_CLOUDS = [
-  { id: '1', src: '/images/clouds/intro-cloud-1-alpha.png', className: 'cloud-right-a' },
-  { id: '4', src: '/images/clouds/intro-cloud-4-alpha.png', className: 'cloud-right-b' },
+const RIGHT_CLOUDS: IntroCloud[] = [
+  { id: '1', src: '/images/clouds/intro-cloud-1-alpha.png', className: 'cloud-right-a', delay: 0.2, duration: 5.5, opacity: 0.96 },
+  { id: '4', src: '/images/clouds/intro-cloud-4-alpha.png', className: 'cloud-right-b', delay: 0.64, duration: 6.0, opacity: 0.93 },
 ];
 
 const CloudIntro: React.FC<CloudIntroProps> = ({ onFinish, durationMs = 5000 }) => {
   const { language } = useLanguage();
   const [isClosing, setIsClosing] = useState(false);
+  const timingScale = Math.max(0.95, durationMs / 5000);
+
+  const getCloudStyle = (cloud: IntroCloud): React.CSSProperties =>
+    ({
+      '--cloud-delay': `${cloud.delay}s`,
+      '--cloud-duration': `${(cloud.duration * timingScale).toFixed(2)}s`,
+      '--cloud-opacity': `${cloud.opacity ?? 0.96}`,
+    } as React.CSSProperties);
 
   useEffect(() => {
     const closeAt = Math.max(450, durationMs - 360);
@@ -49,6 +67,7 @@ const CloudIntro: React.FC<CloudIntroProps> = ({ onFinish, durationMs = 5000 }) 
             alt=""
             aria-hidden
             className={`cloud-intro-cloud cloud-intro-cloud-left ${cloud.className}`}
+            style={getCloudStyle(cloud)}
           />
         ))}
       </div>
@@ -61,6 +80,7 @@ const CloudIntro: React.FC<CloudIntroProps> = ({ onFinish, durationMs = 5000 }) 
             alt=""
             aria-hidden
             className={`cloud-intro-cloud cloud-intro-cloud-right ${cloud.className}`}
+            style={getCloudStyle(cloud)}
           />
         ))}
       </div>
@@ -130,16 +150,18 @@ const CloudIntro: React.FC<CloudIntroProps> = ({ onFinish, durationMs = 5000 }) 
         .cloud-intro-cloud {
           position: absolute;
           object-fit: contain;
-          opacity: 0.96;
+          opacity: var(--cloud-opacity, 0.96);
           filter: saturate(1.07) contrast(1.05) drop-shadow(0 10px 14px rgba(27, 18, 69, 0.24));
           will-change: transform, opacity;
+          backface-visibility: hidden;
+          transform: translateZ(0);
           user-select: none;
           -webkit-user-drag: none;
           --cloud-delay: 0.22s;
-          --cloud-duration: 4.2s;
+          --cloud-duration: 5.2s;
           animation-duration: var(--cloud-duration);
           animation-delay: var(--cloud-delay);
-          animation-timing-function: cubic-bezier(0.2, 0.82, 0.24, 1);
+          animation-timing-function: cubic-bezier(0.16, 0.76, 0.22, 1);
           animation-fill-mode: both;
         }
 
@@ -163,6 +185,12 @@ const CloudIntro: React.FC<CloudIntroProps> = ({ onFinish, durationMs = 5000 }) 
           top: 52%;
           left: -28%;
           width: min(98vw, 490px);
+        }
+
+        .cloud-left-c {
+          top: 30%;
+          left: -30%;
+          width: min(74vw, 360px);
         }
 
         .cloud-right-a {
