@@ -292,13 +292,21 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const resolveInitialLanguage = (): LanguageCode => {
+    const saved = localStorage.getItem('app_language');
+    if (saved === 'en' || saved === 'tr') return saved;
+
+    const candidate = typeof navigator !== 'undefined'
+        ? (navigator.languages?.[0] || navigator.language || '')
+        : '';
+    const normalized = candidate.trim().toLowerCase();
+    if (normalized.startsWith('tr')) return 'tr';
+    return 'en';
+};
+
 // Provider component
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [language, setLanguage] = useState<LanguageCode>(() => {
-        // Try to get from localStorage
-        const saved = localStorage.getItem('app_language');
-        return (saved as LanguageCode) || 'en';
-    });
+    const [language, setLanguage] = useState<LanguageCode>(resolveInitialLanguage);
 
     const handleSetLanguage = (lang: LanguageCode) => {
         setLanguage(lang);
