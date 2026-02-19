@@ -107,6 +107,54 @@ const createDefaultProfile = (name: string = 'Little Reader', age: number = 5): 
     },
 });
 
+const TURKISH_CHAR_PATTERN = /[ğüşöçıİĞÜŞÖÇ]/;
+const TURKISH_WORD_PATTERN = /\b(ve|bir|ile|için|ama|gibi|çok|şimdi|gece|hikaye|masal|uyku|rüya|ruya)\b/i;
+
+const looksLikeTurkishText = (value: string): boolean => {
+    const text = value.trim();
+    if (!text) return false;
+    if (TURKISH_CHAR_PATTERN.test(text)) return true;
+    return TURKISH_WORD_PATTERN.test(text);
+};
+
+const detectStorySourceLanguage = (story: Story): 'en' | 'tr' => {
+    if (story.sourceLanguage === 'en' || story.sourceLanguage === 'tr') return story.sourceLanguage;
+
+    const turkishLocalizedSegments = [
+        story.titleTr,
+        story.subtitleTr,
+        story.moralTr,
+        ...(story.contentTr || []),
+        ...(story.branches?.flatMap((branch) => [
+            ...(branch.paragraphsTr || []),
+            branch.endingTitleTr,
+            ...(branch.choices?.flatMap((choice) => [choice.textTr, choice.consequenceTr]) || []),
+        ]) || []),
+    ].filter((segment): segment is string => typeof segment === 'string' && segment.trim().length > 0);
+
+    if (turkishLocalizedSegments.some(looksLikeTurkishText)) return 'tr';
+
+    const primarySegments = [
+        story.title,
+        story.subtitle,
+        story.moral,
+        ...(story.content || []),
+        ...(story.branches?.flatMap((branch) => [
+            ...(branch.paragraphs || []),
+            branch.endingTitle,
+            ...(branch.choices?.flatMap((choice) => [choice.text, choice.consequence]) || []),
+        ]) || []),
+    ].filter((segment): segment is string => typeof segment === 'string' && segment.trim().length > 0);
+
+    if (primarySegments.some(looksLikeTurkishText)) return 'tr';
+    return 'en';
+};
+
+const normalizeStoredStory = (story: Story): Story => ({
+    ...story,
+    sourceLanguage: detectStorySourceLanguage(story),
+});
+
 // Context type
 interface AppStateContextType {
     // Profiles
@@ -218,7 +266,9 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
             const parsed = JSON.parse(saved);
             if (!Array.isArray(parsed)) return [];
 
-            return parsed as Story[];
+            return parsed
+                .filter((item): item is Story => Boolean(item && typeof item === 'object' && typeof (item as Story).id === 'string'))
+                .map(normalizeStoredStory);
         } catch {
             return [];
         }
@@ -348,9 +398,10 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     const saveCustomStory = (story: Story) => {
         if (!story?.id) return;
+        const normalizedStory = normalizeStoredStory(story);
         setCustomStories((previous) => {
-            const withoutCurrent = previous.filter((item) => item.id !== story.id);
-            return [story, ...withoutCurrent].slice(0, 80);
+            const withoutCurrent = previous.filter((item) => item.id !== normalizedStory.id);
+            return [normalizedStory, ...withoutCurrent].slice(0, 80);
         });
     };
 
