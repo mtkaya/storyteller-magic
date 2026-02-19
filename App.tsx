@@ -25,6 +25,7 @@ import { MusicType, backgroundMusic } from './services/backgroundMusic';
 import { soundEffects } from './services/soundEffects';
 import { LIBRARY_STORIES, RECENT_STORIES } from './data';
 import { buildStoryPool, hasPlayableStoryData, normalizeStoryTheme } from './services/storyCuration';
+import { prefetchTurkishTranslations } from './services/storyTranslation';
 
 const AppContent: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenName>('home');
@@ -65,6 +66,42 @@ const AppContent: React.FC = () => {
 
     return byTheme || candidate;
   }, [storyPool]);
+
+  const warmTurkishStoryContent = React.useCallback((story: Story) => {
+    if (language !== 'tr') return;
+
+    const segments = new Set<string>();
+    const pushSegment = (text?: string) => {
+      if (!text) return;
+      const trimmed = text.trim();
+      if (!trimmed) return;
+      segments.add(trimmed);
+    };
+
+    story.content?.forEach(pushSegment);
+    story.branches?.forEach((branch) => {
+      branch.paragraphs?.forEach(pushSegment);
+      branch.choices?.forEach((choice) => {
+        pushSegment(choice.text);
+        pushSegment(choice.consequence);
+      });
+    });
+
+    if (segments.size === 0) return;
+    void prefetchTurkishTranslations(Array.from(segments), {
+      contextLabel: `story:${story.id}:prefetch`
+    });
+  }, [language]);
+
+  useEffect(() => {
+    if (language !== 'tr') return;
+
+    const starterStories = storyPool
+      .filter((story) => hasPlayableStoryData(story))
+      .slice(0, 5);
+
+    starterStories.forEach((story) => warmTurkishStoryContent(story));
+  }, [language, storyPool, warmTurkishStoryContent]);
 
   useEffect(() => {
     soundEffects.setEnabled(settings.soundEffects);
@@ -196,7 +233,9 @@ const AppContent: React.FC = () => {
       );
       return;
     }
-    setSelectedStory(resolvePlayableStorySelection(story));
+    const resolvedStory = resolvePlayableStorySelection(story);
+    warmTurkishStoryContent(resolvedStory);
+    setSelectedStory(resolvedStory);
     setCurrentScreen('reader');
   };
 

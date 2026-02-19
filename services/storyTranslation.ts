@@ -1,8 +1,11 @@
 const STORY_API_PATH = '/api/generate-story';
 const STORY_API_BASE_URL = import.meta.env.VITE_STORY_API_URL?.trim() || '';
 const TRANSLATE_TIMEOUT_MS = 15_000;
+const TRANSLATION_CACHE_STORAGE_KEY = 'story_translation_cache_v2';
+const MAX_PERSISTED_TRANSLATION_ENTRIES = 140;
 
 const translationCache = new Map<string, string[]>();
+let cacheHydrated = false;
 
 interface TranslationOptions {
   contextLabel?: string;
@@ -117,10 +120,68 @@ const coerceTranslationsToTurkish = (translations: string[], sources: string[]):
 
 const buildCacheKey = (segments: string[]): string => segments.join('\n␞\n');
 
+const canUseStorage = (): boolean => {
+  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+};
+
+const hydrateTranslationCache = (): void => {
+  if (cacheHydrated) return;
+  cacheHydrated = true;
+  if (!canUseStorage()) return;
+
+  try {
+    const raw = window.localStorage.getItem(TRANSLATION_CACHE_STORAGE_KEY);
+    if (!raw) return;
+
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (!parsed || typeof parsed !== 'object') return;
+
+    Object.entries(parsed).forEach(([key, value]) => {
+      if (!Array.isArray(value)) return;
+      const lines = value
+        .map((item) => (typeof item === 'string' ? item.trim() : ''))
+        .filter(Boolean);
+      if (!lines.length) return;
+      translationCache.set(key, lines);
+    });
+  } catch {
+    // Ignore hydration errors and keep runtime cache only.
+  }
+};
+
+const persistTranslationCache = (): void => {
+  if (!canUseStorage()) return;
+
+  try {
+    const entries = Array.from(translationCache.entries());
+    const trimmedEntries = entries.slice(-MAX_PERSISTED_TRANSLATION_ENTRIES);
+    const serialized = Object.fromEntries(trimmedEntries);
+    window.localStorage.setItem(TRANSLATION_CACHE_STORAGE_KEY, JSON.stringify(serialized));
+  } catch {
+    // Ignore storage quota/serialization failures.
+  }
+};
+
+const setCacheEntry = (key: string, value: string[]): void => {
+  if (translationCache.has(key)) {
+    translationCache.delete(key);
+  }
+  translationCache.set(key, value);
+
+  if (translationCache.size > MAX_PERSISTED_TRANSLATION_ENTRIES) {
+    const oldestKey = translationCache.keys().next().value;
+    if (oldestKey) translationCache.delete(oldestKey);
+  }
+
+  persistTranslationCache();
+};
+
 export async function translateSegmentsToTurkish(
   segments: string[],
   options: TranslationOptions = {}
 ): Promise<string[]> {
+  hydrateTranslationCache();
+
   if (!segments.length) return [];
 
   const normalized = segments.map((segment) => segment.trim());
@@ -199,7 +260,7 @@ export async function translateSegmentsToTurkish(
     }
 
     const safeTranslations = coerceTranslationsToTurkish(translations, sourceBatch);
-    translationCache.set(cacheKey, safeTranslations);
+    setCacheEntry(cacheKey, safeTranslations);
     const merged = [...normalized];
     safeTranslations.forEach((line, index) => {
       const targetIndex = indicesToTranslate[index]?.index;
@@ -208,5 +269,26 @@ export async function translateSegmentsToTurkish(
     return merged;
   } finally {
     clearTimeout(timeoutId);
+  }
+}
+
+export async function prefetchTurkishTranslations(
+  segments: string[],
+  options: TranslationOptions = {}
+): Promise<void> {
+  const normalized = segments
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  if (!normalized.length) return;
+
+  const chunkSize = 24;
+  for (let index = 0; index < normalized.length; index += chunkSize) {
+    const chunk = normalized.slice(index, index + chunkSize);
+    try {
+      await translateSegmentsToTurkish(chunk, options);
+    } catch {
+      // Prefetch failures should never block user flow.
+      return;
+    }
   }
 }
