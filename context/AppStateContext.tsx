@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Story } from '../types';
 
 // Types
 export interface ReadingStats {
@@ -122,6 +123,11 @@ interface AppStateContextType {
     removeFavorite: (storyId: string) => void;
     isFavorite: (storyId: string) => boolean;
 
+    // Custom stories
+    customStories: Story[];
+    saveCustomStory: (story: Story) => void;
+    removeCustomStory: (storyId: string) => void;
+
     // Stats
     stats: ReadingStats;
     recordStoryRead: (storyId: string, theme: string, durationMinutes: number) => void;
@@ -161,6 +167,7 @@ const STORAGE_KEYS = {
     profiles: 'storyteller_profiles',
     activeProfileId: 'storyteller_active_profile',
     settings: 'storyteller_settings',
+    customStories: 'storyteller_custom_stories',
 };
 
 // Provider
@@ -203,6 +210,19 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
         return defaultSettings;
     });
+    const [customStories, setCustomStories] = useState<Story[]>(() => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEYS.customStories);
+            if (!saved) return [];
+
+            const parsed = JSON.parse(saved);
+            if (!Array.isArray(parsed)) return [];
+
+            return parsed as Story[];
+        } catch {
+            return [];
+        }
+    });
 
     const [badges, setBadges] = useState<Badge[]>(BADGES);
     const [newlyUnlockedBadge, setNewlyUnlockedBadge] = useState<Badge | null>(null);
@@ -231,6 +251,10 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
     useEffect(() => {
         localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
     }, [settings]);
+
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.customStories, JSON.stringify(customStories));
+    }, [customStories]);
 
     // Check and unlock badges
     const checkBadges = (updatedStats: ReadingStats) => {
@@ -322,6 +346,18 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     const isFavorite = (storyId: string) => favorites.includes(storyId);
 
+    const saveCustomStory = (story: Story) => {
+        if (!story?.id) return;
+        setCustomStories((previous) => {
+            const withoutCurrent = previous.filter((item) => item.id !== story.id);
+            return [story, ...withoutCurrent].slice(0, 80);
+        });
+    };
+
+    const removeCustomStory = (storyId: string) => {
+        setCustomStories((previous) => previous.filter((story) => story.id !== storyId));
+    };
+
     // Stats tracking
     const recordStoryRead = (storyId: string, theme: string, durationMinutes: number) => {
         if (!activeProfile) return;
@@ -390,6 +426,9 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
         addFavorite,
         removeFavorite,
         isFavorite,
+        customStories,
+        saveCustomStory,
+        removeCustomStory,
         stats,
         recordStoryRead,
         recordChoice,

@@ -41,11 +41,11 @@ const AppContent: React.FC = () => {
   const [showCloudIntro, setShowCloudIntro] = useState(true);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
 
-  const { isLimitReached, settings, updateSettings } = useAppState();
+  const { isLimitReached, settings, updateSettings, saveCustomStory, customStories } = useAppState();
   const { language } = useLanguage();
   const storyPool = React.useMemo(
-    () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES),
-    []
+    () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES, customStories),
+    [customStories]
   );
 
   const resolvePlayableStorySelection = React.useCallback((candidate: Story): Story => {
@@ -249,6 +249,7 @@ const AppContent: React.FC = () => {
 
   const handleStoryComplete = (story?: Story) => {
     if (story) {
+      saveCustomStory(story);
       setSelectedStory(story);
     }
     setCurrentScreen('reader');

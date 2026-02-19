@@ -17,12 +17,12 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, onMusicClick, onGoalsClick }) => {
   const { language, t } = useLanguage();
-  const { activeProfile, stats, favorites, isFavorite, addFavorite, removeFavorite } = useAppState();
+  const { activeProfile, stats, favorites, isFavorite, addFavorite, removeFavorite, customStories } = useAppState();
   const currentHour = new Date().getHours();
 
   const storyPool = React.useMemo(
-    () => buildStoryPool(RECENT_STORIES, LIBRARY_STORIES),
-    []
+    () => buildStoryPool(RECENT_STORIES, LIBRARY_STORIES, customStories),
+    [customStories]
   );
 
   const curatedShelves = React.useMemo(

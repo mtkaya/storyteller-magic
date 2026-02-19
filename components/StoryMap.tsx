@@ -14,12 +14,12 @@ interface StoryMapProps {
 
 const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
     const { language } = useLanguage();
-    const { stats, favorites, isFavorite } = useAppState();
+    const { stats, favorites, isFavorite, customStories } = useAppState();
     const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
     type ThemeBucket = { key: string; sourceTheme: string; stories: Story[] };
     const playableStories = React.useMemo(
-        () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES).filter(hasPlayableStoryData),
-        []
+        () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES, customStories).filter(hasPlayableStoryData),
+        [customStories]
     );
 
     // Group stories by theme

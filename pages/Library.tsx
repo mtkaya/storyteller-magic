@@ -20,11 +20,11 @@ interface LibraryProps {
 
 const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
   const { language, t } = useLanguage();
-  const { isFavorite, addFavorite, removeFavorite, favorites, stats } = useAppState();
+  const { isFavorite, addFavorite, removeFavorite, favorites, stats, customStories } = useAppState();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
-  const storyPool = useMemo(() => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES), []);
+  const storyPool = useMemo(() => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES, customStories), [customStories]);
 
   const rankedStories = useMemo(
     () =>
