@@ -91,23 +91,61 @@ const TURKISH_TRANSLATION_FALLBACKS = [
   'Bu anda paylaşılan küçük bir iyilik, masalın yönünü güzelleştirdi.',
 ];
 
-const buildTurkishFallbackLine = (source: string, index: number): string => {
+const TURKISH_FALLBACK_CONTEXT_HINTS: Array<{ pattern: RegExp; phrase: string }> = [
+  { pattern: /\b(moon|night|star|sleep|dream|goodnight)\b/i, phrase: 'ay ışığının altında' },
+  { pattern: /\b(forest|tree|leaf|garden|woods)\b/i, phrase: 'ormanın yumuşak yollarında' },
+  { pattern: /\b(ocean|sea|wave|dolphin|whale|seahorse)\b/i, phrase: 'okyanusun dingin kıyısında' },
+  { pattern: /\b(cloud|sky|rainbow|lantern|firefly)\b/i, phrase: 'gökyüzünün parıltıları arasında' },
+  { pattern: /\b(friend|family|together|team)\b/i, phrase: 'dostlarıyla omuz omuza' },
+  { pattern: /\b(magic|spell|enchanted|treasure)\b/i, phrase: 'sihir dolu bir anda' },
+  { pattern: /\b(choice|choose|path|decide)\b/i, phrase: 'önündeki yolu seçerken' },
+  { pattern: /\b(learn|lesson|wisdom|secret)\b/i, phrase: 'yeni bir ders öğrenirken' },
+];
+
+const TURKISH_FALLBACK_ACTION_HINTS: Array<{ pattern: RegExp; phrase: string }> = [
+  { pattern: /\b(smile|laugh|grin)\b/i, phrase: 'gülümsemeyi sürdürdü' },
+  { pattern: /\b(whisper|said|ask|tell|reply)\b/i, phrase: 'yumuşak bir sesle konuştu' },
+  { pattern: /\b(run|fly|walk|journey|travel|guide|follow)\b/i, phrase: 'umutla ilerledi' },
+  { pattern: /\b(help|share|care|kind)\b/i, phrase: 'nazikçe yardım etti' },
+  { pattern: /\b(look|watch|find|discover|search)\b/i, phrase: 'merakla etrafını keşfetti' },
+];
+
+const resolveFallbackSubject = (source: string): string => {
   const cleaned = source.trim();
-  const fallback = TURKISH_TRANSLATION_FALLBACKS[index % TURKISH_TRANSLATION_FALLBACKS.length];
-  if (!cleaned) return fallback;
+  if (!cleaned) return 'Kahramanımız';
 
   const quotedName = cleaned.match(/["'“”]([A-ZÇĞİÖŞÜ][a-zA-ZçğıöşüÇĞİÖŞÜ'-]{1,20})["'“”]/)?.[1];
-  if (quotedName) {
-    return `${quotedName} ${fallback.charAt(0).toLowerCase()}${fallback.slice(1)}`;
-  }
+  if (quotedName) return quotedName;
 
   const titleCaseName = cleaned.match(/\b([A-ZÇĞİÖŞÜ][a-zçğıöşü]{2,20})\b/);
-  if (titleCaseName) {
-    const name = titleCaseName[1];
-    return `${name} ${fallback.charAt(0).toLowerCase()}${fallback.slice(1)}`;
-  }
+  if (titleCaseName) return titleCaseName[1];
 
-  return fallback;
+  return 'Kahramanımız';
+};
+
+const resolveFallbackContext = (source: string): string => {
+  const hit = TURKISH_FALLBACK_CONTEXT_HINTS.find(({ pattern }) => pattern.test(source));
+  return hit?.phrase || 'masal yolculuğunda';
+};
+
+const resolveFallbackAction = (source: string): string => {
+  const hit = TURKISH_FALLBACK_ACTION_HINTS.find(({ pattern }) => pattern.test(source));
+  return hit?.phrase || 'kalbindeki cesaretle yoluna devam etti';
+};
+
+const buildTurkishFallbackLine = (source: string, index: number): string => {
+  const cleaned = source.trim();
+  const supportiveLine = TURKISH_TRANSLATION_FALLBACKS[index % TURKISH_TRANSLATION_FALLBACKS.length];
+  if (!cleaned) return supportiveLine;
+
+  const subject = resolveFallbackSubject(cleaned);
+  const context = resolveFallbackContext(cleaned);
+  const action = resolveFallbackAction(cleaned);
+  const lead = `${subject} ${context} ${action}.`
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return `${lead} ${supportiveLine}`.trim();
 };
 
 const coerceTranslationsToTurkish = (translations: string[], sources: string[]): string[] => {
@@ -227,46 +265,57 @@ export async function translateSegmentsToTurkish(
   const timeoutId = setTimeout(() => controller.abort(), TRANSLATE_TIMEOUT_MS);
 
   try {
-    const response = await fetch(resolveStoryApiEndpoint(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        prompt
-      })
-    });
+    try {
+      const response = await fetch(resolveStoryApiEndpoint(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          prompt
+        })
+      });
 
-    if (!response.ok) {
-      throw new Error(`Translator request failed: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`Translator request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const generatedText = typeof data.generatedText === 'string' ? data.generatedText : '';
+      if (!generatedText) throw new Error('Translator response is empty.');
+
+      const payload = parseTranslatorPayload(generatedText) as { translations?: unknown; lines?: unknown } | unknown[];
+      let translations = Array.isArray(payload)
+        ? asStringArray(payload)
+        : asStringArray((payload as { translations?: unknown; lines?: unknown }).translations);
+
+      if (translations.length === 0 && !Array.isArray(payload)) {
+        translations = asStringArray((payload as { translations?: unknown; lines?: unknown }).lines);
+      }
+
+      if (translations.length !== sourceBatch.length) {
+        throw new Error('Translator returned invalid line count.');
+      }
+
+      const safeTranslations = coerceTranslationsToTurkish(translations, sourceBatch);
+      setCacheEntry(cacheKey, safeTranslations);
+      const merged = [...normalized];
+      safeTranslations.forEach((line, index) => {
+        const targetIndex = indicesToTranslate[index]?.index;
+        if (typeof targetIndex === 'number') merged[targetIndex] = line;
+      });
+      return merged;
+    } catch {
+      const fallbackTranslations = sourceBatch.map((line, index) => buildTurkishFallbackLine(line, index));
+      setCacheEntry(cacheKey, fallbackTranslations);
+      const merged = [...normalized];
+      fallbackTranslations.forEach((line, index) => {
+        const targetIndex = indicesToTranslate[index]?.index;
+        if (typeof targetIndex === 'number') merged[targetIndex] = line;
+      });
+      return merged;
     }
-
-    const data = await response.json();
-    const generatedText = typeof data.generatedText === 'string' ? data.generatedText : '';
-    if (!generatedText) throw new Error('Translator response is empty.');
-
-    const payload = parseTranslatorPayload(generatedText) as { translations?: unknown; lines?: unknown } | unknown[];
-    let translations = Array.isArray(payload)
-      ? asStringArray(payload)
-      : asStringArray((payload as { translations?: unknown; lines?: unknown }).translations);
-
-    if (translations.length === 0 && !Array.isArray(payload)) {
-      translations = asStringArray((payload as { translations?: unknown; lines?: unknown }).lines);
-    }
-
-    if (translations.length !== sourceBatch.length) {
-      throw new Error('Translator returned invalid line count.');
-    }
-
-    const safeTranslations = coerceTranslationsToTurkish(translations, sourceBatch);
-    setCacheEntry(cacheKey, safeTranslations);
-    const merged = [...normalized];
-    safeTranslations.forEach((line, index) => {
-      const targetIndex = indicesToTranslate[index]?.index;
-      if (typeof targetIndex === 'number') merged[targetIndex] = line;
-    });
-    return merged;
   } finally {
     clearTimeout(timeoutId);
   }
