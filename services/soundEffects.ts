@@ -16,11 +16,35 @@ class SoundEffectsService {
     private audioContext: AudioContext | null = null;
     private enabled: boolean = true;
     private volume: number = 0.5;
+    private unavailableFileEffects = new Set<SoundEffect>();
 
-    private async initContext() {
+    private readonly fileEffectPaths: Record<SoundEffect, string> = {
+        page_turn: '/audio/sfx/page_turn.m4a',
+        choice_select: '/audio/sfx/choice_select.m4a',
+        badge_unlock: '/audio/sfx/badge_unlock.m4a',
+        story_complete: '/audio/sfx/story_complete.m4a',
+        magic_sparkle: '/audio/sfx/magic_sparkle.m4a',
+        button_click: '/audio/sfx/button_click.m4a',
+        notification: '/audio/sfx/notification.m4a',
+        success: '/audio/sfx/success.m4a',
+        error: '/audio/sfx/error.m4a',
+    };
+
+    private async initContext(): Promise<AudioContext | null> {
         if (!this.audioContext) {
-            this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+            if (!AudioContextCtor) return null;
+            this.audioContext = new AudioContextCtor();
         }
+
+        if (this.audioContext.state !== 'running') {
+            try {
+                await this.audioContext.resume();
+            } catch {
+                return null;
+            }
+        }
+
         return this.audioContext;
     }
 
@@ -32,10 +56,34 @@ class SoundEffectsService {
         this.volume = Math.max(0, Math.min(1, volume));
     }
 
+    async unlock(): Promise<void> {
+        await this.initContext();
+    }
+
+    private async tryPlayFileEffect(effect: SoundEffect): Promise<boolean> {
+        const source = this.fileEffectPaths[effect];
+        if (!source || this.unavailableFileEffects.has(effect)) return false;
+
+        try {
+            const audio = new Audio(source);
+            audio.preload = 'auto';
+            audio.volume = this.volume;
+            await audio.play();
+            return true;
+        } catch {
+            this.unavailableFileEffects.add(effect);
+            return false;
+        }
+    }
+
     async play(effect: SoundEffect): Promise<void> {
         if (!this.enabled) return;
 
+        const playedFromFile = await this.tryPlayFileEffect(effect);
+        if (playedFromFile) return;
+
         const ctx = await this.initContext();
+        if (!ctx) return;
         const gainNode = ctx.createGain();
         gainNode.gain.value = this.volume;
         gainNode.connect(ctx.destination);

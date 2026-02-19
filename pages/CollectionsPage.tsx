@@ -1,9 +1,11 @@
 import React from 'react';
 import { STORY_COLLECTIONS } from '../data/collections';
-import { LIBRARY_STORIES } from '../data';
+import { LIBRARY_STORIES, RECENT_STORIES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { Story, ScreenName } from '../types';
 import { getIllustratedImageUrl, getStoryCoverUrl } from '../services/illustrationCovers';
+import { getLocalizedStorySubtitle, getLocalizedStoryTitle } from '../services/storyLocalization';
+import { buildStoryPool, hasPlayableStoryData, normalizeStoryTheme } from '../services/storyCuration';
 
 interface CollectionsPageProps {
     onBack: () => void;
@@ -13,9 +15,59 @@ interface CollectionsPageProps {
 const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect }) => {
     const { language } = useLanguage();
     const [selectedCollection, setSelectedCollection] = React.useState<string | null>(null);
+    const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
+    const getStorySubtitle = (story: Story) => getLocalizedStorySubtitle(story, language);
+    const storyPool = React.useMemo(
+        () => buildStoryPool(RECENT_STORIES, LIBRARY_STORIES),
+        []
+    );
+
+    const storyLookup = React.useMemo(() => {
+        const map = new Map<string, Story>();
+
+        [...RECENT_STORIES, ...LIBRARY_STORIES].forEach((story) => {
+            const existing = map.get(story.id);
+            if (!existing) {
+                map.set(story.id, story);
+                return;
+            }
+
+            // Prefer entries that contain readable content/branches.
+            if (!hasPlayableStoryData(existing) && hasPlayableStoryData(story)) {
+                map.set(story.id, story);
+            }
+        });
+
+        return map;
+    }, []);
+
+    const resolvePlayableStory = React.useCallback((story: Story): Story | null => {
+        if (hasPlayableStoryData(story)) return story;
+
+        const sameId = storyPool.find(candidate => candidate.id === story.id && hasPlayableStoryData(candidate));
+        if (sameId) return sameId;
+
+        const theme = normalizeStoryTheme(story.theme);
+        const byTheme = storyPool.find(candidate =>
+            hasPlayableStoryData(candidate) && normalizeStoryTheme(candidate.theme) === theme
+        );
+
+        return byTheme || null;
+    }, [storyPool]);
 
     const getStoriesForCollection = (storyIds: string[]): Story[] => {
-        return LIBRARY_STORIES.filter(story => storyIds.includes(story.id));
+        const resolved = storyIds
+            .map((storyId) => storyLookup.get(storyId))
+            .filter((story): story is Story => Boolean(story))
+            .map(resolvePlayableStory)
+            .filter((story): story is Story => Boolean(story));
+
+        const uniqueById = new Map<string, Story>();
+        resolved.forEach((story) => {
+            if (!uniqueById.has(story.id)) uniqueById.set(story.id, story);
+        });
+
+        return Array.from(uniqueById.values());
     };
 
     const activeCollection = selectedCollection
@@ -81,15 +133,17 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
                             className="w-full flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-left"
                         >
                             <div className="w-20 h-24 rounded-xl overflow-hidden flex-shrink-0">
-                                <img src={getStoryCoverUrl(story)} alt={story.title} className="w-full h-full object-cover" />
+                                <img src={getStoryCoverUrl(story)} alt={getStoryTitle(story)} className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-white font-bold truncate">{story.title}</p>
-                                <p className="text-white/50 text-sm truncate">{story.subtitle}</p>
+                                <p className="text-white font-bold truncate">{getStoryTitle(story)}</p>
+                                <p className="text-white/50 text-sm truncate">{getStorySubtitle(story)}</p>
                                 <div className="flex items-center gap-2 mt-2">
                                     <span className="text-white/40 text-xs">{story.duration}</span>
                                     {story.isInteractive && (
-                                        <span className="bg-secondary/20 text-secondary text-[10px] px-2 py-0.5 rounded-full">🎮 Interactive</span>
+                                        <span className="bg-secondary/20 text-secondary text-[10px] px-2 py-0.5 rounded-full">
+                                            🎮 {language === 'tr' ? 'İnteraktif' : 'Interactive'}
+                                        </span>
                                     )}
                                 </div>
                             </div>
@@ -105,7 +159,7 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
                         className="w-full py-4 rounded-xl bg-primary text-white font-bold flex items-center justify-center gap-2"
                     >
                         <span className="material-symbols-outlined">play_arrow</span>
-                        {language === 'tr' ? 'Koleksiyonu Dinle' : 'Play Collection'}
+                        {language === 'tr' ? 'Koleksiyonu Oynat' : 'Play Collection'}
                     </button>
                 </div>
             </div>

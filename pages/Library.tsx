@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
-import { LIBRARY_STORIES } from '../data';
+import React, { useMemo, useState } from 'react';
+import { LIBRARY_STORIES, RECENT_STORIES } from '../data';
 import { ScreenName, Story } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppState } from '../context/AppStateContext';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
+import {
+  buildStoryPool,
+  getTopThemeFilters,
+  normalizeStoryTheme,
+  parseDurationMinutes,
+  rankStoriesForLibrary,
+} from '../services/storyCuration';
+import { getLocalizedStorySubtitle, getLocalizedStoryTitle } from '../services/storyLocalization';
 
 interface LibraryProps {
   onNavigate: (screen: ScreenName) => void;
@@ -12,46 +20,88 @@ interface LibraryProps {
 
 const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
   const { language, t } = useLanguage();
-  const { isFavorite, addFavorite, removeFavorite, favorites } = useAppState();
+  const { isFavorite, addFavorite, removeFavorite, favorites, stats } = useAppState();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
-  const filters = [
-    { id: 'favorites', emoji: '❤️', name: language === 'tr' ? 'Favoriler' : 'Favorites' },
-    { id: 'interactive', emoji: '🎮', name: language === 'tr' ? 'İnteraktif' : 'Interactive' },
-    { id: 'courage', emoji: '🦁', name: language === 'tr' ? 'Cesaret' : 'Courage' },
-    { id: 'friendship', emoji: '🤝', name: language === 'tr' ? 'Dostluk' : 'Friendship' },
-    { id: 'magic', emoji: '✨', name: language === 'tr' ? 'Sihir' : 'Magic' },
-    { id: 'adventure', emoji: '🚀', name: language === 'tr' ? 'Macera' : 'Adventure' },
-    { id: 'kindness', emoji: '💖', name: language === 'tr' ? 'İyilik' : 'Kindness' },
-  ];
+  const storyPool = useMemo(() => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES), []);
+
+  const rankedStories = useMemo(
+    () =>
+      rankStoriesForLibrary(storyPool, {
+        favorites,
+        themeCounts: stats.themeCounts,
+        hour: new Date().getHours(),
+      }),
+    [storyPool, favorites, stats.themeCounts]
+  );
+
+  const themeLabelMap: Record<string, string> = useMemo(
+    () => ({
+      adventure: language === 'tr' ? 'Macera' : 'Adventure',
+      friendship: language === 'tr' ? 'Dostluk' : 'Friendship',
+      magic: language === 'tr' ? 'Sihir' : 'Magic',
+      nature: language === 'tr' ? 'Doğa' : 'Nature',
+      calm: language === 'tr' ? 'Sakin' : 'Calm',
+      courage: language === 'tr' ? 'Cesaret' : 'Courage',
+      wisdom: language === 'tr' ? 'Bilgelik' : 'Wisdom',
+      mystery: language === 'tr' ? 'Gizem' : 'Mystery',
+      family: language === 'tr' ? 'Aile' : 'Family',
+      wonder: language === 'tr' ? 'Hayranlık' : 'Wonder',
+    }),
+    [language]
+  );
+
+  const dynamicThemeFilters = useMemo(
+    () =>
+      getTopThemeFilters(rankedStories, 6).map((theme, index) => ({
+        id: theme.id,
+        emoji: ['🌙', '✨', '🧭', '🌿', '🦁', '📚'][index % 6],
+        name: themeLabelMap[theme.id] || theme.label,
+      })),
+    [rankedStories, themeLabelMap]
+  );
+
+  const filters = useMemo(
+    () => [
+      { id: 'favorites', emoji: '❤️', name: language === 'tr' ? 'Favoriler' : 'Favorites' },
+      { id: 'interactive', emoji: '🎮', name: language === 'tr' ? 'İnteraktif' : 'Interactive' },
+      { id: 'short', emoji: '⚡', name: language === 'tr' ? 'Kısa' : 'Short' },
+      { id: 'long', emoji: '📚', name: language === 'tr' ? 'Uzun' : 'Long' },
+      ...dynamicThemeFilters,
+    ],
+    [language, dynamicThemeFilters]
+  );
+
+  const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
+  const getStorySubtitle = (story: Story) => getLocalizedStorySubtitle(story, language);
 
   // Filter stories
-  const filteredStories = LIBRARY_STORIES.filter(story => {
-    // Search filter
+  const filteredStories = rankedStories.filter((story) => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      if (!story.title.toLowerCase().includes(query) &&
-        !story.subtitle?.toLowerCase().includes(query) &&
-        !story.theme?.toLowerCase().includes(query)) {
-        return false;
-      }
+      const inSearchableFields = [
+        story.title,
+        story.titleTr,
+        story.subtitle,
+        story.subtitleTr,
+        story.character,
+        story.theme,
+      ]
+        .filter(Boolean)
+        .some((text) => String(text).toLowerCase().includes(query));
+
+      if (!inSearchableFields) return false;
     }
 
-    // Favorites filter
-    if (activeFilter === 'favorites') {
-      if (!favorites.includes(story.id)) return false;
-    }
+    if (activeFilter === 'favorites' && !favorites.includes(story.id)) return false;
+    if (activeFilter === 'interactive' && !story.isInteractive) return false;
+    if (activeFilter === 'short' && parseDurationMinutes(story.duration) > 8) return false;
+    if (activeFilter === 'long' && parseDurationMinutes(story.duration) < 12) return false;
 
-    // Interactive filter
-    if (activeFilter === 'interactive') {
-      if (!story.isInteractive) return false;
-    }
-
-    // Theme filters
-    if (activeFilter && !['favorites', 'interactive'].includes(activeFilter)) {
-      if (story.theme?.toLowerCase() !== activeFilter) return false;
+    const specialFilters = new Set(['favorites', 'interactive', 'short', 'long']);
+    if (activeFilter && !specialFilters.has(activeFilter)) {
+      if (normalizeStoryTheme(story.theme) !== activeFilter) return false;
     }
 
     return true;
@@ -166,17 +216,21 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
                 {/* Type badge */}
                 {story.isInteractive ? (
                   <div className="absolute top-2 left-2 bg-gradient-to-r from-secondary to-purple-500 backdrop-blur-md px-2 py-1 rounded-lg animate-pulse">
-                    <span className="text-[10px] font-bold text-white">🎮 Interactive</span>
+                    <span className="text-[10px] font-bold text-white">
+                      🎮 {language === 'tr' ? 'İnteraktif' : 'Interactive'}
+                    </span>
                   </div>
                 ) : story.content && (
                   <div className="absolute top-2 left-2 bg-primary/90 backdrop-blur-md px-2 py-1 rounded-lg">
-                    <span className="text-[10px] font-bold text-bg-dark">📖 Full Story</span>
+                    <span className="text-[10px] font-bold text-bg-dark">
+                      📖 {language === 'tr' ? 'Tam Hikaye' : 'Full Story'}
+                    </span>
                   </div>
                 )}
               </div>
               <div className="px-1" onClick={() => onStorySelect(story)}>
-                <h3 className="text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-1">{story.title}</h3>
-                <p className="text-[10px] text-white/50">{story.subtitle}</p>
+                <h3 className="text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-1">{getStoryTitle(story)}</h3>
+                <p className="text-[10px] text-white/50">{getStorySubtitle(story)}</p>
               </div>
             </div>
           ))}

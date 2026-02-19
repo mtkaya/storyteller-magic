@@ -18,10 +18,14 @@ import ProfileSelector from './components/ProfileSelector';
 import MusicSelector from './components/MusicSelector';
 import StoryMap from './components/StoryMap';
 import DailyGoals from './components/DailyGoals';
-import { LanguageProvider } from './context/LanguageContext';
+import CloudIntro from './components/CloudIntro';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AppStateProvider, useAppState } from './context/AppStateContext';
 import { MusicType, backgroundMusic } from './services/backgroundMusic';
 import { soundEffects } from './services/soundEffects';
+import { LIBRARY_STORIES, RECENT_STORIES } from './data';
+import { buildStoryPool, hasPlayableStoryData, normalizeStoryTheme } from './services/storyCuration';
+import { prefetchTurkishTranslations } from './services/storyTranslation';
 
 const AppContent: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenName>('home');
@@ -34,8 +38,111 @@ const AppContent: React.FC = () => {
   const [showDailyGoals, setShowDailyGoals] = useState(false);
   const [currentMusic, setCurrentMusic] = useState<MusicType>('none');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showCloudIntro, setShowCloudIntro] = useState(true);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
 
-  const { isLimitReached, settings } = useAppState();
+  const { isLimitReached, settings, updateSettings } = useAppState();
+  const { language } = useLanguage();
+  const storyPool = React.useMemo(
+    () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES),
+    []
+  );
+
+  const resolvePlayableStorySelection = React.useCallback((candidate: Story): Story => {
+    if (hasPlayableStoryData(candidate)) return candidate;
+
+    const byId = storyPool.find(
+      (story) => story.id === candidate.id && hasPlayableStoryData(story)
+    );
+    if (byId) return byId;
+
+    const targetTheme = normalizeStoryTheme(candidate.theme);
+    const byTheme = storyPool.find((story) => {
+      if (!hasPlayableStoryData(story)) return false;
+      if (normalizeStoryTheme(story.theme) !== targetTheme) return false;
+      if (candidate.isInteractive && !story.isInteractive) return false;
+      return true;
+    });
+
+    return byTheme || candidate;
+  }, [storyPool]);
+
+  const warmTurkishStoryContent = React.useCallback((story: Story) => {
+    if (language !== 'tr') return;
+
+    const segments = new Set<string>();
+    const pushSegment = (text?: string) => {
+      if (!text) return;
+      const trimmed = text.trim();
+      if (!trimmed) return;
+      segments.add(trimmed);
+    };
+
+    story.content?.forEach(pushSegment);
+    story.branches?.forEach((branch) => {
+      branch.paragraphs?.forEach(pushSegment);
+      branch.choices?.forEach((choice) => {
+        pushSegment(choice.text);
+        pushSegment(choice.consequence);
+      });
+    });
+
+    if (segments.size === 0) return;
+    void prefetchTurkishTranslations(Array.from(segments), {
+      contextLabel: `story:${story.id}:prefetch`
+    });
+  }, [language]);
+
+  useEffect(() => {
+    if (language !== 'tr') return;
+
+    const starterStories = storyPool
+      .filter((story) => hasPlayableStoryData(story))
+      .slice(0, 5);
+
+    starterStories.forEach((story) => warmTurkishStoryContent(story));
+  }, [language, storyPool, warmTurkishStoryContent]);
+
+  useEffect(() => {
+    soundEffects.setEnabled(settings.soundEffects);
+    soundEffects.setVolume(settings.effectsVolume);
+    backgroundMusic.setVolume(settings.musicVolume);
+  }, [settings.soundEffects, settings.effectsVolume, settings.musicVolume]);
+
+  useEffect(() => {
+    let activated = false;
+
+    const unlockAudio = async () => {
+      if (activated) return;
+      activated = true;
+      await Promise.allSettled([soundEffects.unlock(), backgroundMusic.warmup()]);
+      setAudioUnlocked(true);
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('touchstart', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!audioUnlocked) return;
+    if (currentMusic !== 'none') return;
+
+    const savedTrack = settings.backgroundMusic as MusicType | null;
+    if (!savedTrack || savedTrack === 'none') return;
+
+    setCurrentMusic(savedTrack);
+    void backgroundMusic.fadeIn(savedTrack, 900);
+  }, [audioUnlocked, currentMusic, settings.backgroundMusic]);
 
   // Check for first launch / onboarding
   useEffect(() => {
@@ -86,7 +193,11 @@ const AppContent: React.FC = () => {
 
     // Check daily limit before navigating to reader
     if (screen === 'reader' && isLimitReached) {
-      alert('Daily reading limit reached! Come back tomorrow. 🌙');
+      alert(
+        language === 'tr'
+          ? 'Günlük okuma limitine ulaşıldı! Yarın tekrar gel. 🌙'
+          : 'Daily reading limit reached! Come back tomorrow. 🌙'
+      );
       return;
     }
 
@@ -115,10 +226,16 @@ const AppContent: React.FC = () => {
   const handleStorySelect = (story: Story) => {
     playClickSound();
     if (isLimitReached) {
-      alert('Daily reading limit reached! Come back tomorrow. 🌙');
+      alert(
+        language === 'tr'
+          ? 'Günlük okuma limitine ulaşıldı! Yarın tekrar gel. 🌙'
+          : 'Daily reading limit reached! Come back tomorrow. 🌙'
+      );
       return;
     }
-    setSelectedStory(story);
+    const resolvedStory = resolvePlayableStorySelection(story);
+    warmTurkishStoryContent(resolvedStory);
+    setSelectedStory(resolvedStory);
     setCurrentScreen('reader');
   };
 
@@ -144,10 +261,14 @@ const AppContent: React.FC = () => {
 
   const handleMusicChange = (music: MusicType) => {
     setCurrentMusic(music);
+    updateSettings({ backgroundMusic: music === 'none' ? null : music });
     if (music === 'none') {
-      backgroundMusic.fadeOut();
+      void backgroundMusic.fadeOut(600);
     } else {
-      backgroundMusic.fadeIn(music);
+      void (async () => {
+        await backgroundMusic.warmup();
+        await backgroundMusic.fadeIn(music, 1000);
+      })();
     }
   };
 
@@ -160,7 +281,6 @@ const AppContent: React.FC = () => {
             onStorySelect={handleStorySelect}
             onProfileClick={() => { playClickSound(); setShowProfileSelector(true); }}
             onMusicClick={() => { playClickSound(); setShowMusicSelector(true); }}
-            onMapClick={() => { playClickSound(); setShowStoryMap(true); }}
             onGoalsClick={() => { playClickSound(); setShowDailyGoals(true); }}
           />
         );
@@ -209,17 +329,21 @@ const AppContent: React.FC = () => {
   // Screens that should show the bottom navigation
   const showNav = ['home', 'library', 'achievements'].includes(currentScreen);
 
-  // Show onboarding on first launch
-  if (showOnboarding) {
-    return <Onboarding onComplete={handleOnboardingComplete} />;
-  }
-
-  return (
+  const appScreen = showOnboarding ? (
+    <Onboarding onComplete={handleOnboardingComplete} />
+  ) : (
     <div className={`max-w-[430px] mx-auto bg-bg-dark min-h-screen relative shadow-2xl overflow-hidden ${isNightMode ? 'night-mode' : ''}`}>
       {renderScreen()}
 
       {showNav && (
-        <BottomNav activeScreen={currentScreen} onNavigate={handleNavigate} />
+        <BottomNav
+          activeScreen={currentScreen}
+          onNavigate={handleNavigate}
+          onMapClick={() => {
+            playClickSound();
+            setShowStoryMap(true);
+          }}
+        />
       )}
 
       {showParentalGate && (
@@ -276,15 +400,17 @@ const AppContent: React.FC = () => {
       {/* Daily Limit Warning */}
       {isLimitReached && (
         <div className="fixed bottom-20 left-4 right-4 bg-orange-500/90 text-white p-4 rounded-xl text-center max-w-[400px] mx-auto z-50">
-          <p className="font-bold">📵 Daily limit reached!</p>
-          <p className="text-sm opacity-80">Come back tomorrow for more stories.</p>
+          <p className="font-bold">{language === 'tr' ? '📵 Günlük limit doldu!' : '📵 Daily limit reached!'}</p>
+          <p className="text-sm opacity-80">
+            {language === 'tr' ? 'Daha fazla hikaye için yarın tekrar gel.' : 'Come back tomorrow for more stories.'}
+          </p>
         </div>
       )}
 
       {/* Night Mode Indicator */}
       {isNightMode && (
         <div className="fixed top-4 right-4 bg-purple-500/80 text-white px-3 py-1 rounded-full text-xs flex items-center gap-1 z-50">
-          <span>🌙</span> Night Mode
+          <span>🌙</span> {language === 'tr' ? 'Gece Modu' : 'Night Mode'}
         </div>
       )}
 
@@ -294,6 +420,15 @@ const AppContent: React.FC = () => {
         }
       `}</style>
     </div>
+  );
+
+  return (
+    <>
+      {appScreen}
+      {showCloudIntro && (
+        <CloudIntro onFinish={() => setShowCloudIntro(false)} />
+      )}
+    </>
   );
 };
 

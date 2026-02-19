@@ -594,13 +594,16 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '21',
     title: 'The Magic Carpet Ride',
+    titleTr: 'Sihirli Halı Yolculuğu',
     subtitle: '🎮 Interactive • Magic',
+    subtitleTr: '🎮 İnteraktif • Sihir',
     duration: '8+ min',
     theme: 'Magic',
     coverUrl: IMAGES.MAGIC_CARPET,
     character: 'Luna & the Magic Carpet',
     ageRange: '4-8',
     moral: 'The best adventures are the ones where you help others along the way.',
+    moralTr: 'En güzel maceralar, yol boyunca başkalarına yardım ettiğin maceralardır.',
     isInteractive: true,
     startBranchId: 'carpet_start',
     branches: [
@@ -613,10 +616,17 @@ export const LIBRARY_STORIES: Story[] = [
           "'I can take you anywhere you wish to go. But choose wisely — every journey has its own magic.'",
           "Luna's eyes sparkled with excitement. Where should they go first?"
         ],
+        paragraphsTr: [
+          "Tozlu eski bir çatı katında, Luna adında küçük bir kız köşede dürülmüş güzel bir halı buldu.",
+          "Halının ucunu açar açmaz altın iplikler parladı ve halı HAVALANMAYA başladı!",
+          "'Merhaba, Luna!' dedi halı sıcak ve dostça bir sesle. 'Ben Zephyr, Sihirli Halı.'",
+          "'Seni dilediğin her yere götürebilirim. Ama akıllıca seç — her yolculuğun kendine özgü bir sihri vardır.'",
+          "Luna'nın gözleri heyecanla parladı. İlk olarak nereye gitseler?"
+        ],
         choices: [
-          { id: 'go_clouds', text: "Fly to the clouds!", emoji: "☁️", nextBranchId: 'cloud_kingdom', consequence: "What's hiding above the clouds?" },
-          { id: 'go_desert', text: "Visit the golden desert", emoji: "🏜️", nextBranchId: 'desert_palace', consequence: "Ancient mysteries await..." },
-          { id: 'go_ocean', text: "Soar over the sparkling ocean", emoji: "🌊", nextBranchId: 'ocean_adventure', consequence: "The sea holds many secrets!" }
+          { id: 'go_clouds', text: "Fly to the clouds!", textTr: "Bulutlara uçalım!", emoji: "☁️", nextBranchId: 'cloud_kingdom', consequence: "What's hiding above the clouds?", consequenceTr: "Bulutların üstünde neler saklı?" },
+          { id: 'go_desert', text: "Visit the golden desert", textTr: "Altın çölü ziyaret edelim", emoji: "🏜️", nextBranchId: 'desert_palace', consequence: "Ancient mysteries await...", consequenceTr: "Kadim gizemler bizi bekliyor..." },
+          { id: 'go_ocean', text: "Soar over the sparkling ocean", textTr: "Parıldayan okyanusun üstünden süzülelim", emoji: "🌊", nextBranchId: 'ocean_adventure', consequence: "The sea holds many secrets!", consequenceTr: "Denizin birçok sırrı var!" }
         ]
       },
       {
@@ -628,9 +638,16 @@ export const LIBRARY_STORIES: Story[] = [
           "'Our rainbow machine is broken, and without it, children on Earth can't see rainbows after the rain.'",
           "Luna looked at Zephyr. What should they do?"
         ],
+        paragraphsTr: [
+          "Zephyr pofuduk beyaz bulutların içinden yukarı, daha yukarı, çok yukarı süzüldü!",
+          "Bulutların üstünde, pamuk şekerden ve gökkuşaklarından yapılmış sihirli bir krallık vardı!",
+          "Bulut Kralı onlara yaklaştı. 'Hoş geldiniz yolcular! Ama bir sorunumuz var.'",
+          "'Gökkuşağı makinemiz bozuldu. O olmadan, yağmurdan sonra Dünya'daki çocuklar gökkuşağı göremiyor.'",
+          "Luna Zephyr'e baktı. Ne yapmalılar?"
+        ],
         choices: [
-          { id: 'fix_rainbow', text: "Help fix the rainbow machine!", emoji: "🌈", nextBranchId: 'rainbow_ending', consequence: "Be the hero!" },
-          { id: 'find_parts', text: "Search for missing parts", emoji: "🔍", nextBranchId: 'search_ending', consequence: "Every piece matters..." }
+          { id: 'fix_rainbow', text: "Help fix the rainbow machine!", textTr: "Gökkuşağı makinesini tamir edelim!", emoji: "🌈", nextBranchId: 'rainbow_ending', consequence: "Be the hero!", consequenceTr: "Kahraman ol!" },
+          { id: 'find_parts', text: "Search for missing parts", textTr: "Eksik parçaları arayalım", emoji: "🔍", nextBranchId: 'search_ending', consequence: "Every piece matters...", consequenceTr: "Her parça önemli..." }
         ]
       },
       {
@@ -642,9 +659,16 @@ export const LIBRARY_STORIES: Story[] = [
           "'But our magical lanterns have all gone out. Without light, the stars won't dance.'",
           "How could Luna help?"
         ],
+        paragraphsTr: [
+          "Parlayan hazine gibi ışıldayan altın kum tepelerinin üstünden uçtular.",
+          "Uzakta, kumların arasından görkemli bir saray yükseliyordu!",
+          "Nazik bir Sultan onları karşıladı. 'Tam zamanında geldiniz! Bu gece Yıldız Festivali var.'",
+          "'Ama sihirli fenerlerimizin hepsi söndü. Işık olmadan yıldızlar dans etmiyor.'",
+          "Luna nasıl yardım edebilirdi?"
+        ],
         choices: [
-          { id: 'share_light', text: "Share Zephyr's magic glow", emoji: "✨", nextBranchId: 'lantern_ending', consequence: "Light up the night!" },
-          { id: 'call_fireflies', text: "Call the desert fireflies", emoji: "🪲", nextBranchId: 'firefly_ending', consequence: "Nature's little helpers!" }
+          { id: 'share_light', text: "Share Zephyr's magic glow", textTr: "Zephyr'in sihirli ışığını paylaş", emoji: "✨", nextBranchId: 'lantern_ending', consequence: "Light up the night!", consequenceTr: "Geceyi ışıl ışıl yap!" },
+          { id: 'call_fireflies', text: "Call the desert fireflies", textTr: "Çöl ateşböceklerini çağır", emoji: "🪲", nextBranchId: 'firefly_ending', consequence: "Nature's little helpers!", consequenceTr: "Doğanın minik yardımcıları!" }
         ]
       },
       {
@@ -656,9 +680,16 @@ export const LIBRARY_STORIES: Story[] = [
           "'Please,' the dolphin cried, 'I can't find my way home!'",
           "Luna knew exactly what to do."
         ],
+        paragraphsTr: [
+          "Kristal mavi suların üzerinde alçaktan süzüldüler, aşağıda dalgalar parlıyordu.",
+          "Birden minik bir ses duydular: 'Yardım edin! Yardım edin!'",
+          "Bu, ailesinden ayrılmış bir yavru yunustu!",
+          "'Lütfen,' diye ağladı yunus, 'Eve giden yolu bulamıyorum!'",
+          "Luna ne yapması gerektiğini hemen anladı."
+        ],
         choices: [
-          { id: 'guide_dolphin', text: "Guide the dolphin home", emoji: "🐬", nextBranchId: 'dolphin_ending', consequence: "Lead the way!" },
-          { id: 'sing_song', text: "Sing a dolphin family song", emoji: "🎵", nextBranchId: 'song_ending', consequence: "Music brings families together!" }
+          { id: 'guide_dolphin', text: "Guide the dolphin home", textTr: "Yunusu evine götür", emoji: "🐬", nextBranchId: 'dolphin_ending', consequence: "Lead the way!", consequenceTr: "Yolu sen göster!" },
+          { id: 'sing_song', text: "Sing a dolphin family song", textTr: "Bir yunus aile şarkısı söyle", emoji: "🎵", nextBranchId: 'song_ending', consequence: "Music brings families together!", consequenceTr: "Müzik aileleri bir araya getirir!" }
         ]
       },
       {
@@ -671,9 +702,18 @@ export const LIBRARY_STORIES: Story[] = [
           "As they flew home, Luna felt warm inside. She had brought joy to so many children.",
           "'That was the best adventure ever,' Luna whispered to Zephyr. And it was."
         ],
+        paragraphsTr: [
+          "Luna ve Zephyr, gökkuşağı makinesini tamir etmek için birlikte çalıştı.",
+          "Makine çalışınca, gökyüzünü baştan sona kaplayan şimdiye kadarki en güzel gökkuşağı oluştu!",
+          "Dünyanın dört bir yanındaki çocuklar göğe bakıp gülümsedi.",
+          "Bulut Kralı Luna'ya minik bir gökkuşağı kristali verdi. 'Ne zaman sihre ihtiyacın olursa bunu yanında tut.'",
+          "Eve doğru uçarken Luna'nın içi sıcacık oldu. Pek çok çocuğa neşe getirmişti.",
+          "'Bu şimdiye kadarki en güzel maceraydı,' diye fısıldadı Luna Zephyr'e. Gerçekten de öyleydi."
+        ],
         isEnding: true,
         endingType: 'happy',
-        endingTitle: 'The Rainbow Maker'
+        endingTitle: 'The Rainbow Maker',
+        endingTitleTr: 'Gökkuşağı Ustası'
       },
       {
         id: 'search_ending',
@@ -684,9 +724,17 @@ export const LIBRARY_STORIES: Story[] = [
           "'You taught us something important,' said the Cloud King. 'Sometimes broken things become even more beautiful when we rebuild them with care.'",
           "Luna smiled. She had learned that looking carefully and never giving up could work magic all its own."
         ],
+        paragraphsTr: [
+          "Luna bulut krallığında her yeri dikkatle aradı.",
+          "Gökkuşağının parçalarını hiç beklemediği yerlerde buldu: kırmızı parça gül bahçesinde, mavi bir su birikintisinde, yeşil ise dört yapraklı yoncanın altında!",
+          "Hepsini bir araya getirdiğinde gökkuşağı eskisinden bile DAHA güzel oldu!",
+          "'Bize önemli bir şey öğrettin,' dedi Bulut Kralı. 'Bazen kırılan şeyler, sevgiyle onarıldığında daha da güzelleşir.'",
+          "Luna gülümsedi. Dikkatle bakmanın ve asla vazgeçmemenin başlı başına bir sihir olduğunu öğrenmişti."
+        ],
         isEnding: true,
         endingType: 'lesson',
-        endingTitle: 'The Piece Finder'
+        endingTitle: 'The Piece Finder',
+        endingTitleTr: 'Parça Kaşifi'
       },
       {
         id: 'lantern_ending',
@@ -697,9 +745,17 @@ export const LIBRARY_STORIES: Story[] = [
           "The Sultan's people cheered and celebrated. 'You are always welcome here, Luna the Light Bringer!'",
           "As she flew home, Luna watched the stars dance and knew she would always carry this magic in her heart."
         ],
+        paragraphsTr: [
+          "Zephyr tüm sihirli ışığını parlatırken Luna da bu ışığı nazikçe fenerlerin içine dağıttı.",
+          "Fenerler birer birer yanmaya başladı ve sarayın duvarlarına harika desenler yansıttı.",
+          "Gece çöktüğünde yıldızlar gökyüzünde dans etmeye başladı, aşağıdaki ışıklar da onlara eşlik ediyordu!",
+          "Sultanın halkı sevinçle tezahürat yaptı. 'Her zaman bekleriz seni, Işık Getiren Luna!'",
+          "Eve dönerken Luna yıldızların dansını izledi ve bu sihri kalbinde hep taşıyacağını hissetti."
+        ],
         isEnding: true,
         endingType: 'happy',
-        endingTitle: 'Light Bringer'
+        endingTitle: 'Light Bringer',
+        endingTitleTr: 'Işık Getiren'
       },
       {
         id: 'firefly_ending',
@@ -710,9 +766,17 @@ export const LIBRARY_STORIES: Story[] = [
           "The Festival of Stars became the Festival of Fireflies, and it was the most magical night ever.",
           "Luna learned that sometimes the best solutions come from working with nature, not against it."
         ],
+        paragraphsTr: [
+          "Luna, ateşböceklerinin müziği sevdiğini hatırladı. Yumuşacık, tatlı bir melodi mırıldanmaya başladı.",
+          "Her kum tepesinin arkasından binlerce ateşböceği gökyüzüne yükseldi!",
+          "Sarayın etrafında dönerek fenerlerin bile yapamayacağı kadar güzel bir ışık şöleni oluşturdular!",
+          "Yıldız Festivali, Ateşböceği Festivali'ne dönüştü ve bu, şimdiye kadarki en sihirli gece oldu.",
+          "Luna bazen en iyi çözümlerin doğaya karşı değil, doğayla birlikte hareket etmekten geldiğini öğrendi."
+        ],
         isEnding: true,
         endingType: 'lesson',
-        endingTitle: 'The Firefly Whisperer'
+        endingTitle: 'The Firefly Whisperer',
+        endingTitleTr: 'Ateşböceği Fısıldayanı'
       },
       {
         id: 'dolphin_ending',
@@ -723,9 +787,17 @@ export const LIBRARY_STORIES: Story[] = [
           "'Thank you, kind sky-travelers!' they sang. 'You gave us back our family!'",
           "Luna learned that the greatest gift isn't treasure or magic — it's bringing loved ones together."
         ],
+        paragraphsTr: [
+          "Luna ve Zephyr alçaktan ve yavaşça uçtu; yavru yunus sihirli izlerini takip etti.",
+          "Mercan mağaralarından geçip dost canlısı deniz kaplumbağalarının yanından ilerledikten sonra yunus ailesini buldular!",
+          "Yunuslar neşeyle zıplayıp su sıçrattı, göğe gökkuşağı gibi damlacıklar saçıldı.",
+          "'Teşekkürler, iyi kalpli gök yolcuları!' diye şarkı söylediler. 'Ailemizi bize geri verdiniz!'",
+          "Luna en büyük hediyenin hazine ya da sihir değil, sevdiklerini yeniden bir araya getirmek olduğunu öğrendi."
+        ],
         isEnding: true,
         endingType: 'happy',
-        endingTitle: 'The Dolphin Guide'
+        endingTitle: 'The Dolphin Guide',
+        endingTitleTr: 'Yunus Rehberi'
       },
       {
         id: 'song_ending',
@@ -736,9 +808,17 @@ export const LIBRARY_STORIES: Story[] = [
           "The dolphins invited Luna to swim with them, and Zephyr magically kept her warm and dry.",
           "That night, under the stars, Luna danced with dolphins and learned that music connects all hearts."
         ],
+        paragraphsTr: [
+          "Luna, Zephyr'in ona öğrettiği eski yunus aile şarkısını söyledi.",
+          "Melodi dalgaların üzerinden uzaklara taşındı ve biraz sonra çok uzaktan cevap şarkıları geldi!",
+          "Yavru yunusun annesiyle babası, bu güzel müziği izleyerek onlara ulaştı.",
+          "Yunuslar Luna'yı onlarla yüzmeye davet etti; Zephyr de sihirle onu sıcak ve kuru tuttu.",
+          "O gece yıldızların altında Luna yunuslarla dans etti ve müziğin tüm kalpleri birbirine bağladığını öğrendi."
+        ],
         isEnding: true,
         endingType: 'adventure',
-        endingTitle: 'The Ocean Singer'
+        endingTitle: 'The Ocean Singer',
+        endingTitleTr: 'Okyanus Şarkıcısı'
       }
     ]
   },

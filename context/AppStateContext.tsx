@@ -140,6 +140,9 @@ interface AppStateContextType {
         dailyReminderTime: string | null; // "20:00" format
         backgroundMusic: string | null;
         soundEffects: boolean;
+        musicVolume: number; // 0..1
+        effectsVolume: number; // 0..1
+        narrationVolume: number; // 0..1
         nightModeAuto: boolean;
         nightModeStart: string;
         nightModeEnd: string;
@@ -162,6 +165,19 @@ const STORAGE_KEYS = {
 
 // Provider
 export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const defaultSettings = {
+        dailyLimit: 0,
+        dailyReminderTime: null,
+        backgroundMusic: null,
+        soundEffects: true,
+        musicVolume: 0.35,
+        effectsVolume: 0.55,
+        narrationVolume: 1,
+        nightModeAuto: false,
+        nightModeStart: '20:00',
+        nightModeEnd: '07:00',
+    };
+
     // Load from localStorage
     const [profiles, setProfiles] = useState<ChildProfile[]>(() => {
         const saved = localStorage.getItem(STORAGE_KEYS.profiles);
@@ -180,17 +196,12 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
     const [settings, setSettings] = useState(() => {
         const saved = localStorage.getItem(STORAGE_KEYS.settings);
         if (saved) {
-            return JSON.parse(saved);
+            return {
+                ...defaultSettings,
+                ...JSON.parse(saved),
+            };
         }
-        return {
-            dailyLimit: 0,
-            dailyReminderTime: null,
-            backgroundMusic: null,
-            soundEffects: true,
-            nightModeAuto: false,
-            nightModeStart: '20:00',
-            nightModeEnd: '07:00',
-        };
+        return defaultSettings;
     });
 
     const [badges, setBadges] = useState<Badge[]>(BADGES);

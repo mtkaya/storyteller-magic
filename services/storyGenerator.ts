@@ -2,7 +2,7 @@
 
 const STORY_API_PATH = '/api/generate-story';
 const STORY_API_BASE_URL = import.meta.env.VITE_STORY_API_URL?.trim() || '';
-const GEMINI_REQUEST_TIMEOUT_MS = 25000;
+const GEMINI_REQUEST_TIMEOUT_MS = 15000;
 
 function resolveStoryApiEndpoint(): string {
     if (!STORY_API_BASE_URL) return STORY_API_PATH;
@@ -203,7 +203,7 @@ You must respond ONLY with a valid JSON object (no markdown, no explanation) in 
 }
 
 Requirements:
-- Create 7-9 branches total, with at least 4 different endings
+- Create 5-7 branches total, with at least 3 different endings
 - Non-ending branches should have 3-4 short paragraphs
 - Ending branches should have 2-3 short paragraphs
 - Choice text should be child-friendly and concise (max 8 words)
@@ -243,7 +243,7 @@ SADECE geçerli bir JSON nesnesi ile yanıt ver (markdown yok, açıklama yok), 
 }
 
 Gereksinimler:
-- Toplam 7-9 dal oluştur, en az 4 farklı son olsun
+- Toplam 5-7 dal oluştur, en az 3 farklı son olsun
 - Son olmayan dallar 3-4 kısa paragraf içersin
 - Son dallar 2-3 kısa paragraf içersin
 - Seçim metinleri kısa ve çocuk dostu olsun (en fazla 8 kelime)
@@ -355,6 +355,42 @@ function asStringArray(value: unknown): string[] {
     return value
         .map(item => (typeof item === 'string' ? item.trim() : ''))
         .filter(Boolean);
+}
+
+function normalizeBranchReference(value: string): string {
+    return value
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9çğıöşü_-]/gi, '');
+}
+
+function resolveBranchReference(
+    reference: string,
+    branchIds: Set<string>,
+    branchReferenceLookup: Map<string, string>
+): string | null {
+    if (!reference) return null;
+    if (branchIds.has(reference)) return reference;
+
+    const normalized = normalizeBranchReference(reference);
+    if (!normalized) return null;
+    return branchReferenceLookup.get(normalized) || null;
+}
+
+function buildAutoContinueChoice(
+    branchId: string,
+    nextBranchId: string,
+    language: StoryPrompt['language']
+): StoryChoiceType {
+    return {
+        id: `${branchId}_auto_continue`,
+        text: language === 'tr' ? 'Devam et' : 'Continue',
+        emoji: '➡️',
+        nextBranchId,
+        consequence: language === 'tr'
+            ? 'Yolculuk bir sonraki adımla sürer.'
+            : 'The journey continues on the next step.'
+    };
 }
 
 function removeCodeFences(text: string): string {
@@ -818,12 +854,28 @@ function normalizeInteractiveStory(
     const inputBranches = Array.isArray(raw.branches) ? raw.branches : [];
     if (inputBranches.length === 0) return null;
 
+    const usedBranchIds = new Set<string>();
+    const toUniqueBranchId = (rawId: string, branchIndex: number): string => {
+        const fallbackId = `branch_${branchIndex + 1}`;
+        const baseId = rawId || fallbackId;
+        let candidate = baseId;
+        let counter = 2;
+
+        while (usedBranchIds.has(candidate)) {
+            candidate = `${baseId}_${counter}`;
+            counter += 1;
+        }
+
+        usedBranchIds.add(candidate);
+        return candidate;
+    };
+
     const branches: StoryBranchType[] = inputBranches
         .map((branchInput, branchIndex) => {
             const branchRecord = asRecord(branchInput);
             if (!branchRecord) return null;
 
-            const id = asString(branchRecord.id) || `branch_${branchIndex + 1}`;
+            const id = toUniqueBranchId(asString(branchRecord.id), branchIndex);
             const rawBranchParagraphs = asStringArray(branchRecord.paragraphs)
                 .map((paragraph, paragraphIndex) => enrichParagraph(paragraph, options.language, 3, paragraphIndex));
             if (rawBranchParagraphs.length === 0) return null;
@@ -871,14 +923,61 @@ function normalizeInteractiveStory(
     if (branches.length < 2) return null;
 
     const branchIds = new Set(branches.map(branch => branch.id));
+    const branchReferenceLookup = new Map<string, string>();
+    branches.forEach((branch) => {
+        const normalized = normalizeBranchReference(branch.id);
+        if (normalized && !branchReferenceLookup.has(normalized)) {
+            branchReferenceLookup.set(normalized, branch.id);
+        }
+    });
+
+    const explicitEndingIds = new Set(
+        branches.filter((branch) => Boolean(branch.isEnding)).map((branch) => branch.id)
+    );
+    const findFallbackTarget = (currentBranchId: string): string | null => {
+        const preferredEnding = branches.find(
+            (branch) => explicitEndingIds.has(branch.id) && branch.id !== currentBranchId
+        );
+        if (preferredEnding) return preferredEnding.id;
+
+        const alternate = branches.find((branch) => branch.id !== currentBranchId);
+        return alternate?.id || null;
+    };
+
     let hasChoices = false;
 
     branches.forEach((branch, index) => {
         if (branch.choices?.length) {
-            branch.choices = branch.choices.filter(choice => branchIds.has(choice.nextBranchId));
+            branch.choices = branch.choices
+                .map((choice) => {
+                    const resolvedNextBranchId = resolveBranchReference(
+                        choice.nextBranchId,
+                        branchIds,
+                        branchReferenceLookup
+                    );
+                    if (!resolvedNextBranchId || resolvedNextBranchId === branch.id) return null;
+
+                    return {
+                        ...choice,
+                        nextBranchId: resolvedNextBranchId
+                    };
+                })
+                .filter((choice): choice is StoryChoiceType => Boolean(choice));
         }
 
         if (!branch.choices || branch.choices.length === 0) {
+            if (!branch.isEnding) {
+                const fallbackTarget = findFallbackTarget(branch.id);
+                if (fallbackTarget) {
+                    branch.choices = [buildAutoContinueChoice(branch.id, fallbackTarget, options.language)];
+                    branch.isEnding = false;
+                    branch.endingType = undefined;
+                    branch.endingTitle = undefined;
+                    hasChoices = true;
+                    return;
+                }
+            }
+
             branch.choices = undefined;
             branch.isEnding = true;
             if (!branch.endingType) {
@@ -897,6 +996,19 @@ function normalizeInteractiveStory(
 
     const requestedStart = asString(raw.startBranchId);
     const startBranchId = branchIds.has(requestedStart) ? requestedStart : branches[0].id;
+    const startBranch = branches.find((branch) => branch.id === startBranchId);
+    if (startBranch) {
+        if (!startBranch.choices || startBranch.choices.length === 0) {
+            const fallbackTarget = findFallbackTarget(startBranch.id);
+            if (fallbackTarget) {
+                startBranch.choices = [buildAutoContinueChoice(startBranch.id, fallbackTarget, options.language)];
+                startBranch.isEnding = false;
+                hasChoices = true;
+            }
+        } else {
+            startBranch.isEnding = false;
+        }
+    }
 
     if (!branches.some(branch => branch.isEnding)) {
         const finalBranch = branches[branches.length - 1];

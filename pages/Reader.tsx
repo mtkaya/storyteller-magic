@@ -4,9 +4,11 @@ import { LIBRARY_STORIES } from '../data';
 import SleepController from '../components/SleepController';
 import { useAppState } from '../context/AppStateContext';
 import { useLanguage } from '../context/LanguageContext';
-import { MusicType } from '../services/backgroundMusic';
+import { MusicType, backgroundMusic } from '../services/backgroundMusic';
 import { soundEffects } from '../services/soundEffects';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
+import { translateSegmentsToTurkish } from '../services/storyTranslation';
+import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/storyLocalization';
 
 interface ReaderProps {
   story: Story | null;
@@ -210,9 +212,93 @@ const pickBestVoice = (voices: SpeechSynthesisVoice[], currentLanguage: 'en' | '
   return scored[0]?.voice || null;
 };
 
+const splitParagraphForReader = (paragraph: string): string[] => {
+  const cleaned = paragraph.trim();
+  if (!cleaned) return [];
+
+  const sentences = cleaned
+    .match(/[^.!?…]+[.!?…]?/g)
+    ?.map((segment) => segment.trim())
+    .filter(Boolean) || [cleaned];
+
+  if (sentences.length <= 2) return [cleaned];
+
+  const chunks: string[] = [];
+  for (let i = 0; i < sentences.length; i += 2) {
+    chunks.push(sentences.slice(i, i + 2).join(' ').trim());
+  }
+  return chunks.filter(Boolean);
+};
+
+const ensureMinimumLinearParagraphs = (paragraphs: string[], language: 'en' | 'tr'): string[] => {
+  const targetCount = 8;
+  const seeded = [...paragraphs];
+  if (seeded.length >= targetCount) return seeded;
+
+  const fillers =
+    language === 'tr'
+      ? [
+        'Gece biraz daha sakinleşti ve herkes derin bir nefes aldı.',
+        'Ay ışığı, yolun üstüne yumuşak bir huzur serdi.',
+        'Küçük kahramanımız, kalbindeki cesaretle gülümsemeye devam etti.',
+        'Sessizce esen rüzgar, herkese güven veren bir ninni gibi duyuldu.',
+      ]
+      : [
+        'The night grew calmer, and everyone took a deep gentle breath.',
+        'Moonlight spread a soft layer of comfort across the path.',
+        'Our little hero kept smiling with quiet courage in their heart.',
+        'A soft breeze sounded like a lullaby and made everyone feel safe.',
+      ];
+
+  while (seeded.length < targetCount) {
+    seeded.push(fillers[seeded.length % fillers.length]);
+  }
+
+  return seeded;
+};
+
+const TURKISH_TRANSLATION_FALLBACK_LINES = [
+  'Masalın bu bölümünün Türkçe uyarlaması hazırlanırken kahramanımız yoluna umutla devam etti.',
+  'Gece yumuşarken küçük kahramanımız yeni bir seçimle macerasını sürdürdü.',
+  'Kalbindeki cesaretle ilerleyen dostumuz, etrafına iyilik ve neşe yaydı.',
+  'Ay ışığı altında her adım onu sıcak ve güvenli bir sona biraz daha yaklaştırdı.',
+  'Bu yolculukta öğrendiği en önemli şey, birlikte hareket etmenin gücü oldu.',
+  'Masalın ritmi sakinleşti ve herkesin içini huzurla dolduran bir an doğdu.',
+  'Yeni kapılar açıldıkça kahramanımız merakını ve nezaketini hiç kaybetmedi.',
+];
+
+const buildTurkishFallbackParagraphs = (count: number, character?: string): string[] => {
+  const safeCount = Math.max(1, count);
+  const namePrefix = character && character.trim().length > 0
+    ? `${character.trim()} `
+    : '';
+
+  return Array.from({ length: safeCount }, (_, index) => {
+    const template = TURKISH_TRANSLATION_FALLBACK_LINES[index % TURKISH_TRANSLATION_FALLBACK_LINES.length];
+    if (!namePrefix) return template;
+    return `${namePrefix}${template.charAt(0).toLowerCase()}${template.slice(1)}`;
+  });
+};
+
+const buildTurkishChoiceFallbackText = (index: number): string => `Seçenek ${index + 1}`;
+const buildTurkishChoiceFallbackConsequence = (): string => 'Bu yol yeni bir maceraya açılıyor.';
+const looksLikeTurkishText = (text: string): boolean => {
+  if (!text.trim()) return true;
+  if (/[ğüşöçıİĞÜŞÖÇ]/.test(text)) return true;
+  return /\b(ve|bir|ile|için|ama|gibi|çok|şimdi|gece|hikaye|masal|yol|seçenek)\b/i.test(text);
+};
+const sanitizeTurkishParagraphs = (paragraphs: string[], character?: string): string[] => {
+  const fallback = buildTurkishFallbackParagraphs(paragraphs.length, character);
+  return paragraphs.map((line, index) => {
+    const trimmed = (line || '').trim();
+    if (!trimmed) return fallback[index];
+    return looksLikeTurkishText(trimmed) ? trimmed : fallback[index];
+  });
+};
+
 const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange, onMusicClick }) => {
-  const { recordStoryRead, recordChoice, recordEnding } = useAppState();
-  const { language } = useLanguage();
+  const { recordStoryRead, recordChoice, recordEnding, settings } = useAppState();
+  const { language, t } = useLanguage();
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState(0);
@@ -226,6 +312,11 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [showChoices, setShowChoices] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
   const [navigationError, setNavigationError] = useState<string | null>(null);
+  const [translatedLinearContent, setTranslatedLinearContent] = useState<string[] | null>(null);
+  const [translatedBranchParagraphs, setTranslatedBranchParagraphs] = useState<Record<string, string[]>>({});
+  const [translatedChoiceTexts, setTranslatedChoiceTexts] = useState<Record<string, string>>({});
+  const [translatedChoiceConsequences, setTranslatedChoiceConsequences] = useState<Record<string, string>>({});
+  const [isTranslatingCurrentContent, setIsTranslatingCurrentContent] = useState(false);
 
   // Sleep controller state
   const [sleepControllerActive, setSleepControllerActive] = useState(false);
@@ -268,6 +359,18 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     isPlayingRef.current = isPlaying;
   }, [isPlaying]);
 
+  useEffect(() => {
+    if (!currentMusic || currentMusic === 'none') {
+      backgroundMusic.setDucking(false);
+      return;
+    }
+
+    backgroundMusic.setDucking(isSpeaking);
+    return () => {
+      backgroundMusic.setDucking(false);
+    };
+  }, [isSpeaking, currentMusic]);
+
   // Handle sleep detection - goodnight and close
   const handleSleepDetected = () => {
     setIsPlaying(false);
@@ -282,9 +385,44 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     // User is still listening, continue
   };
 
-  // Use provided story or fallback
-  const defaultStory = LIBRARY_STORIES.find(s => s.content || s.isInteractive) || LIBRARY_STORIES[0];
-  const activeStory = story || defaultStory;
+  const hasPlayableStoryData = (candidate: Story | null | undefined) =>
+    Boolean(
+      candidate &&
+      ((candidate.content && candidate.content.length > 0) ||
+        (candidate.branches && candidate.branches.length > 0))
+    );
+
+  // Use provided story or fallback. If selected card has no paragraphs/branches,
+  // hydrate it with the closest playable story to avoid "empty story" screens.
+  const defaultStory = LIBRARY_STORIES.find(s => hasPlayableStoryData(s)) || LIBRARY_STORIES[0];
+  const activeStory = React.useMemo(() => {
+    if (!story) return defaultStory;
+    if (hasPlayableStoryData(story)) return story;
+
+    const sameIdStory = LIBRARY_STORIES.find(
+      candidate => candidate.id === story.id && hasPlayableStoryData(candidate)
+    );
+    if (sameIdStory) {
+      return {
+        ...sameIdStory,
+        ...story,
+        content: sameIdStory.content,
+        contentTr: sameIdStory.contentTr,
+        branches: sameIdStory.branches,
+        isInteractive: sameIdStory.isInteractive,
+        startBranchId: sameIdStory.startBranchId,
+      };
+    }
+
+    const sameThemeStory = LIBRARY_STORIES.find(
+      candidate => candidate.theme === story.theme && hasPlayableStoryData(candidate)
+    );
+    if (sameThemeStory) {
+      return sameThemeStory;
+    }
+
+    return defaultStory;
+  }, [story, defaultStory]);
 
   // Check if this is an interactive story
   const isInteractiveStory = activeStory.isInteractive && activeStory.branches && activeStory.branches.length > 0;
@@ -295,30 +433,321 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     ? activeStory.branches!.find(b => b.id === (currentBranchId || activeStory.startBranchId)) || null
     : null;
 
-  // Get content based on story type and language
-  const getContent = (): string[] => {
-    if (isInteractiveStory && currentBranch) {
-      if (language === 'tr' && currentBranch.paragraphsTr) {
-        return currentBranch.paragraphsTr;
-      }
-      return currentBranch.paragraphs;
-    }
+  const buildChoiceTranslationKey = (branchId: string, choiceId: string) => `${branchId}:${choiceId}`;
+  const localizedStoryTitle = getLocalizedStoryTitle(activeStory, language);
+  const localizedThemeName = getLocalizedThemeName(activeStory.theme, language);
 
-    if (language === 'tr' && activeStory.contentTr) {
-      return activeStory.contentTr;
+  const getLocalizedChoiceText = (choice: StoryChoice, branchId?: string | null): string => {
+    if (language !== 'tr') return choice.text;
+    if (choice.textTr && choice.textTr.trim().length > 0 && looksLikeTurkishText(choice.textTr)) return choice.textTr;
+    if (branchId) {
+      const translated = translatedChoiceTexts[buildChoiceTranslationKey(branchId, choice.id)];
+      if (translated && looksLikeTurkishText(translated)) return translated;
     }
-    return activeStory.content || [];
+    const branchChoices = currentBranch?.choices || [];
+    const choiceIndex = branchChoices.findIndex((item) => item.id === choice.id);
+    return buildTurkishChoiceFallbackText(choiceIndex >= 0 ? choiceIndex : 0);
   };
 
-  const content = getContent();
+  const getLocalizedChoiceConsequence = (choice: StoryChoice, branchId?: string | null): string | undefined => {
+    if (language !== 'tr') return choice.consequence;
+    if (choice.consequenceTr && choice.consequenceTr.trim().length > 0 && looksLikeTurkishText(choice.consequenceTr)) return choice.consequenceTr;
+    if (branchId) {
+      const translated = translatedChoiceConsequences[buildChoiceTranslationKey(branchId, choice.id)];
+      if (translated && looksLikeTurkishText(translated)) return translated;
+    }
+    if (!choice.consequence) return undefined;
+    return buildTurkishChoiceFallbackConsequence();
+  };
+
+  const normalizeBranchReference = (value: string): string =>
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9çğıöşü_-]/gi, '');
+
+  const resolveSafeNextBranchId = (targetBranchId: string, fromBranchId?: string): string | null => {
+    if (!activeStory.branches || activeStory.branches.length === 0) return null;
+
+    const exactMatch = activeStory.branches.find(branch => branch.id === targetBranchId);
+    if (exactMatch) return exactMatch.id;
+
+    const normalizedTarget = normalizeBranchReference(targetBranchId);
+    if (normalizedTarget) {
+      const normalizedMatch = activeStory.branches.find(
+        branch => normalizeBranchReference(branch.id) === normalizedTarget
+      );
+      if (normalizedMatch) return normalizedMatch.id;
+    }
+
+    const preferredEnding = activeStory.branches.find(
+      branch => branch.isEnding && branch.id !== fromBranchId
+    );
+    if (preferredEnding) return preferredEnding.id;
+
+    const alternate = activeStory.branches.find(branch => branch.id !== fromBranchId);
+    return alternate?.id || null;
+  };
+
+  useEffect(() => {
+    setTranslatedLinearContent(null);
+    setTranslatedBranchParagraphs({});
+    setTranslatedChoiceTexts({});
+    setTranslatedChoiceConsequences({});
+    setIsTranslatingCurrentContent(false);
+  }, [activeStory.id, language]);
+
+  useEffect(() => {
+    if (language !== 'tr') return;
+    if (isInteractiveStory) return;
+    if (activeStory.contentTr && activeStory.contentTr.length > 0 && activeStory.contentTr.every(looksLikeTurkishText)) return;
+    if (translatedLinearContent && translatedLinearContent.length > 0) return;
+
+    const sourceParagraphs = ((activeStory.content && activeStory.content.length > 0)
+      ? activeStory.content
+      : (activeStory.contentTr || []))
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+    if (sourceParagraphs.length === 0) return;
+
+    let cancelled = false;
+    setIsTranslatingCurrentContent(true);
+
+    translateSegmentsToTurkish(sourceParagraphs, { contextLabel: `story:${activeStory.id}:linear` })
+      .then((translated) => {
+        if (cancelled) return;
+        setTranslatedLinearContent(translated);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setTranslatedLinearContent(buildTurkishFallbackParagraphs(sourceParagraphs.length, activeStory.character));
+      })
+      .finally(() => {
+        if (!cancelled) setIsTranslatingCurrentContent(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    language,
+    isInteractiveStory,
+    activeStory.id,
+    activeStory.content,
+    activeStory.contentTr,
+    translatedLinearContent
+  ]);
+
+  useEffect(() => {
+    if (language !== 'tr') return;
+    if (!isInteractiveStory || !currentBranch) return;
+    if (currentBranch.paragraphsTr && currentBranch.paragraphsTr.length > 0 && currentBranch.paragraphsTr.every(looksLikeTurkishText)) return;
+    if (translatedBranchParagraphs[currentBranch.id]?.length) return;
+
+    const sourceParagraphs = currentBranch.paragraphs
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+    if (sourceParagraphs.length === 0) return;
+
+    let cancelled = false;
+    setIsTranslatingCurrentContent(true);
+
+    translateSegmentsToTurkish(sourceParagraphs, { contextLabel: `story:${activeStory.id}:branch:${currentBranch.id}` })
+      .then((translated) => {
+        if (cancelled) return;
+        setTranslatedBranchParagraphs((previous) => ({
+          ...previous,
+          [currentBranch.id]: translated
+        }));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setTranslatedBranchParagraphs((previous) => ({
+          ...previous,
+          [currentBranch.id]: buildTurkishFallbackParagraphs(sourceParagraphs.length, activeStory.character)
+        }));
+      })
+      .finally(() => {
+        if (!cancelled) setIsTranslatingCurrentContent(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    language,
+    isInteractiveStory,
+    currentBranch,
+    activeStory.id,
+    translatedBranchParagraphs
+  ]);
+
+  useEffect(() => {
+    if (language !== 'tr') return;
+    if (!isInteractiveStory || !currentBranch?.choices?.length) return;
+
+    const branchId = currentBranch.id;
+    const textQueue = currentBranch.choices
+      .filter((choice) =>
+        !choice.textTr && !translatedChoiceTexts[buildChoiceTranslationKey(branchId, choice.id)]
+      )
+      .map((choice) => ({ key: buildChoiceTranslationKey(branchId, choice.id), text: choice.text }));
+
+    const consequenceQueue = currentBranch.choices
+      .filter((choice) =>
+        Boolean(choice.consequence) &&
+        !choice.consequenceTr &&
+        !translatedChoiceConsequences[buildChoiceTranslationKey(branchId, choice.id)]
+      )
+      .map((choice) => ({
+        key: buildChoiceTranslationKey(branchId, choice.id),
+        text: choice.consequence as string
+      }));
+
+    if (textQueue.length === 0 && consequenceQueue.length === 0) return;
+
+    let cancelled = false;
+
+    const translateChoices = async () => {
+      try {
+        if (textQueue.length > 0) {
+          const translatedTexts = await translateSegmentsToTurkish(
+            textQueue.map((item) => item.text),
+            { contextLabel: `story:${activeStory.id}:branch:${branchId}:choices` }
+          );
+          if (!cancelled) {
+            setTranslatedChoiceTexts((previous) => {
+              const next = { ...previous };
+              textQueue.forEach((item, index) => {
+                const candidate = translatedTexts[index];
+                next[item.key] = candidate && looksLikeTurkishText(candidate)
+                  ? candidate
+                  : buildTurkishChoiceFallbackText(index);
+              });
+              return next;
+            });
+          }
+        }
+
+        if (consequenceQueue.length > 0) {
+          const translatedConsequences = await translateSegmentsToTurkish(
+            consequenceQueue.map((item) => item.text),
+            { contextLabel: `story:${activeStory.id}:branch:${branchId}:consequences` }
+          );
+          if (!cancelled) {
+            setTranslatedChoiceConsequences((previous) => {
+              const next = { ...previous };
+              consequenceQueue.forEach((item, index) => {
+                const candidate = translatedConsequences[index];
+                next[item.key] = candidate && looksLikeTurkishText(candidate)
+                  ? candidate
+                  : buildTurkishChoiceFallbackConsequence();
+              });
+              return next;
+            });
+          }
+        }
+      } catch {
+        if (cancelled) return;
+        if (textQueue.length > 0) {
+          setTranslatedChoiceTexts((previous) => {
+            const next = { ...previous };
+            textQueue.forEach((item, index) => {
+              next[item.key] = buildTurkishChoiceFallbackText(index);
+            });
+            return next;
+          });
+        }
+        if (consequenceQueue.length > 0) {
+          setTranslatedChoiceConsequences((previous) => {
+            const next = { ...previous };
+            consequenceQueue.forEach((item) => {
+              next[item.key] = buildTurkishChoiceFallbackConsequence();
+            });
+            return next;
+          });
+        }
+      }
+    };
+
+    void translateChoices();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    language,
+    isInteractiveStory,
+    currentBranch,
+    activeStory.id,
+    translatedChoiceTexts,
+    translatedChoiceConsequences
+  ]);
+
+  // Get content based on story type/language and expand short linear stories.
+  const content = React.useMemo(() => {
+    const rawContent = (() => {
+      if (isInteractiveStory && currentBranch) {
+        if (language === 'tr') {
+          if (currentBranch.paragraphsTr && currentBranch.paragraphsTr.length > 0) {
+            return sanitizeTurkishParagraphs(currentBranch.paragraphsTr, activeStory.character);
+          }
+          if (translatedBranchParagraphs[currentBranch.id] && translatedBranchParagraphs[currentBranch.id].length > 0) {
+            return sanitizeTurkishParagraphs(translatedBranchParagraphs[currentBranch.id], activeStory.character);
+          }
+          return [];
+        }
+        return currentBranch.paragraphs;
+      }
+
+      if (language === 'tr') {
+        if (activeStory.contentTr && activeStory.contentTr.length > 0) {
+          return sanitizeTurkishParagraphs(activeStory.contentTr, activeStory.character);
+        }
+        if (translatedLinearContent && translatedLinearContent.length > 0) {
+          return sanitizeTurkishParagraphs(translatedLinearContent, activeStory.character);
+        }
+        return [];
+      }
+      return activeStory.content || [];
+    })();
+
+    const segmented = rawContent
+      .flatMap(splitParagraphForReader)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+
+    if (isInteractiveStory) return segmented;
+    return ensureMinimumLinearParagraphs(segmented, language);
+  }, [
+    isInteractiveStory,
+    currentBranch,
+    language,
+    activeStory.content,
+    activeStory.contentTr,
+    activeStory.character,
+    translatedLinearContent,
+    translatedBranchParagraphs
+  ]);
   const hasContent = content.length > 0;
 
-  // Get localized text helper
-  const getLocalizedText = (obj: any, field: string) => {
-    if (language === 'tr' && obj[`${field}Tr`]) {
-      return obj[`${field}Tr`];
+  const getLocalizedEndingTitle = (branch?: StoryBranch | null): string => {
+    if (!branch) return language === 'tr' ? 'Son' : 'The End';
+    if (language !== 'tr') return branch.endingTitle || 'The End';
+    if (branch.endingTitleTr && branch.endingTitleTr.trim().length > 0) return branch.endingTitleTr;
+
+    switch (branch.endingType) {
+      case 'happy':
+        return 'Mutlu Son';
+      case 'adventure':
+        return 'Macera Sonu';
+      case 'lesson':
+        return 'Dersle Biten Son';
+      case 'neutral':
+        return 'Huzurlu Son';
+      default:
+        return 'Masal Sonu';
     }
-    return obj[field];
   };
 
   const getSessionDurationMinutes = () => {
@@ -344,6 +773,24 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       setCurrentBranchId(null);
     }
   }, [activeStory.id, isInteractiveStory, initialBranchId]);
+
+  // Recover from malformed branch IDs by jumping to the best available start branch.
+  useEffect(() => {
+    if (!isInteractiveStory || currentBranch || !activeStory.branches?.length) return;
+
+    const safeStart =
+      activeStory.branches.find(branch => branch.id === initialBranchId) ||
+      activeStory.branches.find(branch => (branch.choices?.length || 0) > 0) ||
+      activeStory.branches[0];
+
+    if (!safeStart) return;
+
+    setCurrentBranchId(safeStart.id);
+    setCurrentParagraph(0);
+    setShowChoices(false);
+    setIsEnding(false);
+    setNavigationError(null);
+  }, [isInteractiveStory, currentBranch, activeStory.branches, initialBranchId]);
 
   // Keep paragraph index in bounds when language/content changes
   useEffect(() => {
@@ -496,6 +943,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       const audio = new Audio(objectUrl);
       audio.preload = 'auto';
       audio.playbackRate = playbackRate;
+      audio.volume = settings.narrationVolume;
       audioRef.current = audio;
 
       const played = await new Promise<boolean>((resolve) => {
@@ -579,7 +1027,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       const utterance = new SpeechSynthesisUtterance(chunk);
       utterance.rate = effectiveRate;
       utterance.pitch = language === 'tr' ? 0.98 : 1.0;
-      utterance.volume = 1;
+      utterance.volume = settings.narrationVolume;
       utterance.lang = language === 'tr' ? 'tr-TR' : 'en-US';
 
       if (preferredVoiceRef.current) {
@@ -664,8 +1112,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     cancelSpeech();
     setIsPlaying(false);
 
-    const hasTargetBranch = activeStory.branches?.some(branch => branch.id === choice.nextBranchId);
-    if (!hasTargetBranch) {
+    const resolvedNextBranchId = resolveSafeNextBranchId(choice.nextBranchId, currentBranch?.id);
+    if (!resolvedNextBranchId) {
       setNavigationError(
         language === 'tr'
           ? 'Bu yol şu an açık değil. Lütfen başka bir seçim dene.'
@@ -682,7 +1130,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       ...prev,
       {
         id: choice.id,
-        text: getLocalizedText(choice, 'text'),
+        text: getLocalizedChoiceText(choice, currentBranch?.id),
         emoji: choice.emoji
       }
     ]);
@@ -690,7 +1138,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     soundEffects.play('choice_select');
 
     // Navigate to the next branch
-    setCurrentBranchId(choice.nextBranchId);
+    setCurrentBranchId(resolvedNextBranchId);
     setCurrentParagraph(0);
     setShowChoices(false);
     setIsEnding(false);
@@ -731,7 +1179,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
         <div className="text-center flex-1">
           <span className="text-sm font-serif font-medium tracking-widest uppercase text-white/60 block">
-            {activeStory.theme}
+            {localizedThemeName}
           </span>
           {hasContent && (
             <div className="flex items-center justify-center gap-2">
@@ -740,7 +1188,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
               </span>
               {isInteractiveStory && (
                 <span className="text-[10px] text-primary bg-primary/20 px-2 py-0.5 rounded-full">
-                  🎮 Interactive
+                  🎮 {language === 'tr' ? 'İnteraktif' : 'Interactive'}
                 </span>
               )}
             </div>
@@ -762,7 +1210,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       {/* Hero Image */}
       <div className="px-4 py-2">
         <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-2xl relative">
-          <img src={getStoryCoverUrl(activeStory)} alt={activeStory.title} className="w-full h-full object-cover" />
+          <img src={getStoryCoverUrl(activeStory)} alt={localizedStoryTitle} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-transparent"></div>
 
           {/* Story Meta Overlay */}
@@ -792,7 +1240,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
           {isSpeaking && (
             <div className="absolute top-4 right-4 flex items-center gap-2 bg-primary/90 backdrop-blur-md px-3 py-1.5 rounded-full animate-pulse">
               <span className="material-symbols-outlined text-bg-dark text-sm">graphic_eq</span>
-              <span className="text-xs text-bg-dark font-bold">Reading...</span>
+              <span className="text-xs text-bg-dark font-bold">{t.reader_reading}</span>
             </div>
           )}
         </div>
@@ -810,7 +1258,11 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
               </p>
             ) : (
               <div className="text-center py-10">
-                <p className="text-white/60">Story content is loading...</p>
+                <p className="text-white/60">
+                  {language === 'tr'
+                    ? (isTranslatingCurrentContent ? 'Hikaye Türkçeye çevriliyor...' : 'Hikaye içeriği yükleniyor...')
+                    : 'Story content is loading...'}
+                </p>
               </div>
             )}
 
@@ -893,11 +1345,11 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
                     <div>
                       <span className="text-white font-medium flex items-center gap-2">
                         {choice.emoji && <span>{choice.emoji}</span>}
-                        {getLocalizedText(choice, 'text')}
+                        {getLocalizedChoiceText(choice, currentBranch?.id)}
                       </span>
-                      {getLocalizedText(choice, 'consequence') && (
+                      {getLocalizedChoiceConsequence(choice, currentBranch?.id) && (
                         <p className="text-xs text-white/60 mt-1">
-                          {getLocalizedText(choice, 'consequence')}
+                          {getLocalizedChoiceConsequence(choice, currentBranch?.id)}
                         </p>
                       )}
                     </div>
@@ -915,7 +1367,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
                 {getEndingEmoji(currentBranch?.endingType)}
               </div>
               <h2 className="text-2xl font-bold text-white mb-2 font-serif">
-                {getLocalizedText(currentBranch, 'endingTitle') || (language === 'tr' ? 'Son' : 'The End')}
+                {getLocalizedEndingTitle(currentBranch)}
               </h2>
               <p className="text-white/60 text-sm mb-6">
                 {language === 'tr'
