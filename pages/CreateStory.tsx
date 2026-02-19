@@ -104,19 +104,55 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
   // Convert GeneratedStory to Story type for the reader
   const convertToStory = (generated: GeneratedStory): Story => {
     const themeData = themes.find(th => th.id === generated.theme);
+    const cleanContent = (generated.content || [])
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+
+    const localizedBranches = generated.branches?.map((branch) => {
+      const cleanParagraphs = (branch.paragraphs || [])
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean);
+
+      const localizedChoices = branch.choices?.map((choice) => ({
+        ...choice,
+        ...(language === 'tr' && choice.text
+          ? { textTr: choice.text }
+          : {}),
+        ...(language === 'tr' && choice.consequence
+          ? { consequenceTr: choice.consequence }
+          : {}),
+      }));
+
+      return {
+        ...branch,
+        paragraphs: cleanParagraphs,
+        choices: localizedChoices,
+        ...(language === 'tr' && cleanParagraphs.length > 0
+          ? { paragraphsTr: cleanParagraphs }
+          : {}),
+        ...(language === 'tr' && branch.endingTitle
+          ? { endingTitleTr: branch.endingTitle }
+          : {}),
+      };
+    });
+
     return {
       id: `generated_${Date.now()}`,
       title: generated.title,
+      ...(language === 'tr' ? { titleTr: generated.title } : {}),
       subtitle: generated.subtitle,
+      ...(language === 'tr' ? { subtitleTr: generated.subtitle } : {}),
       duration: selectedDuration === 'short' ? '5 min' : selectedDuration === 'medium' ? '10 min' : '15 min',
       theme: generated.theme,
       coverUrl: themeData?.icon || IMAGES.MAGIC_BOOK,
       character: generated.character,
       ageRange: generated.ageRange,
       moral: generated.moral,
-      content: generated.content,
+      ...(language === 'tr' ? { moralTr: generated.moral } : {}),
+      content: cleanContent,
+      ...(language === 'tr' && cleanContent.length > 0 ? { contentTr: cleanContent } : {}),
       isInteractive: generated.isInteractive,
-      branches: generated.branches,
+      branches: localizedBranches,
       startBranchId: generated.startBranchId
     };
   };

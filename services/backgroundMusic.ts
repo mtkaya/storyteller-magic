@@ -47,6 +47,35 @@ class BackgroundMusicService {
     private userVolume = 0.3;
     private duckingMultiplier = 1;
     private duckingTimer: number | null = null;
+    private pendingTrack: MusicType | null = null;
+    private pendingUnlockHandler: ((event: Event) => void) | null = null;
+
+    private attachPendingUnlockHandler() {
+        if (typeof window === 'undefined' || this.pendingUnlockHandler) return;
+
+        this.pendingUnlockHandler = () => {
+            const trackToResume = this.pendingTrack;
+            this.pendingTrack = null;
+            this.detachPendingUnlockHandler();
+
+            if (!trackToResume || trackToResume === 'none') return;
+            void this.play(trackToResume);
+        };
+
+        const options: AddEventListenerOptions = { once: true, passive: true };
+        window.addEventListener('pointerdown', this.pendingUnlockHandler, options);
+        window.addEventListener('touchstart', this.pendingUnlockHandler, options);
+        window.addEventListener('keydown', this.pendingUnlockHandler, options);
+    }
+
+    private detachPendingUnlockHandler() {
+        if (typeof window === 'undefined' || !this.pendingUnlockHandler) return;
+
+        window.removeEventListener('pointerdown', this.pendingUnlockHandler);
+        window.removeEventListener('touchstart', this.pendingUnlockHandler);
+        window.removeEventListener('keydown', this.pendingUnlockHandler);
+        this.pendingUnlockHandler = null;
+    }
 
     private async initAudioContext() {
         if (!this.audioContext) {
@@ -410,6 +439,14 @@ class BackgroundMusicService {
             // Warm audio context first so procedural fallback can still play when
             // local file tracks are missing or blocked.
             await this.initAudioContext();
+            if (this.audioContext?.state === 'suspended') {
+                this.pendingTrack = type;
+                this.attachPendingUnlockHandler();
+                return;
+            }
+
+            this.pendingTrack = null;
+            this.detachPendingUnlockHandler();
 
             const playedFromFile = await this.tryPlayFileTrack(type);
             if (playedFromFile) return;
@@ -444,6 +481,8 @@ class BackgroundMusicService {
             this.duckingTimer = null;
         }
         this.duckingMultiplier = 1;
+        this.pendingTrack = null;
+        this.detachPendingUnlockHandler();
 
         if (this.currentSource) {
             try {
