@@ -6,6 +6,7 @@ import { useAppState } from '../context/AppStateContext';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
 import {
   buildStoryPool,
+  filterStoriesForLanguage,
   getTopThemeFilters,
   normalizeStoryTheme,
   parseDurationMinutes,
@@ -23,8 +24,15 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
   const { isFavorite, addFavorite, removeFavorite, favorites, stats, customStories } = useAppState();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const localizedCustomStories = useMemo(
+    () => filterStoriesForLanguage(customStories, language),
+    [customStories, language]
+  );
 
-  const storyPool = useMemo(() => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES, customStories), [customStories]);
+  const storyPool = useMemo(
+    () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES, localizedCustomStories),
+    [localizedCustomStories]
+  );
 
   const rankedStories = useMemo(
     () =>

@@ -4,7 +4,7 @@ import { RECENT_STORIES, LIBRARY_STORIES, IMAGES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppState } from '../context/AppStateContext';
 import { getIllustratedImageUrl, getStoryCoverUrl } from '../services/illustrationCovers';
-import { buildStoryPool, getCuratedHomeShelves } from '../services/storyCuration';
+import { buildStoryPool, filterStoriesForLanguage, getCuratedHomeShelves } from '../services/storyCuration';
 import { getLocalizedStorySubtitle, getLocalizedStoryTitle } from '../services/storyLocalization';
 
 interface HomeProps {
@@ -19,10 +19,14 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
   const { language, t } = useLanguage();
   const { activeProfile, stats, favorites, isFavorite, addFavorite, removeFavorite, customStories } = useAppState();
   const currentHour = new Date().getHours();
+  const localizedCustomStories = React.useMemo(
+    () => filterStoriesForLanguage(customStories, language),
+    [customStories, language]
+  );
 
   const storyPool = React.useMemo(
-    () => buildStoryPool(RECENT_STORIES, LIBRARY_STORIES, customStories),
-    [customStories]
+    () => buildStoryPool(RECENT_STORIES, LIBRARY_STORIES, localizedCustomStories),
+    [localizedCustomStories]
   );
 
   const curatedShelves = React.useMemo(

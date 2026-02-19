@@ -1,5 +1,7 @@
 import { Story } from '../types';
 
+type AppLanguage = 'en' | 'tr';
+
 interface StoryRankOptions {
   favorites?: string[];
   themeCounts?: Record<string, number>;
@@ -41,8 +43,92 @@ const THEME_MORAL_FALLBACKS: Record<string, string> = {
   wonder: 'Small moments can feel magical when we notice them with gratitude.',
 };
 
+const THEME_EXACT_ALIASES: Record<string, string> = {
+  adventure: 'adventure',
+  macera: 'adventure',
+  friendship: 'friendship',
+  dostluk: 'friendship',
+  magic: 'magic',
+  sihir: 'magic',
+  sihirli: 'magic',
+  nature: 'nature',
+  doga: 'nature',
+  orman: 'nature',
+  deniz: 'nature',
+  underwater: 'nature',
+  ocean: 'nature',
+  sea: 'nature',
+  calm: 'calm',
+  sakin: 'calm',
+  sakinlik: 'calm',
+  huzur: 'calm',
+  courage: 'courage',
+  cesaret: 'courage',
+  wisdom: 'wisdom',
+  bilgelik: 'wisdom',
+  mystery: 'mystery',
+  gizem: 'mystery',
+  family: 'family',
+  aile: 'family',
+  wonder: 'wonder',
+  hayranlik: 'wonder',
+  uzay: 'wonder',
+  space: 'wonder',
+  bedtime: 'bedtime',
+  sleep: 'bedtime',
+  uyku: 'bedtime',
+  dream: 'bedtime',
+  dreams: 'bedtime',
+  ruya: 'bedtime',
+  kindness: 'kindness',
+  iyilik: 'kindness',
+  interactive: 'interactive',
+  interaktif: 'interactive',
+};
+
+const THEME_HINT_ALIASES: Array<{ pattern: RegExp; canonical: string }> = [
+  { pattern: /\b(macera|adventure|journey|quest|yolculuk)\b/, canonical: 'adventure' },
+  { pattern: /\b(dostluk|friend|friendship|arkadas)\b/, canonical: 'friendship' },
+  { pattern: /\b(sihir|magic|magical|enchant|buyu)\b/, canonical: 'magic' },
+  { pattern: /\b(doga|nature|forest|ocean|sea|underwater|deniz|orman)\b/, canonical: 'nature' },
+  { pattern: /\b(sakin|calm|peaceful|huzur)\b/, canonical: 'calm' },
+  { pattern: /\b(uyku|bedtime|sleep|dream|ruya)\b/, canonical: 'bedtime' },
+  { pattern: /\b(cesaret|courage|brave)\b/, canonical: 'courage' },
+  { pattern: /\b(bilgelik|wisdom|wise)\b/, canonical: 'wisdom' },
+  { pattern: /\b(gizem|mystery|mysterious)\b/, canonical: 'mystery' },
+  { pattern: /\b(aile|family|home)\b/, canonical: 'family' },
+  { pattern: /\b(hayranlik|wonder|star|space|uzay)\b/, canonical: 'wonder' },
+  { pattern: /\b(iyilik|kindness|kind)\b/, canonical: 'kindness' },
+  { pattern: /\b(interactive|interaktif)\b/, canonical: 'interactive' },
+];
+
+function stripDiacritics(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function normalizeThemeToken(theme: string | undefined): string {
+  const raw = stripDiacritics((theme || '').trim().toLowerCase());
+  if (!raw) return '';
+  return raw.replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 export function normalizeStoryTheme(theme: string | undefined): string {
-  return (theme || '').trim().toLowerCase();
+  const token = normalizeThemeToken(theme);
+  if (!token) return '';
+
+  const compact = token.replace(/\s+/g, '');
+  const exactMatch = THEME_EXACT_ALIASES[token] || THEME_EXACT_ALIASES[compact];
+  if (exactMatch) return exactMatch;
+
+  for (const { pattern, canonical } of THEME_HINT_ALIASES) {
+    if (pattern.test(token)) return canonical;
+  }
+
+  return compact;
+}
+
+export function filterStoriesForLanguage(stories: Story[], language: AppLanguage): Story[] {
+  return stories.filter((story) => !story.sourceLanguage || story.sourceLanguage === language);
 }
 
 export function parseDurationMinutes(duration: string | undefined): number {

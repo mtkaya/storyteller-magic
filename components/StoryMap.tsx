@@ -5,7 +5,7 @@ import { useAppState } from '../context/AppStateContext';
 import { LIBRARY_STORIES, RECENT_STORIES } from '../data';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
 import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/storyLocalization';
-import { buildStoryPool, hasPlayableStoryData, normalizeStoryTheme } from '../services/storyCuration';
+import { buildStoryPool, filterStoriesForLanguage, hasPlayableStoryData, normalizeStoryTheme } from '../services/storyCuration';
 
 interface StoryMapProps {
     onStorySelect: (story: Story) => void;
@@ -16,10 +16,14 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
     const { language } = useLanguage();
     const { stats, favorites, isFavorite, customStories } = useAppState();
     const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
+    const localizedCustomStories = React.useMemo(
+        () => filterStoriesForLanguage(customStories, language),
+        [customStories, language]
+    );
     type ThemeBucket = { key: string; sourceTheme: string; stories: Story[] };
     const playableStories = React.useMemo(
-        () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES, customStories).filter(hasPlayableStoryData),
-        [customStories]
+        () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES, localizedCustomStories).filter(hasPlayableStoryData),
+        [localizedCustomStories]
     );
 
     // Group stories by theme

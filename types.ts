@@ -16,6 +16,7 @@ export interface Story {
   id: string;
   title: string;
   titleTr?: string;
+  sourceLanguage?: 'en' | 'tr';
   subtitle?: string;
   subtitleTr?: string;
   duration: string;

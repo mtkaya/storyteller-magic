@@ -139,6 +139,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
     return {
       id: `generated_${Date.now()}`,
       title: generated.title,
+      sourceLanguage: language,
       ...(language === 'tr' ? { titleTr: generated.title } : {}),
       subtitle: generated.subtitle,
       ...(language === 'tr' ? { subtitleTr: generated.subtitle } : {}),

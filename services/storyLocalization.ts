@@ -1,4 +1,5 @@
 import { Story } from '../types';
+import { normalizeStoryTheme } from './storyCuration';
 
 type AppLanguage = 'en' | 'tr';
 
@@ -171,6 +172,9 @@ export function getLocalizedThemeName(theme: string | undefined, language: AppLa
   const clean = (theme || '').trim();
   if (!clean) return language === 'tr' ? 'Diğer' : 'Other';
   if (language !== 'tr') return clean;
+
+  const canonical = normalizeStoryTheme(clean);
+  if (canonical && THEME_TERM_TR[canonical]) return THEME_TERM_TR[canonical];
 
   const key = normalizeThemeKey(clean);
   if (key && THEME_TERM_TR[key]) return THEME_TERM_TR[key];

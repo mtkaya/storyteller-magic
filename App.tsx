@@ -24,7 +24,7 @@ import { AppStateProvider, useAppState } from './context/AppStateContext';
 import { MusicType, backgroundMusic } from './services/backgroundMusic';
 import { soundEffects } from './services/soundEffects';
 import { LIBRARY_STORIES, RECENT_STORIES } from './data';
-import { buildStoryPool, hasPlayableStoryData, normalizeStoryTheme } from './services/storyCuration';
+import { buildStoryPool, filterStoriesForLanguage, hasPlayableStoryData, normalizeStoryTheme } from './services/storyCuration';
 import { prefetchTurkishTranslations } from './services/storyTranslation';
 
 const AppContent: React.FC = () => {
@@ -43,9 +43,13 @@ const AppContent: React.FC = () => {
 
   const { isLimitReached, settings, updateSettings, saveCustomStory, customStories } = useAppState();
   const { language } = useLanguage();
+  const localizedCustomStories = React.useMemo(
+    () => filterStoriesForLanguage(customStories, language),
+    [customStories, language]
+  );
   const storyPool = React.useMemo(
-    () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES, customStories),
-    [customStories]
+    () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES, localizedCustomStories),
+    [localizedCustomStories]
   );
 
   const resolvePlayableStorySelection = React.useCallback((candidate: Story): Story => {
