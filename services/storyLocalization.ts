@@ -46,6 +46,7 @@ const STORY_TITLE_TR: Record<string, string> = {
 const SUBTITLE_TERM_TR: Record<string, string> = {
   Adventure: 'Macera',
   Friendship: 'Dostluk',
+  Funny: 'Eğlence',
   Magic: 'Sihir',
   Nature: 'Doğa',
   Wonder: 'Hayranlık',
@@ -58,6 +59,7 @@ const SUBTITLE_TERM_TR: Record<string, string> = {
   Play: 'Oyun',
   Mystery: 'Gizem',
   Discovery: 'Keşif',
+  Curiosity: 'Merak',
   Wisdom: 'Bilgelik',
   Patience: 'Sabır',
   Creation: 'Yaratım',
@@ -73,6 +75,10 @@ const SUBTITLE_TERM_TR: Record<string, string> = {
   Mindfulness: 'Farkındalık',
   Interactive: 'İnteraktif',
 };
+
+const SUBTITLE_TERM_TR_NORMALIZED: Record<string, string> = Object.fromEntries(
+  Object.entries(SUBTITLE_TERM_TR).map(([key, value]) => [key.toLowerCase(), value])
+);
 
 const THEME_TERM_TR: Record<string, string> = {
   adventure: 'Macera',
@@ -105,7 +111,18 @@ const THEME_TERM_TR: Record<string, string> = {
 const translateSubtitleToken = (token: string): string => {
   const clean = token.trim();
   if (!clean) return clean;
-  return SUBTITLE_TERM_TR[clean] || clean;
+
+  const hasInteractiveBadge = clean.startsWith('🎮');
+  const normalizedToken = hasInteractiveBadge
+    ? clean.replace(/^🎮\s*/, '')
+    : clean;
+
+  const translated = SUBTITLE_TERM_TR[normalizedToken]
+    || SUBTITLE_TERM_TR_NORMALIZED[normalizedToken.toLowerCase()];
+
+  if (!translated) return clean;
+  if (hasInteractiveBadge) return `🎮 ${translated}`;
+  return translated;
 };
 
 const normalizeThemeKey = (value: string | undefined): string => {

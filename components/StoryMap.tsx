@@ -2,10 +2,10 @@ import React from 'react';
 import { Story } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppState } from '../context/AppStateContext';
-import { LIBRARY_STORIES } from '../data';
+import { LIBRARY_STORIES, RECENT_STORIES } from '../data';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
 import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/storyLocalization';
-import { normalizeStoryTheme } from '../services/storyCuration';
+import { buildStoryPool, hasPlayableStoryData, normalizeStoryTheme } from '../services/storyCuration';
 
 interface StoryMapProps {
     onStorySelect: (story: Story) => void;
@@ -17,12 +17,16 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
     const { stats, favorites, isFavorite } = useAppState();
     const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
     type ThemeBucket = { key: string; sourceTheme: string; stories: Story[] };
+    const playableStories = React.useMemo(
+        () => buildStoryPool(LIBRARY_STORIES, RECENT_STORIES).filter(hasPlayableStoryData),
+        []
+    );
 
     // Group stories by theme
     const themeBuckets: ThemeBucket[] = React.useMemo(() => {
         const grouped = new Map<string, ThemeBucket>();
 
-        LIBRARY_STORIES.forEach((story) => {
+        playableStories.forEach((story) => {
             const key = normalizeStoryTheme(story.theme) || 'other';
             const sourceTheme = story.theme || 'Other';
             const existing = grouped.get(key);
@@ -35,7 +39,7 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
         });
 
         return Array.from(grouped.values()).sort((a, b) => b.stories.length - a.stories.length);
-    }, []);
+    }, [playableStories]);
 
     const themeConfig: Record<string, { icon: string; name: string; nameTr: string; color: string }> = {
         courage: { icon: '🦁', name: 'Courage', nameTr: 'Cesaret', color: 'from-orange-500 to-red-500' },
@@ -92,17 +96,17 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                             {language === 'tr' ? 'Keşif İlerlemesi' : 'Exploration Progress'}
                         </span>
                         <span className="text-primary font-bold">
-                            {Math.round((stats.totalStoriesRead / LIBRARY_STORIES.length) * 100)}%
+                            {Math.round((stats.totalStoriesRead / Math.max(playableStories.length, 1)) * 100)}%
                         </span>
                     </div>
                     <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                         <div
                             className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all"
-                            style={{ width: `${Math.min(100, (stats.totalStoriesRead / LIBRARY_STORIES.length) * 100)}%` }}
+                            style={{ width: `${Math.min(100, (stats.totalStoriesRead / Math.max(playableStories.length, 1)) * 100)}%` }}
                         />
                     </div>
                     <p className="text-white/50 text-xs mt-2">
-                        {stats.totalStoriesRead}/{LIBRARY_STORIES.length} {language === 'tr' ? 'hikaye keşfedildi' : 'stories discovered'}
+                        {stats.totalStoriesRead}/{playableStories.length} {language === 'tr' ? 'hikaye keşfedildi' : 'stories discovered'}
                     </p>
                 </div>
 
