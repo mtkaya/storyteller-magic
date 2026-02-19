@@ -287,6 +287,10 @@ const looksLikeTurkishText = (text: string): boolean => {
   if (/[ğüşöçıİĞÜŞÖÇ]/.test(text)) return true;
   return /\b(ve|bir|ile|için|ama|gibi|çok|şimdi|gece|hikaye|masal|yol|seçenek)\b/i.test(text);
 };
+const hasTrustedTurkishParagraphs = (paragraphs: string[] | null | undefined): paragraphs is string[] => {
+  if (!paragraphs || paragraphs.length === 0) return false;
+  return paragraphs.every((line) => looksLikeTurkishText((line || '').trim()));
+};
 const sanitizeTurkishParagraphs = (paragraphs: string[], character?: string): string[] => {
   const fallback = buildTurkishFallbackParagraphs(paragraphs.length, character);
   return paragraphs.map((line, index) => {
@@ -500,8 +504,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   useEffect(() => {
     if (language !== 'tr') return;
     if (isInteractiveStory) return;
-    if (activeStory.contentTr && activeStory.contentTr.length > 0 && activeStory.contentTr.every(looksLikeTurkishText)) return;
-    if (translatedLinearContent && translatedLinearContent.length > 0) return;
+    if (hasTrustedTurkishParagraphs(activeStory.contentTr)) return;
+    if (hasTrustedTurkishParagraphs(translatedLinearContent)) return;
 
     const sourceParagraphs = ((activeStory.content && activeStory.content.length > 0)
       ? activeStory.content
@@ -541,8 +545,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   useEffect(() => {
     if (language !== 'tr') return;
     if (!isInteractiveStory || !currentBranch) return;
-    if (currentBranch.paragraphsTr && currentBranch.paragraphsTr.length > 0 && currentBranch.paragraphsTr.every(looksLikeTurkishText)) return;
-    if (translatedBranchParagraphs[currentBranch.id]?.length) return;
+    if (hasTrustedTurkishParagraphs(currentBranch.paragraphsTr)) return;
+    if (hasTrustedTurkishParagraphs(translatedBranchParagraphs[currentBranch.id])) return;
 
     const sourceParagraphs = currentBranch.paragraphs
       .map((paragraph) => paragraph.trim())
@@ -689,11 +693,18 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     const rawContent = (() => {
       if (isInteractiveStory && currentBranch) {
         if (language === 'tr') {
-          if (currentBranch.paragraphsTr && currentBranch.paragraphsTr.length > 0) {
+          if (hasTrustedTurkishParagraphs(currentBranch.paragraphsTr)) {
             return sanitizeTurkishParagraphs(currentBranch.paragraphsTr, activeStory.character);
           }
-          if (translatedBranchParagraphs[currentBranch.id] && translatedBranchParagraphs[currentBranch.id].length > 0) {
+          if (hasTrustedTurkishParagraphs(translatedBranchParagraphs[currentBranch.id])) {
             return sanitizeTurkishParagraphs(translatedBranchParagraphs[currentBranch.id], activeStory.character);
+          }
+
+          const sourceParagraphs = currentBranch.paragraphs
+            .map((paragraph) => paragraph.trim())
+            .filter(Boolean);
+          if (sourceParagraphs.length > 0) {
+            return buildTurkishFallbackParagraphs(sourceParagraphs.length, activeStory.character);
           }
           return [];
         }
@@ -701,11 +712,21 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       }
 
       if (language === 'tr') {
-        if (activeStory.contentTr && activeStory.contentTr.length > 0) {
+        if (hasTrustedTurkishParagraphs(activeStory.contentTr)) {
           return sanitizeTurkishParagraphs(activeStory.contentTr, activeStory.character);
         }
-        if (translatedLinearContent && translatedLinearContent.length > 0) {
+        if (hasTrustedTurkishParagraphs(translatedLinearContent)) {
           return sanitizeTurkishParagraphs(translatedLinearContent, activeStory.character);
+        }
+
+        const sourceParagraphs = ((activeStory.content && activeStory.content.length > 0)
+          ? activeStory.content
+          : (activeStory.contentTr || []))
+          .map((paragraph) => paragraph.trim())
+          .filter(Boolean);
+
+        if (sourceParagraphs.length > 0) {
+          return buildTurkishFallbackParagraphs(sourceParagraphs.length, activeStory.character);
         }
         return [];
       }

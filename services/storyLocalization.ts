@@ -81,6 +81,16 @@ const SUBTITLE_TERM_TR_NORMALIZED: Record<string, string> = Object.fromEntries(
   Object.entries(SUBTITLE_TERM_TR).map(([key, value]) => [key.toLowerCase(), value])
 );
 
+const TURKISH_CHAR_PATTERN = /[ğüşöçıİĞÜŞÖÇ]/;
+const TURKISH_WORD_PATTERN = /\b(ve|bir|ile|için|ama|gibi|çok|şimdi|gece|hikaye|masal|uyku|rüya|ruya)\b/i;
+
+const looksLikeTurkishText = (text: string | undefined): boolean => {
+  const clean = (text || '').trim();
+  if (!clean) return false;
+  if (TURKISH_CHAR_PATTERN.test(clean)) return true;
+  return TURKISH_WORD_PATTERN.test(clean);
+};
+
 const THEME_TERM_TR: Record<string, string> = {
   adventure: 'Macera',
   friendship: 'Dostluk',
@@ -153,6 +163,29 @@ const translateSubtitleFallback = (subtitle: string | undefined): string | undef
   return translateSubtitleToken(subtitle);
 };
 
+const parseDurationMinutes = (duration: string | undefined): number | null => {
+  if (!duration) return null;
+  const match = duration.match(/(\d+)/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) && value > 0 ? value : null;
+};
+
+const buildTurkishSubtitleFallback = (
+  story: Pick<Story, 'theme' | 'duration' | 'isInteractive'>
+): string => {
+  const themeLabel = getLocalizedThemeName(story.theme, 'tr');
+  const minutes = parseDurationMinutes(story.duration);
+
+  if (story.isInteractive) {
+    if (minutes) return `🎮 İnteraktif • ${themeLabel} • ${minutes} dk`;
+    return `🎮 İnteraktif • ${themeLabel}`;
+  }
+
+  if (minutes) return `${themeLabel} • ${minutes} dk masal`;
+  return `${themeLabel} • Uyku masalı`;
+};
+
 export function getLocalizedStoryTitle(story: Pick<Story, 'title' | 'titleTr'>, language: AppLanguage): string {
   if (language !== 'tr') return story.title;
   if (story.titleTr && story.titleTr.trim().length > 0) return story.titleTr;
@@ -160,12 +193,18 @@ export function getLocalizedStoryTitle(story: Pick<Story, 'title' | 'titleTr'>, 
 }
 
 export function getLocalizedStorySubtitle(
-  story: Pick<Story, 'subtitle' | 'subtitleTr'>,
+  story: Pick<Story, 'subtitle' | 'subtitleTr' | 'theme' | 'duration' | 'isInteractive'>,
   language: AppLanguage
 ): string | undefined {
   if (language !== 'tr') return story.subtitle;
-  if (story.subtitleTr && story.subtitleTr.trim().length > 0) return story.subtitleTr;
-  return translateSubtitleFallback(story.subtitle);
+  if (story.subtitleTr && story.subtitleTr.trim().length > 0 && looksLikeTurkishText(story.subtitleTr)) {
+    return story.subtitleTr;
+  }
+
+  const translated = translateSubtitleFallback(story.subtitle);
+  if (translated && looksLikeTurkishText(translated)) return translated;
+
+  return buildTurkishSubtitleFallback(story);
 }
 
 export function getLocalizedThemeName(theme: string | undefined, language: AppLanguage): string {

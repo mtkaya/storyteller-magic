@@ -28,6 +28,13 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
   const [error, setError] = useState<string | null>(null);
   const [copyPromptStatus, setCopyPromptStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
 
+  const looksLikeTurkishText = (text: string): boolean => {
+    const clean = text.trim();
+    if (!clean) return false;
+    if (/[ğüşöçıİĞÜŞÖÇ]/.test(clean)) return true;
+    return /\b(ve|bir|ile|için|ama|gibi|çok|şimdi|gece|hikaye|masal|uyku|rüya|ruya)\b/i.test(clean);
+  };
+
   const themes = [
     { id: 'adventure', name: t.create_themes.adventure, icon: IMAGES.BRAVE_LION, visualIcon: '🧭' },
     { id: 'friendship', name: t.create_themes.friendship, icon: IMAGES.TEA_PARTY, visualIcon: '🤝' },
@@ -107,19 +114,21 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
     const cleanContent = (generated.content || [])
       .map((paragraph) => paragraph.trim())
       .filter(Boolean);
+    const hasTrustedTurkishLinearContent = cleanContent.length > 0 && cleanContent.every(looksLikeTurkishText);
 
     const localizedBranches = generated.branches?.map((branch) => {
       const cleanParagraphs = (branch.paragraphs || [])
         .map((paragraph) => paragraph.trim())
         .filter(Boolean);
+      const hasTrustedTurkishBranchContent = cleanParagraphs.length > 0 && cleanParagraphs.every(looksLikeTurkishText);
 
       const localizedChoices = branch.choices?.map((choice) => ({
         ...choice,
-        ...(language === 'tr' && choice.text
-          ? { textTr: choice.text }
+        ...(language === 'tr' && choice.text && looksLikeTurkishText(choice.text)
+          ? { textTr: choice.text.trim() }
           : {}),
-        ...(language === 'tr' && choice.consequence
-          ? { consequenceTr: choice.consequence }
+        ...(language === 'tr' && choice.consequence && looksLikeTurkishText(choice.consequence)
+          ? { consequenceTr: choice.consequence.trim() }
           : {}),
       }));
 
@@ -127,11 +136,11 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
         ...branch,
         paragraphs: cleanParagraphs,
         choices: localizedChoices,
-        ...(language === 'tr' && cleanParagraphs.length > 0
+        ...(language === 'tr' && hasTrustedTurkishBranchContent
           ? { paragraphsTr: cleanParagraphs }
           : {}),
-        ...(language === 'tr' && branch.endingTitle
-          ? { endingTitleTr: branch.endingTitle }
+        ...(language === 'tr' && branch.endingTitle && looksLikeTurkishText(branch.endingTitle)
+          ? { endingTitleTr: branch.endingTitle.trim() }
           : {}),
       };
     });
@@ -151,7 +160,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       moral: generated.moral,
       ...(language === 'tr' ? { moralTr: generated.moral } : {}),
       content: cleanContent,
-      ...(language === 'tr' && cleanContent.length > 0 ? { contentTr: cleanContent } : {}),
+      ...(language === 'tr' && hasTrustedTurkishLinearContent ? { contentTr: cleanContent } : {}),
       isInteractive: generated.isInteractive,
       branches: localizedBranches,
       startBranchId: generated.startBranchId
