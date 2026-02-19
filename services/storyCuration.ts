@@ -15,6 +15,32 @@ interface RankedStory {
 const NIGHT_THEMES = new Set(['calm', 'sleep', 'bedtime', 'dreams']);
 const DAY_ADVENTURE_THEMES = new Set(['adventure', 'magic', 'mystery', 'wonder', 'space']);
 
+const THEME_STORY_SEEDS: Record<string, string[]> = {
+  adventure: ['a curious path', 'a brave little plan', 'a joyful discovery'],
+  friendship: ['a warm hello', 'a shared promise', 'a kind surprise'],
+  magic: ['a sparkling clue', 'a gentle spell', 'a wonder-filled moment'],
+  nature: ['a whispering forest', 'a glowing meadow', 'a peaceful breeze'],
+  calm: ['a moonlit room', 'a quiet breath', 'a cozy pause'],
+  courage: ['a tiny fear', 'a bold step', 'a proud smile'],
+  wisdom: ['a thoughtful question', 'a patient answer', 'a gentle lesson'],
+  mystery: ['a hidden sign', 'a careful clue', 'a clever answer'],
+  family: ['a loving hug', 'a safe home', 'a shared laugh'],
+  wonder: ['a twinkling sky', 'a bright idea', 'a beautiful ending'],
+};
+
+const THEME_MORAL_FALLBACKS: Record<string, string> = {
+  adventure: 'Every new step becomes easier when taken with courage and care.',
+  friendship: 'Kind words and shared moments make friendships stronger.',
+  magic: 'The brightest magic comes from kindness, curiosity, and imagination.',
+  nature: 'When we listen to nature, we discover calm and wonder together.',
+  calm: 'Slow breaths and gentle thoughts help us feel safe and peaceful.',
+  courage: 'Bravery means moving forward with a kind heart, even when nervous.',
+  wisdom: 'Asking questions and listening closely leads to true wisdom.',
+  mystery: 'Patience and attention reveal answers hidden in plain sight.',
+  family: 'Love grows stronger when families care for one another every day.',
+  wonder: 'Small moments can feel magical when we notice them with gratitude.',
+};
+
 export function normalizeStoryTheme(theme: string | undefined): string {
   return (theme || '').trim().toLowerCase();
 }
@@ -32,16 +58,68 @@ export function hasPlayableStoryData(story: Story): boolean {
   return hasLinear || hasInteractive;
 }
 
+const buildFallbackCharacter = (story: Story): string => {
+  if (story.character && story.character.trim().length > 0) return story.character.trim();
+
+  const titleTokens = story.title
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter(Boolean);
+
+  const preferred = titleTokens.find((token) => token[0] === token[0]?.toUpperCase() && token.length > 2);
+  if (preferred) return preferred;
+  return 'Little Explorer';
+};
+
+const buildFallbackContent = (story: Story): string[] => {
+  const theme = normalizeStoryTheme(story.theme) || 'adventure';
+  const seeds = THEME_STORY_SEEDS[theme] || THEME_STORY_SEEDS.adventure;
+  const character = buildFallbackCharacter(story);
+  const title = story.title;
+
+  return [
+    `One calm evening, ${character} stepped into the world of "${title}" with bright and curious eyes.`,
+    `The path ahead hinted at ${seeds[0]}, and ${character} chose to move forward with a gentle smile.`,
+    `Along the way, a small challenge appeared, but ${character} stayed patient and listened carefully.`,
+    `${character} discovered ${seeds[1]}, and everything started to make a little more sense.`,
+    `With each step, the journey opened into ${seeds[2]}, turning worry into excitement.`,
+    `Soon, friends and helpers gathered around, reminding ${character} that no one has to walk alone.`,
+    `When the adventure settled down, ${character} looked back proudly at how far they had come.`,
+    `At bedtime, the story closed softly, and ${character} carried that warm feeling into sweet dreams.`,
+  ];
+};
+
+const ensurePlayableStory = (story: Story): Story => {
+  if (hasPlayableStoryData(story)) return story;
+
+  const theme = normalizeStoryTheme(story.theme);
+  return {
+    ...story,
+    character: buildFallbackCharacter(story),
+    ageRange: story.ageRange || '4-7',
+    moral: story.moral || THEME_MORAL_FALLBACKS[theme] || THEME_MORAL_FALLBACKS.adventure,
+    content: buildFallbackContent(story),
+  };
+};
+
 export function buildStoryPool(...storyLists: Story[][]): Story[] {
   const byId = new Map<string, Story>();
   for (const list of storyLists) {
     for (const story of list) {
-      if (!byId.has(story.id)) {
+      const existing = byId.get(story.id);
+      if (!existing) {
+        byId.set(story.id, story);
+        continue;
+      }
+
+      if (!hasPlayableStoryData(existing) && hasPlayableStoryData(story)) {
         byId.set(story.id, story);
       }
     }
   }
-  return Array.from(byId.values());
+
+  return Array.from(byId.values()).map(ensurePlayableStory);
 }
 
 function toSeededNumber(input: string): number {
