@@ -1,0 +1,45 @@
+# Canva Scene Visual Workflow
+
+Bu dokuman, bir hikayede tek kapak yerine sahne ilerledikce farkli gorseller uretmek icin izlenen akisi tanimlar.
+
+## Nasil calisiyor
+
+- Okuyucu ekrani artik `services/storySceneVisuals.ts` uzerinden sahne gorseli seciyor.
+- Secim parametreleri:
+  - `story.id`
+  - aktif branch (`branchId`)
+  - paragraf indeksi (`paragraphIndex`)
+  - kullanicinin secim derinligi (`choiceDepth`)
+  - sahne fazi (`opening/journey/choice/climax/resolution`)
+- Her temanin kendi gorsel havuzu var. Bu sayede:
+  - butunluk korunuyor
+  - ayni hikayede tekrar eden gorsel oranı dusuyor
+
+## Canva icin prompt uretilmesi
+
+`resolveStorySceneVisual(...)` sonucu icinde `canvaPrompt` doner.
+
+Bu prompt:
+- tema
+- karakter
+- sahne fazi
+- branch ipucu
+- varyant numarasi
+- stil kilidi (fotogercekcilik yok, logo/yazi yok, bedtime ton)
+
+bilgilerini icerir.
+
+Ek olarak `buildCanvaStoryboardScenes(story, language, totalScenes)` fonksiyonu ile tek hikaye icin 4-16 arasi sahne prompt listesi alabilirsiniz.
+
+## Onerilen Canva uretim standardi
+
+- Oran: `3:4` (dikey)
+- Stil: cocuk kitabi, painterly, yumusak gece paleti
+- Her hikaye icin en az 8 sahne varyanti
+- Ayni hikaye icinde renk sicakligi benzer tutulur
+- Metin ve watermark kapatilir
+
+## Sonraki adim (opsiyonel)
+
+- `buildCanvaStoryboardScenes` ciktilarini JSON olarak export eden bir admin komutu eklenebilir.
+- Uretilen Canva gorselleri `public/images/story-scenes/<story-id>/` altina alinip story bazli kalici esleme yapilabilir.

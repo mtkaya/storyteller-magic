@@ -9,6 +9,7 @@ import { soundEffects } from '../services/soundEffects';
 import { getStoryCoverUrl } from '../services/illustrationCovers';
 import { translateSegmentsToTurkish } from '../services/storyTranslation';
 import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/storyLocalization';
+import { resolveStorySceneVisual } from '../services/storySceneVisuals';
 
 interface ReaderProps {
   story: Story | null;
@@ -751,6 +752,29 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     translatedBranchParagraphs
   ]);
   const hasContent = content.length > 0;
+  const sceneVisual = React.useMemo(
+    () =>
+      resolveStorySceneVisual({
+        story: activeStory,
+        language,
+        paragraphIndex: currentParagraph,
+        paragraphCount: content.length,
+        branchId: currentBranch?.id || currentBranchId,
+        choiceDepth: storyPath.length,
+        endingType: currentBranch?.endingType,
+        fallbackImageUrl: getStoryCoverUrl(activeStory),
+      }),
+    [
+      activeStory,
+      language,
+      currentParagraph,
+      content.length,
+      currentBranch?.id,
+      currentBranch?.endingType,
+      currentBranchId,
+      storyPath.length,
+    ]
+  );
 
   const getLocalizedEndingTitle = (branch?: StoryBranch | null): string => {
     if (!branch) return language === 'tr' ? 'Son' : 'The End';
@@ -1239,8 +1263,18 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       {/* Hero Image */}
       <div className="px-4 py-2">
         <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-2xl relative">
-          <img src={getStoryCoverUrl(activeStory)} alt={localizedStoryTitle} className="w-full h-full object-cover" />
+          <img
+            key={sceneVisual.sceneKey}
+            src={sceneVisual.imageUrl}
+            alt={localizedStoryTitle}
+            className="w-full h-full object-cover transition-opacity duration-500"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-transparent"></div>
+
+          <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/35 px-3 py-1.5 text-[11px] text-white/90 backdrop-blur-md">
+            <span className="material-symbols-outlined text-[14px] text-accent-peach">auto_awesome</span>
+            <span>{language === 'tr' ? 'Sahne' : 'Scene'} {Math.max(1, currentParagraph + 1)} • {sceneVisual.phaseLabel}</span>
+          </div>
 
           {/* Story Meta Overlay */}
           <div className="absolute bottom-4 left-4 right-4">
