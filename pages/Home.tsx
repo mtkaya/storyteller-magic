@@ -17,7 +17,7 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, onMusicClick, onGoalsClick }) => {
   const { language, t } = useLanguage();
-  const { activeProfile, stats, favorites, isFavorite, addFavorite, removeFavorite, customStories } = useAppState();
+  const { activeProfile, stats, favorites, isFavorite, addFavorite, removeFavorite, customStories, seenStoryIds } = useAppState();
   const currentHour = new Date().getHours();
   const localizedCustomStories = React.useMemo(
     () => filterStoriesForLanguage(customStories, language),
@@ -35,8 +35,9 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
         favorites,
         themeCounts: stats.themeCounts,
         hour: currentHour,
+        seenStoryIds,
       }),
-    [storyPool, favorites, stats.themeCounts, currentHour]
+    [storyPool, favorites, stats.themeCounts, currentHour, seenStoryIds]
   );
 
   const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);

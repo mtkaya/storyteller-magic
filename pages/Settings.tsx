@@ -11,7 +11,7 @@ interface SettingsProps {
 
 const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport }) => {
     const { language, setLanguage, t } = useLanguage();
-    const { settings, updateSettings } = useAppState();
+    const { settings, updateSettings, planRule, remainingGeneratedStories } = useAppState();
     const [sleepTimer, setSleepTimer] = useState(30); // seconds
     const [notifications, setNotifications] = useState(false);
     const [readingSpeed, setReadingSpeed] = useState(0.9);
@@ -43,10 +43,12 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                 >
                     <div>
                         <p className="font-bold text-lg">
-                            {language === 'tr' ? 'Pro\'ya Yükselt' : 'Upgrade to Pro'}
+                            {language === 'tr' ? 'Üyelik Planı' : 'Membership Plan'}
                         </p>
                         <p className="text-white/80 text-xs mt-1">
-                            {language === 'tr' ? 'Sınırsız hikaye ve özelliklerin kilidini aç' : 'Unlock unlimited stories & features'}
+                            {language === 'tr'
+                                ? `${planRule.nameTr} • Bugün ${remainingGeneratedStories === Infinity ? 'sınırsız' : remainingGeneratedStories} oluşturma hakkı`
+                                : `${planRule.name} • ${remainingGeneratedStories === Infinity ? 'Unlimited' : remainingGeneratedStories} generations left today`}
                         </p>
                     </div>
                     <div className="size-8 bg-white/20 rounded-full flex items-center justify-center">

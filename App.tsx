@@ -41,7 +41,7 @@ const AppContent: React.FC = () => {
   const [showCloudIntro, setShowCloudIntro] = useState(true);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
 
-  const { isLimitReached, settings, updateSettings, saveCustomStory, customStories } = useAppState();
+  const { isLimitReached, settings, updateSettings, saveCustomStory, customStories, markStorySeen } = useAppState();
   const { language } = useLanguage();
   const localizedCustomStories = React.useMemo(
     () => filterStoriesForLanguage(customStories, language),
@@ -239,6 +239,7 @@ const AppContent: React.FC = () => {
     }
     const resolvedStory = resolvePlayableStorySelection(story);
     warmTurkishStoryContent(resolvedStory);
+    markStorySeen(resolvedStory.id);
     setSelectedStory(resolvedStory);
     setCurrentScreen('reader');
   };
@@ -254,6 +255,7 @@ const AppContent: React.FC = () => {
   const handleStoryComplete = (story?: Story) => {
     if (story) {
       saveCustomStory(story);
+      markStorySeen(story.id);
       setSelectedStory(story);
     }
     setCurrentScreen('reader');

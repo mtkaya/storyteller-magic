@@ -9,7 +9,7 @@ interface ProfileSelectorProps {
 const AVATARS = ['🧒', '👧', '👦', '🧒🏻', '👧🏻', '👦🏻', '🧒🏽', '👧🏽', '👦🏽', '🧒🏿', '👧🏿', '👦🏿', '🦸', '🦸‍♀️', '🧚', '🧜‍♀️', '🦄', '🐱', '🐶', '🐰'];
 
 const ProfileSelector: React.FC<ProfileSelectorProps> = ({ onClose }) => {
-    const { profiles, activeProfile, setActiveProfile, addProfile, deleteProfile } = useAppState();
+    const { profiles, activeProfile, setActiveProfile, addProfile, deleteProfile, planRule } = useAppState();
     const { language } = useLanguage();
     const [isAdding, setIsAdding] = useState(false);
     const [newName, setNewName] = useState('');
@@ -87,11 +87,19 @@ const ProfileSelector: React.FC<ProfileSelectorProps> = ({ onClose }) => {
                         {/* Add Profile Button */}
                         <button
                             onClick={() => setIsAdding(true)}
+                            disabled={profiles.length >= planRule.maxProfiles}
                             className="w-full py-4 rounded-xl border-2 border-dashed border-white/20 text-white/60 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2"
                         >
                             <span className="material-symbols-outlined">add</span>
-                            {language === 'tr' ? 'Yeni Profil Ekle' : 'Add New Profile'}
+                            {profiles.length >= planRule.maxProfiles
+                                ? (language === 'tr' ? 'Profil limiti doldu' : 'Profile limit reached')
+                                : (language === 'tr' ? 'Yeni Profil Ekle' : 'Add New Profile')}
                         </button>
+                        <p className="text-white/40 text-xs mt-3 text-center">
+                            {language === 'tr'
+                                ? `${planRule.nameTr} planı: en fazla ${planRule.maxProfiles} profil`
+                                : `${planRule.name} plan: up to ${planRule.maxProfiles} profiles`}
+                        </p>
                     </>
                 ) : (
                     /* Add Profile Form */

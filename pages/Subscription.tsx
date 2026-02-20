@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { SubscriptionTier, useAppState } from '../context/AppStateContext';
 
 interface SubscriptionProps {
   onBack: () => void;
 }
 
 interface PremiumPlan {
-  id: string;
+  id: SubscriptionTier;
   name: string;
   oldPrice?: string;
   price: string;
@@ -22,71 +23,68 @@ interface PremiumPlan {
 
 const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
   const { language } = useLanguage();
+  const { subscription, setSubscriptionTier } = useAppState();
   const isTr = language === 'tr';
-  const [selectedPlan, setSelectedPlan] = useState<string>('weekly');
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionTier>(subscription.tier);
+  const [savedNotice, setSavedNotice] = useState<string | null>(null);
 
   const plans: PremiumPlan[] = isTr
     ? [
       {
-        id: 'weekly',
-        name: 'Masal Başlangıç',
-        oldPrice: '₺149,99',
-        price: '₺99,99',
-        period: '/Hafta',
-        savingsBadge: 'Yeni başlayanlar için haftalık paket',
-        description: 'Düzenli okumaya giriş için ideal plan. Her hafta yeni masallar üretip pro araçları dene.',
-        cta: 'Paketi Etkinleştir',
+        id: 'free',
+        name: 'Serbest',
+        price: '₺0',
+        period: '/Ay',
+        savingsBadge: 'Temel kullanım',
+        description: 'Maliyet odaklı başlangıç paketi. Günlük sınırlı hikaye üretimi ile çekirdek deneyim.',
+        cta: 'Serbest Planı Kullan',
         features: [
-          'Haftalık 10 yapay zeka masalı oluştur',
-          'Tüm tema türleri açılır',
-          'Gelişmiş görsel stil seçenekleri',
-          'Her sahne için özgün görseller',
-          'Masal başına 25 sahne limiti',
-          'Toplulukta paylaşım erişimi',
-          'Reklamsız okuma deneyimi'
+          'Günlük 3 yeni hikaye üretimi',
+          '1 çocuk profili',
+          'Yerel hikaye havuzu',
+          'Temel ses/müzik desteği',
+          'İnteraktif hikayelerde sınırlı derinlik'
         ],
         cardGradient: 'from-[#27145d] to-[#1a0f43]',
         buttonGradient: 'from-[#3f33ff] to-[#7e35ff]'
       },
       {
-        id: 'monthly',
-        name: 'Hayal Atölyesi',
+        id: 'pro',
+        name: 'Pro',
         oldPrice: '₺499,99',
         price: '₺299,99',
         period: '/Ay',
-        savingsBadge: 'Aylık üretimde en dengeli seçenek',
-        description: 'Her gün masal üreten aileler için önerilen plan. Üretim, takip ve kişiselleştirme bir arada.',
+        savingsBadge: 'En popüler plan',
+        description: 'Daha yoğun kullanım için. Tekrarı azaltılmış geniş seçki ve yüksek günlük üretim kotası.',
         cta: "Pro'yu Aç",
         badge: 'Önerilen Plan',
         features: [
-          'Aylık 45 yapay zeka masalı',
-          'Tüm interaktif hikaye yolları',
-          'Ses ve müzik paketlerinin tamamı',
-          'Ebeveyn içgörüleri ve okuma analizi',
-          'Öncelikli üretim kuyruğu',
-          'Yeni özelliklere erken erişim',
-          'Kesintisiz reklamsız kullanım'
+          'Günlük 20 yeni hikaye üretimi',
+          '2 çocuk profili',
+          'Gelişmiş interaktif dallanma',
+          'Öncelikli hikaye havuzu rotasyonu',
+          'Tam ses/müzik paketleri',
+          'Gelişmiş ebeveyn analizi'
         ],
         cardGradient: 'from-[#201455] to-[#160b3e]',
         buttonGradient: 'from-[#5a39ff] to-[#9a40ff]'
       },
       {
-        id: 'yearly',
+        id: 'family',
         name: 'Aile Kulübü',
         oldPrice: '₺3.999,99',
         price: '₺2.499,99',
         period: '/Yıl',
-        savingsBadge: 'En yüksek tasarruflu yıllık plan',
-        description: 'Uzun vadeli kullanım için tam paket. Çoklu profil, derin takip ve tüm pro içerikler tek planda.',
+        savingsBadge: 'Aile paketi',
+        description: 'Çoklu profil ve yüksek kapasite için. Her çocuk için ayrı tekrar engelleme ve izleme.',
         cta: 'Aile Planını Aç',
         features: [
-          'Yıllık 600 yapay zeka masalı',
+          'Günlük 60 yeni hikaye üretimi',
           '5 ayrı çocuk profili',
-          'Harita ve rozet ilerleme görünümü',
-          'Sınırsız kapak/sahne stili',
-          'Tüm pro seslendirme seçenekleri',
-          'Öncelikli teknik destek',
-          'Yenileme öncesi bilgilendirme'
+          'Profil bazlı tekrar engelleme',
+          'Tam harita + rozet + raporlama',
+          'Tüm Pro özellikleri',
+          'Öncelikli destek'
         ],
         cardGradient: 'from-[#1d1450] to-[#130a36]',
         buttonGradient: 'from-[#6a3cff] to-[#b14bff]'
@@ -94,65 +92,60 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
     ]
     : [
       {
-        id: 'weekly',
-        name: 'Story Start',
-        oldPrice: '$4.99',
-        price: '$2.99',
-        period: '/Week',
-        savingsBadge: 'Starter weekly pack',
-        description: 'A light plan for consistent bedtime reading and trying out pro tools.',
-        cta: 'Activate Plan',
+        id: 'free',
+        name: 'Free',
+        price: '$0',
+        period: '/Month',
+        savingsBadge: 'Starter access',
+        description: 'Cost-friendly starter tier with limited daily generation and local story pool.',
+        cta: 'Use Free Plan',
         features: [
-          '10 AI stories each week',
-          'Access to all story themes',
-          'Advanced illustration styles',
-          'Unique visuals per scene',
-          'Up to 25 scenes per story',
-          'Community publishing access',
-          'Ad-free reading'
+          '3 new stories per day',
+          '1 child profile',
+          'Local story-vault access',
+          'Basic audio/music support',
+          'Limited interactive depth'
         ],
         cardGradient: 'from-[#27145d] to-[#1a0f43]',
         buttonGradient: 'from-[#3f33ff] to-[#7e35ff]'
       },
       {
-        id: 'monthly',
-        name: 'Dream Studio',
+        id: 'pro',
+        name: 'Pro',
         oldPrice: '$19.99',
         price: '$11.99',
         period: '/Month',
-        savingsBadge: 'Balanced monthly value',
-        description: 'Recommended for daily creators: generation, personalization, and family tracking in one plan.',
-        cta: 'Unlock Pro',
+        savingsBadge: 'Most popular',
+        description: 'For heavier use with larger variety, reduced repetition, and richer branching.',
+        cta: 'Activate Pro',
         badge: 'Recommended',
         features: [
-          '45 AI stories monthly',
-          'Full interactive story paths',
-          'Complete voice and music packs',
-          'Parent insights and analytics',
-          'Priority generation queue',
-          'Early access to new features',
-          'No ads or interruptions'
+          '20 new stories per day',
+          '2 child profiles',
+          'Advanced interactive branching',
+          'Priority vault rotation',
+          'Full audio/music packs',
+          'Parent insights and analytics'
         ],
         cardGradient: 'from-[#201455] to-[#160b3e]',
         buttonGradient: 'from-[#5a39ff] to-[#9a40ff]'
       },
       {
-        id: 'yearly',
+        id: 'family',
         name: 'Family Circle',
         oldPrice: '$119.99',
         price: '$79.99',
         period: '/Year',
-        savingsBadge: 'Best yearly savings',
-        description: 'Full long-term package for families with multi-profile access and complete pro content.',
+        savingsBadge: 'Family tier',
+        description: 'High-capacity tier with per-profile no-repeat flow and complete tracking.',
         cta: 'Unlock Family',
         features: [
-          '600 AI stories yearly',
-          'Create up to 5 child profiles',
-          'Detailed map and badge tracking',
-          'Unlimited cover and scene styles',
-          'All pro narration voices',
-          'Priority support',
-          'Renewal reminders'
+          '60 new stories per day',
+          'Up to 5 child profiles',
+          'Per-profile no-repeat logic',
+          'Complete map, badges, and reports',
+          'All Pro features',
+          'Priority support'
         ],
         cardGradient: 'from-[#1d1450] to-[#130a36]',
         buttonGradient: 'from-[#6a3cff] to-[#b14bff]'
@@ -246,10 +239,18 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
             </p>
 
             <button
+              onClick={() => {
+                setSubscriptionTier(activePlan.id);
+                setSavedNotice(isTr ? 'Plan kaydedildi' : 'Plan saved');
+                setTimeout(() => setSavedNotice(null), 1800);
+              }}
               className={`mt-4 w-full rounded-full bg-gradient-to-r py-2.5 text-[15px] font-semibold text-white shadow-[0_8px_16px_rgba(92,64,255,0.22)] active:scale-[0.98] ${activePlan.buttonGradient}`}
             >
               {activePlan.cta}
             </button>
+            {savedNotice && (
+              <p className="mt-2 text-center text-xs text-green-200">{savedNotice}</p>
+            )}
 
             <ul className="mt-4.5 grid grid-cols-1 gap-2 text-[13px] text-white/90">
               {activePlan.features.map((feature) => (

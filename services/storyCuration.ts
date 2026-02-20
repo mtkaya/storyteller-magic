@@ -6,6 +6,7 @@ interface StoryRankOptions {
   favorites?: string[];
   themeCounts?: Record<string, number>;
   hour?: number;
+  seenStoryIds?: string[];
 }
 
 interface RankedStory {
@@ -223,6 +224,7 @@ function isNightHour(hour: number): boolean {
 function scoreStory(story: Story, options: StoryRankOptions): number {
   const favorites = options.favorites || [];
   const themeCounts = options.themeCounts || {};
+  const seenStoryIds = new Set(options.seenStoryIds || []);
   const hour = options.hour ?? new Date().getHours();
   const theme = normalizeStoryTheme(story.theme);
   const duration = parseDurationMinutes(story.duration);
@@ -233,6 +235,11 @@ function scoreStory(story: Story, options: StoryRankOptions): number {
   if (hasPlayableStoryData(story)) score += 45;
   if (favorites.includes(story.id)) score += 40;
   if (story.isInteractive) score += 8;
+  if (seenStoryIds.has(story.id)) {
+    score -= 55;
+  } else {
+    score += 18;
+  }
 
   score += Math.min(themeReadCount, 8) * 4;
 

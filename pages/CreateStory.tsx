@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CreateStep, Story } from '../types';
 import { IMAGES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
+import { useAppState } from '../context/AppStateContext';
 import { generateStory, getStoryGenerationMode, getFallbackStory, StoryPrompt, GeneratedStory } from '../services/storyGenerator';
 import { getIllustratedImageUrl } from '../services/illustrationCovers';
 import { buildIllustrationCoverPrompt } from '../services/coverPrompt';
@@ -13,6 +14,14 @@ interface CreateStoryProps {
 
 const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
   const { language, t } = useLanguage();
+  const {
+    activeProfile,
+    seenStoryIds,
+    recordStoryGenerated,
+    remainingGeneratedStories,
+    isGenerationLimitReached,
+    planRule,
+  } = useAppState();
   const [step, setStep] = useState<CreateStep>(CreateStep.THEME);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
@@ -61,6 +70,15 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
 
   // Generate story with AI
   const handleGenerateStory = async () => {
+    if (isGenerationLimitReached) {
+      setError(
+        language === 'tr'
+          ? `Günlük oluşturma kotan doldu (${planRule.nameTr}). Yarın yenilenir veya planını yükseltebilirsin.`
+          : `Daily generation quota reached (${planRule.name}). It refreshes tomorrow or you can upgrade your plan.`
+      );
+      return;
+    }
+
     setStep(CreateStep.GENERATING);
     setLoadingProgress(0);
     setError(null);
@@ -79,11 +97,15 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       duration: selectedDuration,
       childName: childName || undefined,
       language: language,
-      isInteractive: isInteractive
+      isInteractive: isInteractive,
+      profileId: activeProfile?.id,
+      seenStoryIds,
     };
 
     try {
       const story = await generateStory(storyOptions);
+      const generatedStoryKey = `generated:${story.theme}:${story.title}`;
+      recordStoryGenerated(generatedStoryKey);
       setGeneratedStory(story);
       if (generationMode === 'local') {
         setError(
@@ -117,6 +139,8 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       );
       // Use fallback story
       const fallbackStory = getFallbackStory(storyOptions);
+      const fallbackStoryKey = `generated:${fallbackStory.theme}:${fallbackStory.title}`;
+      recordStoryGenerated(fallbackStoryKey);
       setGeneratedStory(fallbackStory);
       setLoadingProgress(100);
       setTimeout(() => setStep(CreateStep.RESULT), 500);
@@ -481,7 +505,11 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-bg-dark border-t border-white/5 max-w-[430px] mx-auto">
         <button
           onClick={handleGenerateStory}
-          className="w-full py-4 rounded-xl bg-accent-peach text-bg-dark text-lg font-extrabold flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,176,142,0.4)] active:scale-95 transition-transform"
+          disabled={isGenerationLimitReached}
+          className={`w-full py-4 rounded-xl text-lg font-extrabold flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,176,142,0.4)] transition-transform ${isGenerationLimitReached
+              ? 'bg-white/15 text-white/40 cursor-not-allowed'
+              : 'bg-accent-peach text-bg-dark active:scale-95'
+            }`}
         >
           <span className="material-symbols-outlined">auto_fix_high</span>
           {isLocalMode
@@ -496,6 +524,15 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             : (language === 'tr'
               ? 'Gemini AI ile sihirli hikayeni yazıyoruz...'
               : 'Using Gemini AI to weave your magical tale...')}
+        </p>
+        <p className="text-center text-white/40 text-[11px] mt-2">
+          {remainingGeneratedStories === Infinity
+            ? (language === 'tr'
+              ? `${planRule.nameTr} planı: sınırsız oluşturma`
+              : `${planRule.name} plan: unlimited generation`)
+            : (language === 'tr'
+              ? `${planRule.nameTr} planı: bugün ${remainingGeneratedStories} oluşturma hakkı kaldı`
+              : `${planRule.name} plan: ${remainingGeneratedStories} generations left today`)}
         </p>
       </div>
     </div>

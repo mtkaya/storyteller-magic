@@ -21,7 +21,7 @@ interface LibraryProps {
 
 const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
   const { language, t } = useLanguage();
-  const { isFavorite, addFavorite, removeFavorite, favorites, stats, customStories } = useAppState();
+  const { isFavorite, addFavorite, removeFavorite, favorites, stats, customStories, seenStoryIds } = useAppState();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const localizedCustomStories = useMemo(
@@ -40,8 +40,9 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
         favorites,
         themeCounts: stats.themeCounts,
         hour: new Date().getHours(),
+        seenStoryIds,
       }),
-    [storyPool, favorites, stats.themeCounts]
+    [storyPool, favorites, stats.themeCounts, seenStoryIds]
   );
 
   const themeLabelMap: Record<string, string> = useMemo(

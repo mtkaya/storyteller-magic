@@ -14,7 +14,7 @@ interface StoryMapProps {
 
 const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
     const { language } = useLanguage();
-    const { stats, favorites, isFavorite, customStories } = useAppState();
+    const { stats, favorites, isFavorite, customStories, seenStoryIds } = useAppState();
     const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
     const localizedCustomStories = React.useMemo(
         () => filterStoriesForLanguage(customStories, language),
@@ -64,8 +64,8 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
     // Calculate completion for each theme
     const getThemeProgress = (themeStories: Story[]): number => {
         if (themeStories.length === 0) return 0;
-        // Simplified: assume all stories are read based on total count (in real app, track per-story)
-        return Math.min(100, (stats.totalStoriesRead / themeStories.length) * 20);
+        const seenCount = themeStories.filter((story) => seenStoryIds.includes(story.id)).length;
+        return Math.min(100, (seenCount / themeStories.length) * 100);
     };
 
     return (
@@ -102,17 +102,17 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                             {language === 'tr' ? 'Keşif İlerlemesi' : 'Exploration Progress'}
                         </span>
                         <span className="text-primary font-bold">
-                            {Math.round((stats.totalStoriesRead / Math.max(playableStories.length, 1)) * 100)}%
+                            {Math.round((seenStoryIds.length / Math.max(playableStories.length, 1)) * 100)}%
                         </span>
                     </div>
                     <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                         <div
                             className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all"
-                            style={{ width: `${Math.min(100, (stats.totalStoriesRead / Math.max(playableStories.length, 1)) * 100)}%` }}
+                            style={{ width: `${Math.min(100, (seenStoryIds.length / Math.max(playableStories.length, 1)) * 100)}%` }}
                         />
                     </div>
                     <p className="text-white/50 text-xs mt-2">
-                        {stats.totalStoriesRead}/{playableStories.length} {language === 'tr' ? 'hikaye keşfedildi' : 'stories discovered'}
+                        {Math.min(seenStoryIds.length, playableStories.length)}/{playableStories.length} {language === 'tr' ? 'hikaye keşfedildi' : 'stories discovered'}
                     </p>
                 </div>
 

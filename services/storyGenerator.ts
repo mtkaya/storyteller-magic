@@ -23,6 +23,8 @@ export interface StoryPrompt {
     childName?: string;
     language: 'en' | 'tr';
     isInteractive?: boolean;
+    profileId?: string;
+    seenStoryIds?: string[];
 }
 
 export interface GeneratedStory {
@@ -659,7 +661,13 @@ function resolveOptions(input: StoryPrompt | StoryPrompt['language']): StoryProm
 
     return {
         ...input,
-        childName: input.childName?.trim() || undefined
+        childName: input.childName?.trim() || undefined,
+        profileId: input.profileId?.trim() || undefined,
+        seenStoryIds: Array.isArray(input.seenStoryIds)
+            ? input.seenStoryIds
+                .filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
+                .slice(-8000)
+            : undefined,
     };
 }
 
@@ -1117,18 +1125,22 @@ function scoreLocalTemplate(story: Story, options: StoryPrompt): number {
 
 function pickLocalTemplateBundle(options: StoryPrompt): LocalTemplateBundle | null {
     const wantsInteractive = Boolean(options.isInteractive);
+    const seenStoryIds = new Set(options.seenStoryIds || []);
     const baseCandidates = LOCAL_STORY_POOL.filter((story) =>
         wantsInteractive ? hasInteractiveTemplate(story) : hasLinearTemplate(story)
     );
     if (baseCandidates.length === 0) return null;
 
+    const unseenCandidates = baseCandidates.filter((story) => !seenStoryIds.has(story.id));
+    const candidatePool = unseenCandidates.length > 0 ? unseenCandidates : baseCandidates;
+
     const languagePreferred = options.language === 'tr'
-        ? baseCandidates.filter((story) =>
+        ? candidatePool.filter((story) =>
             wantsInteractive ? hasTurkishInteractiveTemplate(story) : hasTurkishLinearTemplate(story)
         )
-        : baseCandidates;
+        : candidatePool;
 
-    const candidates = languagePreferred.length > 0 ? languagePreferred : baseCandidates;
+    const candidates = languagePreferred.length > 0 ? languagePreferred : candidatePool;
 
     const ranked = candidates
         .map((story) => ({
@@ -1143,7 +1155,8 @@ function pickLocalTemplateBundle(options: StoryPrompt): LocalTemplateBundle | nu
     const shortlist = ranked.slice(0, Math.min(12, ranked.length)).map((item) => item.story);
     if (shortlist.length === 0) return null;
 
-    const bucketKey = `${options.language}|${wantsInteractive ? 'interactive' : 'linear'}|${normalizeStoryTheme(options.theme) || 'general'}|${options.duration}`;
+    const profileScope = options.profileId || 'global_profile';
+    const bucketKey = `${profileScope}|${options.language}|${wantsInteractive ? 'interactive' : 'linear'}|${normalizeStoryTheme(options.theme) || 'general'}|${options.duration}`;
     const pickResult = pickFromRotation(
         bucketKey,
         shortlist.map((story) => story.id),

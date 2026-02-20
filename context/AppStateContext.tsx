@@ -35,6 +35,11 @@ export interface ChildProfile {
     createdAt: string;
     stats: ReadingStats;
     favorites: string[];
+    seenStoryIds: string[];
+    generationUsage: {
+        date: string; // YYYY-MM-DD
+        count: number;
+    };
     preferences: {
         themes: string[];
         excludedThemes: string[];
@@ -42,6 +47,45 @@ export interface ChildProfile {
         backgroundMusic: string | null;
     };
 }
+
+export type SubscriptionTier = 'free' | 'pro' | 'family';
+
+export interface SubscriptionState {
+    tier: SubscriptionTier;
+    updatedAt: string;
+}
+
+interface PlanRule {
+    id: SubscriptionTier;
+    name: string;
+    nameTr: string;
+    dailyGeneratedStories: number;
+    maxProfiles: number;
+}
+
+const PLAN_RULES: Record<SubscriptionTier, PlanRule> = {
+    free: {
+        id: 'free',
+        name: 'Free',
+        nameTr: 'Serbest',
+        dailyGeneratedStories: 3,
+        maxProfiles: 1,
+    },
+    pro: {
+        id: 'pro',
+        name: 'Pro',
+        nameTr: 'Pro',
+        dailyGeneratedStories: 20,
+        maxProfiles: 2,
+    },
+    family: {
+        id: 'family',
+        name: 'Family',
+        nameTr: 'Aile',
+        dailyGeneratedStories: 60,
+        maxProfiles: 5,
+    },
+};
 
 // Default stats
 const defaultStats: ReadingStats = {
@@ -99,6 +143,11 @@ const createDefaultProfile = (name: string = 'Little Reader', age: number = 5): 
     createdAt: new Date().toISOString(),
     stats: { ...defaultStats },
     favorites: [],
+    seenStoryIds: [],
+    generationUsage: {
+        date: new Date().toISOString().split('T')[0],
+        count: 0,
+    },
     preferences: {
         themes: [],
         excludedThemes: [],
@@ -155,8 +204,63 @@ const normalizeStoredStory = (story: Story): Story => ({
     sourceLanguage: detectStorySourceLanguage(story),
 });
 
+const todayKey = (): string => new Date().toISOString().split('T')[0];
+
+const normalizeProfile = (profile: ChildProfile | Record<string, unknown>): ChildProfile => {
+    const fallback = createDefaultProfile();
+    const candidate = profile as Partial<ChildProfile>;
+    const safeId = typeof candidate.id === 'string' && candidate.id.trim().length > 0
+        ? candidate.id
+        : fallback.id;
+    const safeName = typeof candidate.name === 'string' && candidate.name.trim().length > 0
+        ? candidate.name
+        : fallback.name;
+    const safeAvatar = typeof candidate.avatar === 'string' && candidate.avatar.trim().length > 0
+        ? candidate.avatar
+        : fallback.avatar;
+    const safeAge = typeof candidate.age === 'number' && Number.isFinite(candidate.age)
+        ? Math.min(12, Math.max(2, Math.round(candidate.age)))
+        : fallback.age;
+
+    const incomingSeen = Array.isArray(candidate.seenStoryIds)
+        ? candidate.seenStoryIds.filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
+        : [];
+
+    const incomingUsage = candidate.generationUsage as ChildProfile['generationUsage'] | undefined;
+    const normalizedUsage = incomingUsage && typeof incomingUsage.date === 'string' && typeof incomingUsage.count === 'number'
+        ? { date: incomingUsage.date, count: Math.max(0, Math.round(incomingUsage.count)) }
+        : { date: todayKey(), count: 0 };
+
+    return {
+        ...fallback,
+        ...candidate,
+        id: safeId,
+        name: safeName,
+        avatar: safeAvatar,
+        age: safeAge,
+        stats: {
+            ...defaultStats,
+            ...(candidate.stats || {}),
+        },
+        favorites: Array.isArray(candidate.favorites)
+            ? candidate.favorites.filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
+            : [],
+        seenStoryIds: incomingSeen.slice(-6000),
+        generationUsage: normalizedUsage,
+        preferences: {
+            ...fallback.preferences,
+            ...(candidate.preferences || {}),
+        },
+    };
+};
+
 // Context type
 interface AppStateContextType {
+    // Subscription
+    subscription: SubscriptionState;
+    planRule: PlanRule;
+    setSubscriptionTier: (tier: SubscriptionTier) => void;
+
     // Profiles
     profiles: ChildProfile[];
     activeProfile: ChildProfile | null;
@@ -170,11 +274,19 @@ interface AppStateContextType {
     addFavorite: (storyId: string) => void;
     removeFavorite: (storyId: string) => void;
     isFavorite: (storyId: string) => boolean;
+    seenStoryIds: string[];
+    markStorySeen: (storyId: string) => void;
+    hasSeenStory: (storyId: string) => boolean;
 
     // Custom stories
     customStories: Story[];
     saveCustomStory: (story: Story) => void;
     removeCustomStory: (storyId: string) => void;
+
+    // Story generation quota
+    remainingGeneratedStories: number; // Infinity = unlimited
+    isGenerationLimitReached: boolean;
+    recordStoryGenerated: (storyId?: string) => void;
 
     // Stats
     stats: ReadingStats;
@@ -216,6 +328,7 @@ const STORAGE_KEYS = {
     activeProfileId: 'storyteller_active_profile',
     settings: 'storyteller_settings',
     customStories: 'storyteller_custom_stories',
+    subscription: 'storyteller_subscription',
 };
 
 // Provider
@@ -235,17 +348,45 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     // Load from localStorage
     const [profiles, setProfiles] = useState<ChildProfile[]>(() => {
-        const saved = localStorage.getItem(STORAGE_KEYS.profiles);
-        if (saved) {
-            return JSON.parse(saved);
+        try {
+            const saved = localStorage.getItem(STORAGE_KEYS.profiles);
+            if (!saved) return [createDefaultProfile()];
+
+            const parsed = JSON.parse(saved);
+            if (!Array.isArray(parsed) || parsed.length === 0) return [createDefaultProfile()];
+            const normalized = parsed
+                .filter((profile) => Boolean(profile && typeof profile === 'object'))
+                .map((profile) => normalizeProfile(profile));
+            return normalized.length > 0 ? normalized : [createDefaultProfile()];
+        } catch {
+            return [createDefaultProfile()];
         }
-        // Create default profile
-        return [createDefaultProfile()];
     });
 
     const [activeProfileId, setActiveProfileId] = useState<string>(() => {
         const saved = localStorage.getItem(STORAGE_KEYS.activeProfileId);
         return saved || profiles[0]?.id || '';
+    });
+
+    const [subscription, setSubscription] = useState<SubscriptionState>(() => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEYS.subscription);
+            if (!saved) {
+                return { tier: 'free', updatedAt: new Date().toISOString() };
+            }
+            const parsed = JSON.parse(saved) as Partial<SubscriptionState>;
+            const tier: SubscriptionTier = parsed.tier === 'pro' || parsed.tier === 'family' || parsed.tier === 'free'
+                ? parsed.tier
+                : 'free';
+            return {
+                tier,
+                updatedAt: typeof parsed.updatedAt === 'string' && parsed.updatedAt.trim().length > 0
+                    ? parsed.updatedAt
+                    : new Date().toISOString(),
+            };
+        } catch {
+            return { tier: 'free', updatedAt: new Date().toISOString() };
+        }
     });
 
     const [settings, setSettings] = useState(() => {
@@ -281,6 +422,22 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
     const activeProfile = profiles.find(p => p.id === activeProfileId) || profiles[0] || null;
     const stats = activeProfile?.stats || defaultStats;
     const favorites = activeProfile?.favorites || [];
+    const seenStoryIds = activeProfile?.seenStoryIds || [];
+    const planRule = PLAN_RULES[subscription.tier] || PLAN_RULES.free;
+    const usageDate = activeProfile?.generationUsage?.date || '';
+    const usageCount = usageDate === todayKey()
+        ? Math.max(0, activeProfile?.generationUsage?.count || 0)
+        : 0;
+    const remainingGeneratedStories = planRule.dailyGeneratedStories > 0
+        ? Math.max(0, planRule.dailyGeneratedStories - usageCount)
+        : Infinity;
+    const isGenerationLimitReached = planRule.dailyGeneratedStories > 0 && remainingGeneratedStories <= 0;
+
+    useEffect(() => {
+        if (!profiles.length) return;
+        if (profiles.some((profile) => profile.id === activeProfileId)) return;
+        setActiveProfileId(profiles[0].id);
+    }, [profiles, activeProfileId]);
 
     // Calculate remaining time
     const today = new Date().toISOString().split('T')[0];
@@ -305,6 +462,10 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
     useEffect(() => {
         localStorage.setItem(STORAGE_KEYS.customStories, JSON.stringify(customStories));
     }, [customStories]);
+
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.subscription, JSON.stringify(subscription));
+    }, [subscription]);
 
     // Check and unlock badges
     const checkBadges = (updatedStats: ReadingStats) => {
@@ -359,42 +520,116 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
         setActiveProfileId(profileId);
     };
 
+    const setSubscriptionTier = (tier: SubscriptionTier) => {
+        setSubscription({
+            tier,
+            updatedAt: new Date().toISOString(),
+        });
+    };
+
     const addProfile = (name: string, age: number, avatar: string) => {
-        const newProfile: ChildProfile = {
-            ...createDefaultProfile(name, age),
-            avatar,
-        };
-        setProfiles([...profiles, newProfile]);
+        setProfiles((previous) => {
+            const maxProfiles = PLAN_RULES[subscription.tier]?.maxProfiles || PLAN_RULES.free.maxProfiles;
+            if (previous.length >= maxProfiles) return previous;
+
+            const newProfile: ChildProfile = {
+                ...createDefaultProfile(name, age),
+                avatar,
+            };
+            return [...previous, newProfile];
+        });
     };
 
     const updateProfile = (profileId: string, updates: Partial<ChildProfile>) => {
-        setProfiles(profiles.map(p =>
-            p.id === profileId ? { ...p, ...updates } : p
-        ));
+        setProfiles((previous) =>
+            previous.map((profile) =>
+                profile.id === profileId ? { ...profile, ...updates } : profile
+            )
+        );
     };
 
     const deleteProfile = (profileId: string) => {
-        if (profiles.length <= 1) return; // Keep at least one profile
-        setProfiles(profiles.filter(p => p.id !== profileId));
-        if (activeProfileId === profileId) {
-            setActiveProfileId(profiles[0].id);
+        const nextActiveId = activeProfileId === profileId
+            ? profiles.find((profile) => profile.id !== profileId)?.id || null
+            : null;
+
+        setProfiles((previous) => {
+            if (previous.length <= 1) return previous; // Keep at least one profile
+            const remaining = previous.filter((profile) => profile.id !== profileId);
+            return remaining.length > 0 ? remaining : previous;
+        });
+
+        if (nextActiveId) {
+            setActiveProfileId(nextActiveId);
         }
     };
 
     // Favorites
     const addFavorite = (storyId: string) => {
-        if (!activeProfile) return;
-        const newFavorites = [...favorites, storyId];
-        updateProfile(activeProfile.id, { favorites: newFavorites });
+        if (!activeProfile || !storyId) return;
+        setProfiles((previous) =>
+            previous.map((profile) => {
+                if (profile.id !== activeProfile.id) return profile;
+                if (profile.favorites.includes(storyId)) return profile;
+                return { ...profile, favorites: [...profile.favorites, storyId] };
+            })
+        );
     };
 
     const removeFavorite = (storyId: string) => {
-        if (!activeProfile) return;
-        const newFavorites = favorites.filter(id => id !== storyId);
-        updateProfile(activeProfile.id, { favorites: newFavorites });
+        if (!activeProfile || !storyId) return;
+        setProfiles((previous) =>
+            previous.map((profile) => {
+                if (profile.id !== activeProfile.id) return profile;
+                return { ...profile, favorites: profile.favorites.filter((id) => id !== storyId) };
+            })
+        );
     };
 
     const isFavorite = (storyId: string) => favorites.includes(storyId);
+
+    const markStorySeen = (storyId: string) => {
+        if (!activeProfile || !storyId) return;
+        setProfiles((previous) =>
+            previous.map((profile) => {
+                if (profile.id !== activeProfile.id) return profile;
+                if (profile.seenStoryIds.includes(storyId)) return profile;
+                return { ...profile, seenStoryIds: [...profile.seenStoryIds, storyId].slice(-6000) };
+            })
+        );
+    };
+
+    const hasSeenStory = (storyId: string) => seenStoryIds.includes(storyId);
+
+    const recordStoryGenerated = (storyId?: string) => {
+        if (!activeProfile) return;
+
+        setProfiles((previous) =>
+            previous.map((profile) => {
+                if (profile.id !== activeProfile.id) return profile;
+
+                const limit = planRule.dailyGeneratedStories;
+                const today = todayKey();
+                const prevUsage = profile.generationUsage;
+                const todaysCount = prevUsage.date === today ? prevUsage.count : 0;
+                if (limit > 0 && todaysCount >= limit) return profile;
+
+                const nextUsage = prevUsage.date === today
+                    ? { date: today, count: prevUsage.count + 1 }
+                    : { date: today, count: 1 };
+
+                const nextSeen = storyId && !profile.seenStoryIds.includes(storyId)
+                    ? [...profile.seenStoryIds, storyId].slice(-6000)
+                    : profile.seenStoryIds;
+
+                return {
+                    ...profile,
+                    generationUsage: nextUsage,
+                    seenStoryIds: nextSeen,
+                };
+            })
+        );
+    };
 
     const saveCustomStory = (story: Story) => {
         if (!story?.id) return;
@@ -467,6 +702,9 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
     };
 
     const value: AppStateContextType = {
+        subscription,
+        planRule,
+        setSubscriptionTier,
         profiles,
         activeProfile,
         setActiveProfile,
@@ -477,9 +715,15 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
         addFavorite,
         removeFavorite,
         isFavorite,
+        seenStoryIds,
+        markStorySeen,
+        hasSeenStory,
         customStories,
         saveCustomStory,
         removeCustomStory,
+        remainingGeneratedStories,
+        isGenerationLimitReached,
+        recordStoryGenerated,
         stats,
         recordStoryRead,
         recordChoice,
