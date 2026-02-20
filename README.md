@@ -171,6 +171,29 @@ Optional file names:
 - `public/audio/warm-fireplace.mp3`
 - `public/audio/gentle-wind.mp3`
 
+Openverse sync (auto-download + attribution files):
+
+```bash
+npm run audio:sync
+```
+
+Force refresh existing local tracks:
+
+```bash
+npm run audio:sync:force
+```
+
+Optional API base override:
+
+```bash
+OPENVERSE_API_BASE_URL=https://api.openverse.engineering/v1/audio/ npm run audio:sync
+```
+
+After sync, attribution files are generated automatically:
+
+- `public/audio/openverse-attribution.json`
+- `public/audio/openverse-attribution.md`
+
 Recommended free sources (commercial-use friendly when properly attributed/licensed):
 
 - Pixabay Music

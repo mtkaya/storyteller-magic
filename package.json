@@ -11,6 +11,8 @@
     "preview": "vite preview",
     "smoke": "node scripts/smoke-check.mjs",
     "smoke:full": "SMOKE_API=1 node scripts/smoke-check.mjs",
+    "audio:sync": "node scripts/sync-openverse-audio.mjs",
+    "audio:sync:force": "node scripts/sync-openverse-audio.mjs --force",
     "cap:sync": "npx cap sync",
     "cap:open:ios": "npx cap open ios",
     "cap:open:android": "npx cap open android",
