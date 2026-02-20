@@ -163,108 +163,110 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-bg-dark text-white">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(127,19,236,0.25),transparent_42%),radial-gradient(circle_at_82%_20%,rgba(238,140,43,0.08),transparent_45%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_8%,rgba(118,88,255,0.17),transparent_46%),radial-gradient(circle_at_84%_16%,rgba(238,140,43,0.05),transparent_50%)]" />
 
       {/* Header */}
       <div
-        className="relative z-10 flex items-center justify-between px-4 pb-2"
-        style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}
+        className="relative z-10 flex items-center justify-between px-4 pb-1.5"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 10px)' }}
       >
         <div className="text-left">
-          <p className="text-xs text-white/55">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">
             {isTr ? 'Pro' : 'Pro'}
           </p>
-          <p className="text-[11px] text-white/35">
+          <p className="text-[11px] text-white/35 mt-0.5">
             {isTr ? 'Yükseltme seçenekleri' : 'Upgrade options'}
           </p>
         </div>
         <button
           onClick={onBack}
-          className="size-11 rounded-full bg-white/5 text-white hover:bg-white/10 active:scale-95 touch-manipulation"
+          className="size-10 rounded-full bg-white/5 text-white hover:bg-white/10 active:scale-95 touch-manipulation"
           style={{ touchAction: 'manipulation' }}
         >
           <span className="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <div className="relative z-10 flex-1 overflow-y-auto pb-8">
-        <div className="px-5 pb-3">
-          <h1 className="text-center text-2xl font-bold tracking-tight">
+      <div className="relative z-10 flex-1 overflow-y-auto pb-7">
+        <div className="px-5 pb-2">
+          <h1 className="text-center text-[27px] font-bold tracking-tight leading-tight">
             {isTr ? 'Pro Masal Planları' : 'Pro Story Plans'}
           </h1>
-          <p className="mt-2 text-center text-sm text-white/60">
+          <p className="mt-1.5 text-center text-[13px] text-white/58 leading-relaxed">
             {isTr
               ? 'Aşağıdaki planlardan birini seç, masal dünyasının kilidini aç.'
               : 'Choose a plan below and unlock your full story world.'}
           </p>
         </div>
 
-        <div className="flex items-center justify-center gap-2 px-4 pb-4">
-          {plans.map((plan) => (
-            <button
-              key={plan.id}
-              onClick={() => setSelectedPlan(plan.id)}
-              className={`rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
-                selectedPlan === plan.id
-                  ? 'bg-secondary text-white'
-                  : 'bg-white/8 text-white/70 hover:bg-white/12'
-              }`}
-            >
-              {plan.name}
-            </button>
-          ))}
+        <div className="px-4 pb-3">
+          <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5">
+            {plans.map((plan) => (
+              <button
+                key={plan.id}
+                onClick={() => setSelectedPlan(plan.id)}
+                className={`rounded-xl px-2 py-2 text-[11px] font-semibold transition-colors ${
+                  selectedPlan === plan.id
+                    ? 'bg-gradient-to-r from-primary/80 to-secondary/80 text-white shadow-[0_4px_14px_rgba(87,58,243,0.25)]'
+                    : 'text-white/68 hover:bg-white/8'
+                }`}
+              >
+                {plan.name}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="px-4">
-          <article className={`relative rounded-3xl border border-white/15 bg-gradient-to-b ${activePlan.cardGradient} p-5 shadow-[0_12px_30px_rgba(0,0,0,0.28)]`}>
+          <article className={`relative rounded-2xl border border-white/14 bg-gradient-to-b ${activePlan.cardGradient} px-4 py-4.5 shadow-[0_8px_24px_rgba(0,0,0,0.22)]`}>
             {activePlan.badge && (
-              <div className="absolute right-4 top-4 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-semibold">
+              <div className="absolute right-3.5 top-3.5 rounded-full border border-white/15 bg-white/8 px-2 py-0.5 text-[10px] font-semibold text-white/90">
                 {activePlan.badge}
               </div>
             )}
 
-            <h2 className="text-2xl font-bold tracking-tight">{activePlan.name}</h2>
+            <h2 className="text-[24px] font-semibold tracking-tight">{activePlan.name}</h2>
 
-            <div className="mt-3">
+            <div className="mt-2.5">
               {activePlan.oldPrice && (
-                <p className="text-sm text-white/45 line-through">{activePlan.oldPrice}</p>
+                <p className="text-[13px] text-white/42 line-through">{activePlan.oldPrice}</p>
               )}
-              <div className="mt-1 flex items-end gap-1.5">
-                <span className="text-4xl font-extrabold leading-none">{activePlan.price}</span>
-                <span className="pb-0.5 text-base text-white/65">{activePlan.period}</span>
+              <div className="mt-0.5 flex items-end gap-1.5">
+                <span className="text-[36px] font-bold leading-none">{activePlan.price}</span>
+                <span className="pb-0.5 text-[15px] text-white/60">{activePlan.period}</span>
               </div>
             </div>
 
-            <div className="mt-3 inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold text-white/90">
+            <div className="mt-2.5 inline-flex rounded-full border border-white/15 bg-white/8 px-2.5 py-0.5 text-[10px] font-semibold text-white/90">
               {activePlan.savingsBadge}
             </div>
 
-            <p className="mt-4 text-sm leading-relaxed text-white/85">
+            <p className="mt-3 text-[13px] leading-relaxed text-white/82">
               {activePlan.description}
             </p>
 
             <button
-              className={`mt-5 w-full rounded-full bg-gradient-to-r py-3 text-base font-bold text-white shadow-[0_10px_20px_rgba(92,64,255,0.28)] active:scale-[0.98] ${activePlan.buttonGradient}`}
+              className={`mt-4 w-full rounded-full bg-gradient-to-r py-2.5 text-[15px] font-semibold text-white shadow-[0_8px_16px_rgba(92,64,255,0.22)] active:scale-[0.98] ${activePlan.buttonGradient}`}
             >
               {activePlan.cta}
             </button>
 
-            <ul className="mt-5 space-y-2.5 text-sm text-white/90">
+            <ul className="mt-4.5 grid grid-cols-1 gap-2 text-[13px] text-white/90">
               {activePlan.features.map((feature) => (
-                <li key={`${activePlan.id}-${feature}`} className="flex items-start gap-2">
-                  <span className="pt-0.5 text-xs">✦</span>
+                <li key={`${activePlan.id}-${feature}`} className="flex items-start gap-2 rounded-lg border border-white/8 bg-white/[0.03] px-2.5 py-1.5">
+                  <span className="pt-0.5 text-[10px] text-accent-peach">✦</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-5 border-t border-white/15 pt-3 text-center text-xs text-white/65">
+            <div className="mt-4 border-t border-white/12 pt-2.5 text-center text-[11px] text-white/62">
               {isTr ? 'Otomatik yenilenir, dilediğinde iptal et' : 'Auto renews, cancel anytime'}
             </div>
           </article>
         </div>
 
-        <div className="mt-4 px-6 text-center text-[11px] text-white/45">
+        <div className="mt-3 px-6 text-center text-[10px] text-white/42 leading-relaxed">
           {isTr
             ? 'Ödeme App Store/Google Play üzerinden güvenli şekilde alınır. Fiyatlar bölgeye göre değişebilir.'
             : 'Payments are securely processed by App Store/Google Play. Prices may vary by region.'}
