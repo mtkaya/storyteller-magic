@@ -6,7 +6,7 @@ Storyteller Magic is a React + TypeScript app for creating bedtime stories with 
 
 - Local-first story generation (zero-token cost by default) with optional Gemini (`gemini-1.5-flash`)
 - Interactive "choose your own adventure" stories
-- Local story-vault rotation to reduce repeated results between generations
+- Expanded local story vault (~160 stories) with rotation to reduce repeats
 - Expanded interactive branching (detours + extra choices per node)
 - English and Turkish language support
 - Premium voice narration via OpenAI TTS (`/api/tts`) with browser Speech Synthesis fallback

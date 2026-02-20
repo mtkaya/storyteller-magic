@@ -1152,7 +1152,7 @@ function pickLocalTemplateBundle(options: StoryPrompt): LocalTemplateBundle | nu
             return a.story.id.localeCompare(b.story.id);
         });
 
-    const shortlist = ranked.slice(0, Math.min(12, ranked.length)).map((item) => item.story);
+    const shortlist = ranked.slice(0, Math.min(30, ranked.length)).map((item) => item.story);
     if (shortlist.length === 0) return null;
 
     const profileScope = options.profileId || 'global_profile';
@@ -1160,7 +1160,7 @@ function pickLocalTemplateBundle(options: StoryPrompt): LocalTemplateBundle | nu
     const pickResult = pickFromRotation(
         bucketKey,
         shortlist.map((story) => story.id),
-        Math.min(3, shortlist.length)
+        Math.min(7, shortlist.length)
     );
 
     const byId = new Map(shortlist.map((story) => [story.id, story]));

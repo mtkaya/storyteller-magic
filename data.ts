@@ -114,6 +114,498 @@ export const IMAGES = {
   WISE_OWL_LIBRARY: '/images/wise_owl_library.jpg'
 };
 
+type VaultSeed = {
+  key: string;
+  theme: string;
+  characterEn: string;
+  characterTr: string;
+  companionEn: string;
+  companionTr: string;
+  placeEn: string;
+  placeTr: string;
+  questEn: string;
+  questTr: string;
+  moralEn: string;
+  moralTr: string;
+  coverUrl: string;
+};
+
+const VAULT_THEME_TR: Record<string, string> = {
+  Adventure: 'Macera',
+  Friendship: 'Dostluk',
+  Magic: 'Sihir',
+  Nature: 'Doğa',
+  Calm: 'Sakinlik',
+  Courage: 'Cesaret',
+  Wisdom: 'Bilgelik',
+  Mystery: 'Gizem',
+  Family: 'Aile',
+  Wonder: 'Hayranlık',
+  Kindness: 'İyilik',
+};
+
+const VAULT_SEEDS: VaultSeed[] = [
+  {
+    key: 'moon-trail',
+    theme: 'Adventure',
+    characterEn: 'Ari',
+    characterTr: 'Ari',
+    companionEn: 'Miko the fox',
+    companionTr: 'tilki Miko',
+    placeEn: 'the moonlit trail',
+    placeTr: 'ay ışıklı patika',
+    questEn: 'find the silver bridge before bedtime',
+    questTr: 'uyku vakti gelmeden gümüş köprüyü bulmak',
+    moralEn: 'Small brave steps can lead to beautiful places.',
+    moralTr: 'Küçük cesur adımlar, güzel yerlere götürür.',
+    coverUrl: IMAGES.FLYING_CARPET,
+  },
+  {
+    key: 'tea-garden',
+    theme: 'Friendship',
+    characterEn: 'Nora',
+    characterTr: 'Nora',
+    companionEn: 'Pip the rabbit',
+    companionTr: 'tavşan Pip',
+    placeEn: 'the glow-tea garden',
+    placeTr: 'ışıklı çay bahçesi',
+    questEn: 'prepare a welcome table for new friends',
+    questTr: 'yeni dostlar için bir karşılama masası hazırlamak',
+    moralEn: 'Sharing small moments makes friendships stronger.',
+    moralTr: 'Küçük anları paylaşmak dostlukları güçlendirir.',
+    coverUrl: IMAGES.TEA_PARTY,
+  },
+  {
+    key: 'lantern-valley',
+    theme: 'Magic',
+    characterEn: 'Luna',
+    characterTr: 'Luna',
+    companionEn: 'Zephyr the carpet',
+    companionTr: 'sihirli halı Zephyr',
+    placeEn: 'the lantern valley',
+    placeTr: 'fener vadisi',
+    questEn: 'wake the sleeping lights with kindness',
+    questTr: 'uyuyan ışıkları iyilikle uyandırmak',
+    moralEn: 'The warmest magic comes from a kind heart.',
+    moralTr: 'En sıcak sihir, iyi kalpten gelir.',
+    coverUrl: IMAGES.ORNATE_MAGICAL_LANTERN,
+  },
+  {
+    key: 'river-song',
+    theme: 'Nature',
+    characterEn: 'Mina',
+    characterTr: 'Mina',
+    companionEn: 'Rio the otter',
+    companionTr: 'su samuru Rio',
+    placeEn: 'the whispering river',
+    placeTr: 'fısıldayan nehir',
+    questEn: 'help lost hatchlings follow the current home',
+    questTr: 'kaybolan yavruların akıntıyı izleyip eve dönmesine yardım etmek',
+    moralEn: 'Gentle guidance can carry others safely home.',
+    moralTr: 'Nazik rehberlik, başkalarını güvenle eve taşır.',
+    coverUrl: IMAGES.MAGICAL_SEAHORSE_GLOW,
+  },
+  {
+    key: 'cloud-blanket',
+    theme: 'Calm',
+    characterEn: 'Bobo',
+    characterTr: 'Bobo',
+    companionEn: 'Nia the owl',
+    companionTr: 'baykuş Nia',
+    placeEn: 'the cloud blanket field',
+    placeTr: 'bulut battaniye tarlası',
+    questEn: 'collect soft breaths for a sleepy village',
+    questTr: 'uykulu köy için yumuşak nefesler toplamak',
+    moralEn: 'A slow breath can calm a busy heart.',
+    moralTr: 'Yavaş bir nefes, telaşlı kalbi sakinleştirir.',
+    coverUrl: IMAGES.BABY_BEAR_CLOUD_SLEEP,
+  },
+  {
+    key: 'brave-hill',
+    theme: 'Courage',
+    characterEn: 'Leo',
+    characterTr: 'Leo',
+    companionEn: 'Penny the penguin',
+    companionTr: 'penguen Penny',
+    placeEn: 'the starlit hill',
+    placeTr: 'yıldızlı tepe',
+    questEn: 'cross the echo cave to help a tiny friend',
+    questTr: 'minik bir dosta yardım etmek için yankı mağarasını geçmek',
+    moralEn: 'Bravery means helping even when you feel nervous.',
+    moralTr: 'Cesaret, heyecanlıyken bile yardım edebilmektir.',
+    coverUrl: IMAGES.BRAVE_LION,
+  },
+  {
+    key: 'owl-library',
+    theme: 'Wisdom',
+    characterEn: 'Oliver',
+    characterTr: 'Oliver',
+    companionEn: 'Professor Hoot',
+    companionTr: 'Profesör Hoot',
+    placeEn: 'the tree library',
+    placeTr: 'ağaç kütüphanesi',
+    questEn: 'find the right question hidden in old books',
+    questTr: 'eski kitaplarda saklı doğru soruyu bulmak',
+    moralEn: 'Wisdom grows when we keep asking and listening.',
+    moralTr: 'Bilgelik, sormaya ve dinlemeye devam ettikçe büyür.',
+    coverUrl: IMAGES.WISE_OWL,
+  },
+  {
+    key: 'secret-map',
+    theme: 'Mystery',
+    characterEn: 'Milo',
+    characterTr: 'Milo',
+    companionEn: 'Rosie the robin',
+    companionTr: 'kızılgerdan Rosie',
+    placeEn: 'the hidden attic',
+    placeTr: 'gizli çatı katı',
+    questEn: 'follow clues to return a missing keepsake',
+    questTr: 'kayıp hatıra eşyasını geri vermek için ipuçlarını takip etmek',
+    moralEn: 'Careful observation turns mysteries into answers.',
+    moralTr: 'Dikkatli gözlem, gizemleri cevaba dönüştürür.',
+    coverUrl: IMAGES.DETECTIVE_MOUSE,
+  },
+  {
+    key: 'home-light',
+    theme: 'Family',
+    characterEn: 'Nora',
+    characterTr: 'Nora',
+    companionEn: 'Taro the beaver',
+    companionTr: 'kunduz Taro',
+    placeEn: 'the little lighthouse island',
+    placeTr: 'küçük deniz feneri adası',
+    questEn: 'keep the harbor light steady through the fog',
+    questTr: 'sisli gecede liman ışığını sabit tutmak',
+    moralEn: 'Steady care helps everyone feel safe.',
+    moralTr: 'Sürekli özen, herkese güven verir.',
+    coverUrl: IMAGES.COZY_LIGHTHOUSE_ISLAND,
+  },
+  {
+    key: 'comet-garden',
+    theme: 'Wonder',
+    characterEn: 'Pebble',
+    characterTr: 'Pebble',
+    companionEn: 'Lumo the star friend',
+    companionTr: 'yıldız dostu Lumo',
+    placeEn: 'the comet garden',
+    placeTr: 'kuyruklu yıldız bahçesi',
+    questEn: 'plant wishes that glow across the night',
+    questTr: 'geceye yayılan parlayan dilekler ekmek',
+    moralEn: 'Wonder grows when curiosity meets kindness.',
+    moralTr: 'Hayranlık, merak ile iyilik buluşunca büyür.',
+    coverUrl: IMAGES.FRIENDLY_ROCKET_STARS,
+  },
+  {
+    key: 'kind-wish',
+    theme: 'Kindness',
+    characterEn: 'Pip',
+    characterTr: 'Pip',
+    companionEn: 'Flora the fox',
+    companionTr: 'tilki Flora',
+    placeEn: 'the firefly meadow',
+    placeTr: 'ateşböceği çayırı',
+    questEn: 'choose a wish that helps more than one heart',
+    questTr: 'birden fazla kalbe iyi gelecek bir dilek seçmek',
+    moralEn: 'Kind choices shine longer than quick rewards.',
+    moralTr: 'İyi seçimler, hızlı ödüllerden daha uzun parlar.',
+    coverUrl: IMAGES.MAGICAL_DANDELION_WISH,
+  },
+];
+
+const VAULT_TITLE_PREFIX_EN = ['Moonlit', 'Gentle', 'Quiet', 'Golden', 'Twinkling', 'Brave', 'Kind', 'Cozy'];
+const VAULT_TITLE_PREFIX_TR = ['Ay Işıklı', 'Nazik', 'Sessiz', 'Altın', 'Yıldızlı', 'Cesur', 'İyi Kalpli', 'Sıcacık'];
+const VAULT_TITLE_SUFFIX_EN = ['Journey', 'Promise', 'Secret', 'Path', 'Song', 'Lantern', 'Bridge', 'Garden'];
+const VAULT_TITLE_SUFFIX_TR = ['Yolculuk', 'Söz', 'Sır', 'Patika', 'Şarkı', 'Fener', 'Köprü', 'Bahçe'];
+const VAULT_TONE_HINT_EN = ['calmly', 'carefully', 'joyfully', 'patiently', 'kindly'];
+const VAULT_TONE_HINT_TR = ['sakince', 'dikkatle', 'neşeyle', 'sabırla', 'nazikçe'];
+const VAULT_ENDING_EN = ['safe and proud', 'warm and grateful', 'ready for sweet dreams'];
+const VAULT_ENDING_TR = ['güvende ve gururlu', 'sıcacık ve minnettar', 'tatlı rüyalara hazır'];
+const VAULT_MINUTES = [6, 7, 8, 9, 10, 11, 12];
+
+const pickVaultValue = <T,>(values: T[], index: number): T => values[index % values.length];
+const padVaultId = (index: number): string => String(index + 1).padStart(3, '0');
+
+function buildVaultLinearStory(seed: VaultSeed, index: number): Story {
+  const id = `vault_linear_${padVaultId(index)}`;
+  const minutes = pickVaultValue(VAULT_MINUTES, index + 2);
+  const prefixEn = pickVaultValue(VAULT_TITLE_PREFIX_EN, index + seed.key.length);
+  const prefixTr = pickVaultValue(VAULT_TITLE_PREFIX_TR, index + seed.key.length);
+  const suffixEn = pickVaultValue(VAULT_TITLE_SUFFIX_EN, index * 2 + seed.key.length);
+  const suffixTr = pickVaultValue(VAULT_TITLE_SUFFIX_TR, index * 2 + seed.key.length);
+  const toneEn = pickVaultValue(VAULT_TONE_HINT_EN, index + 1);
+  const toneTr = pickVaultValue(VAULT_TONE_HINT_TR, index + 1);
+  const endingEn = pickVaultValue(VAULT_ENDING_EN, index + 3);
+  const endingTr = pickVaultValue(VAULT_ENDING_TR, index + 3);
+  const themeTr = VAULT_THEME_TR[seed.theme] || 'Diğer';
+
+  return {
+    id,
+    title: `${prefixEn} ${seed.characterEn} ${suffixEn}`,
+    titleTr: `${prefixTr} ${seed.characterTr} ${suffixTr}`,
+    subtitle: `${seed.theme} • Bedtime Tale`,
+    subtitleTr: `${themeTr} • Uyku Masalı`,
+    duration: `${minutes} min`,
+    theme: seed.theme,
+    coverUrl: seed.coverUrl,
+    character: seed.characterEn,
+    ageRange: minutes <= 7 ? '3-6' : '4-8',
+    moral: seed.moralEn,
+    moralTr: seed.moralTr,
+    content: [
+      `${seed.characterEn} entered ${seed.placeEn} one calm evening, while tiny stars blinked above.`,
+      `${seed.companionEn} asked for help to ${seed.questEn}, and ${seed.characterEn} said yes ${toneEn}.`,
+      `Together they followed small clues, helping each friend they met along the way.`,
+      `When a tricky moment appeared, they paused, listened, and chose a gentle solution.`,
+      `Soon the path became brighter, and the whole place felt lighter than before.`,
+      `By bedtime, they returned home ${endingEn}, carrying a new lesson in their hearts.`,
+    ],
+    contentTr: [
+      `${seed.characterTr}, minik yıldızların parladığı sakin bir akşam ${seed.placeTr} içine adım attı.`,
+      `${seed.companionTr}, ${seed.questTr} için yardım istedi; ${seed.characterTr} ise ${toneTr} kabul etti.`,
+      `Yolda karşılaştıkları her dosta yardım ederek küçük ipuçlarını birlikte takip ettiler.`,
+      `Zor bir an geldiğinde durup dinlediler ve nazik bir çözüm seçtiler.`,
+      `Kısa süre sonra yollar aydınlandı, ortam eskisinden daha huzurlu oldu.`,
+      `Uyku vakti geldiğinde ${endingTr} eve döndüler; kalplerinde yeni bir ders vardı.`,
+    ],
+  };
+}
+
+function buildVaultInteractiveStory(seed: VaultSeed, index: number): Story {
+  const storyId = `vault_interactive_${padVaultId(index)}`;
+  const key = `vi_${padVaultId(index)}`;
+  const themeTr = VAULT_THEME_TR[seed.theme] || 'Diğer';
+  const minutes = pickVaultValue(VAULT_MINUTES, index + 4) + 1;
+
+  const startId = `${key}_start`;
+  const heartId = `${key}_heart_path`;
+  const cleverId = `${key}_clever_path`;
+  const helperId = `${key}_helper_path`;
+  const happyEndId = `${key}_ending_happy`;
+  const lessonEndId = `${key}_ending_lesson`;
+  const adventureEndId = `${key}_ending_adventure`;
+
+  return {
+    id: storyId,
+    title: `${seed.characterEn} and the ${pickVaultValue(VAULT_TITLE_SUFFIX_EN, index + 5)} Choice`,
+    titleTr: `${seed.characterTr} ve ${pickVaultValue(VAULT_TITLE_SUFFIX_TR, index + 5)} Seçimi`,
+    subtitle: '🎮 Interactive • Branching',
+    subtitleTr: '🎮 İnteraktif • Dallanmalı',
+    duration: `${minutes}+ min`,
+    theme: seed.theme,
+    coverUrl: seed.coverUrl,
+    character: seed.characterEn,
+    ageRange: '4-9',
+    moral: seed.moralEn,
+    moralTr: seed.moralTr,
+    isInteractive: true,
+    startBranchId: startId,
+    branches: [
+      {
+        id: startId,
+        paragraphs: [
+          `${seed.characterEn} and ${seed.companionEn} reached ${seed.placeEn} and found a glowing sign.`,
+          `The sign asked them to ${seed.questEn}, but the path split into three choices.`,
+          `Each choice looked possible, and each one could help someone different.`,
+          `Which path should they choose first?`,
+        ],
+        paragraphsTr: [
+          `${seed.characterTr} ve ${seed.companionTr}, ${seed.placeTr} içinde parlayan bir işaret buldu.`,
+          `İşaret onlardan ${seed.questTr} istiyordu; fakat yol üç seçeneğe ayrılıyordu.`,
+          `Her seçenek mümkün görünüyordu ve her biri farklı birine yardım edebilirdi.`,
+          `Önce hangi yolu seçmeliler?`,
+        ],
+        choices: [
+          {
+            id: `${key}_choice_heart`,
+            text: 'Choose the kind path',
+            textTr: 'Nazik yolu seç',
+            emoji: '💛',
+            nextBranchId: heartId,
+            consequence: 'Help first, then continue.',
+            consequenceTr: 'Önce yardım et, sonra ilerle.',
+          },
+          {
+            id: `${key}_choice_clever`,
+            text: 'Choose the clever path',
+            textTr: 'Akıllı yolu seç',
+            emoji: '🧩',
+            nextBranchId: cleverId,
+            consequence: 'Solve clues with patience.',
+            consequenceTr: 'İpuçlarını sabırla çöz.',
+          },
+          {
+            id: `${key}_choice_helper`,
+            text: 'Choose the team path',
+            textTr: 'Takım yolunu seç',
+            emoji: '🤝',
+            nextBranchId: helperId,
+            consequence: 'Gather friends and move together.',
+            consequenceTr: 'Dostları topla ve birlikte ilerle.',
+          },
+        ],
+      },
+      {
+        id: heartId,
+        paragraphs: [
+          `${seed.characterEn} offered warm words to a worried friend and the road lit up softly.`,
+          `A hidden bridge appeared, but they had to decide whether to cross now or guide others first.`,
+          `What should they do next?`,
+        ],
+        paragraphsTr: [
+          `${seed.characterTr}, endişeli bir dosta sıcak sözler söyledi ve yol yumuşak bir ışıkla aydınlandı.`,
+          `Gizli bir köprü belirdi; fakat hemen mi geçmeli, yoksa önce başkalarını mı yönlendirmeliler?`,
+          `Şimdi ne yapmalılar?`,
+        ],
+        choices: [
+          {
+            id: `${key}_heart_to_happy`,
+            text: 'Cross together',
+            textTr: 'Birlikte geç',
+            emoji: '🌉',
+            nextBranchId: happyEndId,
+            consequence: 'Trust and teamwork.',
+            consequenceTr: 'Güven ve ekip ruhu.',
+          },
+          {
+            id: `${key}_heart_to_lesson`,
+            text: 'Guide others first',
+            textTr: 'Önce başkalarını yönlendir',
+            emoji: '🕯️',
+            nextBranchId: lessonEndId,
+            consequence: 'Care before speed.',
+            consequenceTr: 'Hızdan önce özen.',
+          },
+        ],
+      },
+      {
+        id: cleverId,
+        paragraphs: [
+          `They found three clues carved into stones and solved them one by one.`,
+          `The final clue revealed a shortcut and a longer safe road.`,
+          `Which ending will they choose?`,
+        ],
+        paragraphsTr: [
+          `Taşlara işlenmiş üç ipucu bulup tek tek çözdüler.`,
+          `Son ipucu kısa bir kestirme ile uzun ama güvenli yolu gösterdi.`,
+          `Hangi sona doğru ilerlesinler?`,
+        ],
+        choices: [
+          {
+            id: `${key}_clever_to_adventure`,
+            text: 'Take the shortcut',
+            textTr: 'Kestirmeyi kullan',
+            emoji: '🚀',
+            nextBranchId: adventureEndId,
+            consequence: 'A bold finale.',
+            consequenceTr: 'Cesur bir final.',
+          },
+          {
+            id: `${key}_clever_to_lesson`,
+            text: 'Take the safe road',
+            textTr: 'Güvenli yolu seç',
+            emoji: '🌙',
+            nextBranchId: lessonEndId,
+            consequence: 'A calm and wise ending.',
+            consequenceTr: 'Sakin ve bilge bir son.',
+          },
+        ],
+      },
+      {
+        id: helperId,
+        paragraphs: [
+          `${seed.characterEn} invited nearby friends and each brought one useful idea.`,
+          `Working as a team, they could finish quickly or stop to help one last traveler.`,
+          `What matters more right now?`,
+        ],
+        paragraphsTr: [
+          `${seed.characterTr}, yakındaki dostları çağırdı ve herkes bir faydalı fikir getirdi.`,
+          `Takım halinde hızlıca bitirebilirlerdi ya da son bir yolcuya yardım için durabilirlerdi.`,
+          `Şu anda hangisi daha önemli?`,
+        ],
+        choices: [
+          {
+            id: `${key}_helper_to_happy`,
+            text: 'Finish together now',
+            textTr: 'Şimdi birlikte tamamla',
+            emoji: '🎉',
+            nextBranchId: happyEndId,
+            consequence: 'Celebrate as a team.',
+            consequenceTr: 'Takım olarak kutla.',
+          },
+          {
+            id: `${key}_helper_to_adventure`,
+            text: 'Help the traveler first',
+            textTr: 'Önce yolcuya yardım et',
+            emoji: '🧭',
+            nextBranchId: adventureEndId,
+            consequence: 'One more meaningful stop.',
+            consequenceTr: 'Bir anlamlı durak daha.',
+          },
+        ],
+      },
+      {
+        id: happyEndId,
+        paragraphs: [
+          `By choosing with kindness, everyone reached the final gate with smiles.`,
+          `${seed.characterEn} completed the mission and shared the success with every friend.`,
+          `The night ended warm and peaceful, perfect for sweet dreams.`,
+        ],
+        paragraphsTr: [
+          `Nazik seçimleri sayesinde herkes son kapıya gülümseyerek ulaştı.`,
+          `${seed.characterTr}, görevi tamamladı ve başarıyı tüm dostlarıyla paylaştı.`,
+          `Gece sıcacık ve huzurlu bitti; tatlı rüyalar için mükemmeldi.`,
+        ],
+        isEnding: true,
+        endingType: 'happy',
+        endingTitle: 'The Warm Finish',
+        endingTitleTr: 'Sıcak Final',
+      },
+      {
+        id: lessonEndId,
+        paragraphs: [
+          `They moved slowly, listened carefully, and helped others before rushing ahead.`,
+          `The mission took longer, but everyone felt safer and more confident.`,
+          `${seed.characterEn} learned that patience can be the strongest magic.`,
+        ],
+        paragraphsTr: [
+          `Acele etmeden ilerleyip dikkatle dinlediler; hızdan önce yardımı seçtiler.`,
+          `Görev biraz uzun sürdü ama herkes kendini daha güvende ve güçlü hissetti.`,
+          `${seed.characterTr}, sabrın en güçlü sihir olabileceğini öğrendi.`,
+        ],
+        isEnding: true,
+        endingType: 'lesson',
+        endingTitle: 'The Patient Choice',
+        endingTitleTr: 'Sabırlı Seçim',
+      },
+      {
+        id: adventureEndId,
+        paragraphs: [
+          `A final surprise path opened and led them to a glowing overlook above the valley.`,
+          `From there, they could see every place they had helped along the journey.`,
+          `They promised to return for another kind adventure tomorrow night.`,
+        ],
+        paragraphsTr: [
+          `Son bir sürpriz yol açıldı ve onları vadinin üstündeki parlayan seyir noktasına götürdü.`,
+          `Buradan yol boyunca yardım ettikleri tüm yerleri bir arada görebildiler.`,
+          `Yarın gece yeni bir iyilik macerası için geri dönmeye söz verdiler.`,
+        ],
+        isEnding: true,
+        endingType: 'adventure',
+        endingTitle: 'The Extra Mile',
+        endingTitleTr: 'Ekstra Yol',
+      },
+    ],
+  };
+}
+
+const VAULT_LINEAR_STORIES: Story[] = Array.from({ length: 96 }, (_, index) =>
+  buildVaultLinearStory(pickVaultValue(VAULT_SEEDS, index), index)
+);
+
+const VAULT_INTERACTIVE_STORIES: Story[] = Array.from({ length: 24 }, (_, index) =>
+  buildVaultInteractiveStory(pickVaultValue(VAULT_SEEDS, index + 4), index)
+);
+
 export const RECENT_STORIES: Story[] = [
   {
     id: '1',
@@ -1361,7 +1853,9 @@ export const LIBRARY_STORIES: Story[] = [
       "Soon she felt light, warm, and steady, as if moonlight lived in her chest.",
       "Before bed, Mina repeated the same breathing and drifted into peaceful dreams."
     ]
-  }
+  },
+  ...VAULT_LINEAR_STORIES,
+  ...VAULT_INTERACTIVE_STORIES
 ];
 
 export const BADGES: Badge[] = [

@@ -6,6 +6,10 @@ This app now uses a local-first story vault so generation can run without API to
 
 - Base catalog is bundled from:
   - `data.ts` (`LIBRARY_STORIES`, `RECENT_STORIES`)
+- `data.ts` now also creates a generated local vault layer:
+  - `VAULT_LINEAR_STORIES` (96 linear stories)
+  - `VAULT_INTERACTIVE_STORIES` (24 interactive stories)
+  - Total local catalog is now ~160 stories without API cost.
 - Runtime selection/rotation state is persisted in browser storage:
   - `localStorage` key: `storyteller_local_story_rotation_v1`
 
@@ -14,6 +18,7 @@ This app now uses a local-first story vault so generation can run without API to
 - Stories are ranked by theme, duration, language, and interactive mode.
 - A per-bucket rotation queue serves a different template each time.
 - Recent story IDs are temporarily blocked in the same bucket to avoid quick repeats.
+- Selection shortlist and rotation depth are expanded for larger catalogs.
 - Interactive stories are expanded at runtime with extra detour branches and choices.
 
 ## Scaling to larger catalogs
