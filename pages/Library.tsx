@@ -125,16 +125,20 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-dark pb-24">
-      <div className="sticky top-0 z-40 bg-bg-dark/95 backdrop-blur-md border-b border-white/5 pt-4 pb-2">
+      <div
+        className="sticky top-0 z-40 bg-bg-dark/95 backdrop-blur-md border-b border-white/5 pb-2"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 10px)' }}
+      >
         <div className="flex items-center justify-between px-4 mb-4">
           <button
             onClick={() => onNavigate('home')}
-            className="size-10 flex items-center justify-center rounded-full hover:bg-white/5 text-white"
+            className="size-11 flex items-center justify-center rounded-full hover:bg-white/5 active:scale-95 text-white touch-manipulation"
+            style={{ touchAction: 'manipulation' }}
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
           <h1 className="text-lg font-bold text-white">{t.library_title}</h1>
-          <div className="size-10" /> {/* Spacer */}
+          <div className="size-11" /> {/* Spacer */}
         </div>
 
         {/* Search */}

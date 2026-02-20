@@ -1193,8 +1193,15 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   return (
     <div className="flex flex-col min-h-screen bg-bg-dark">
       {/* Header */}
-      <div className="sticky top-0 z-50 flex items-center justify-between p-4 bg-bg-dark/80 backdrop-blur-md border-b border-white/5">
-        <button onClick={onBack} className="text-white/80 hover:text-white size-10 flex items-center justify-center">
+      <div
+        className="sticky top-0 z-50 flex items-center justify-between px-4 pb-3 bg-bg-dark/80 backdrop-blur-md border-b border-white/5"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 10px)' }}
+      >
+        <button
+          onClick={onBack}
+          className="text-white/80 hover:text-white size-11 rounded-full active:scale-95 flex items-center justify-center touch-manipulation"
+          style={{ touchAction: 'manipulation' }}
+        >
           <span className="material-symbols-outlined text-3xl">expand_more</span>
         </button>
 
@@ -1220,8 +1227,9 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
           {/* Music Button */}
           <button
             onClick={onMusicClick}
-            className={`size-10 rounded-full flex items-center justify-center transition-colors ${currentMusic !== 'none' ? 'bg-primary/20 text-primary' : 'hover:bg-white/5 text-white/60'
+            className={`size-11 rounded-full flex items-center justify-center transition-colors touch-manipulation ${currentMusic !== 'none' ? 'bg-primary/20 text-primary' : 'hover:bg-white/5 text-white/60'
               }`}
+            style={{ touchAction: 'manipulation' }}
           >
             <span className="material-symbols-outlined">music_note</span>
           </button>
@@ -1259,7 +1267,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
           {/* Speaking indicator */}
           {isSpeaking && (
-            <div className="absolute top-4 right-4 flex items-center gap-2 bg-primary/90 backdrop-blur-md px-3 py-1.5 rounded-full animate-pulse">
+            <div
+              className="absolute right-4 flex items-center gap-2 bg-primary/90 backdrop-blur-md px-3 py-1.5 rounded-full animate-pulse"
+              style={{ top: 'max(env(safe-area-inset-top), 10px)' }}
+            >
               <span className="material-symbols-outlined text-bg-dark text-sm">graphic_eq</span>
               <span className="text-xs text-bg-dark font-bold">{t.reader_reading}</span>
             </div>

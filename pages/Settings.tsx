@@ -18,9 +18,16 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
 
     return (
         <div className="flex flex-col min-h-screen bg-bg-dark text-white">
-            <div className="sticky top-0 z-40 bg-bg-dark/95 backdrop-blur-md border-b border-white/5 pt-4 pb-2">
+            <div
+                className="sticky top-0 z-40 bg-bg-dark/95 backdrop-blur-md border-b border-white/5 pb-2"
+                style={{ paddingTop: 'max(env(safe-area-inset-top), 10px)' }}
+            >
                 <div className="flex items-center gap-3 px-4 mb-2">
-                    <button onClick={onBack} className="size-10 flex items-center justify-center rounded-full hover:bg-white/5 text-white">
+                    <button
+                        onClick={onBack}
+                        className="size-11 flex items-center justify-center rounded-full hover:bg-white/5 active:scale-95 text-white touch-manipulation"
+                        style={{ touchAction: 'manipulation' }}
+                    >
                         <span className="material-symbols-outlined">arrow_back</span>
                     </button>
                     <h1 className="text-xl font-bold">{t.settings_title}</h1>

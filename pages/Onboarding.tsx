@@ -66,22 +66,27 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         <div className="fixed inset-0 z-[200] bg-bg-dark flex flex-col">
             {/* Language Selector (only on first slide) */}
             {currentStep === 0 && (
-                <div className="absolute top-4 right-4 flex gap-2">
+                <div
+                    className="absolute z-20 right-4 flex gap-2"
+                    style={{ top: 'max(env(safe-area-inset-top), 12px)' }}
+                >
                     <button
                         onClick={() => setLanguage('en')}
-                        className={`px-3 py-1 rounded-full text-sm transition-all ${language === 'en'
+                        className={`px-3.5 py-1.5 rounded-full text-sm transition-all active:scale-95 touch-manipulation ${language === 'en'
                                 ? 'bg-primary text-white'
                                 : 'bg-white/10 text-white/60'
                             }`}
+                        style={{ touchAction: 'manipulation' }}
                     >
                         EN
                     </button>
                     <button
                         onClick={() => setLanguage('tr')}
-                        className={`px-3 py-1 rounded-full text-sm transition-all ${language === 'tr'
+                        className={`px-3.5 py-1.5 rounded-full text-sm transition-all active:scale-95 touch-manipulation ${language === 'tr'
                                 ? 'bg-primary text-white'
                                 : 'bg-white/10 text-white/60'
                             }`}
+                        style={{ touchAction: 'manipulation' }}
                     >
                         TR
                     </button>
@@ -91,7 +96,12 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             {/* Skip Button */}
             <button
                 onClick={handleSkip}
-                className="absolute top-4 left-4 text-white/50 text-sm hover:text-white"
+                className="absolute z-20 left-4 text-white/50 text-sm hover:text-white active:scale-95 touch-manipulation"
+                style={{
+                    top: 'max(env(safe-area-inset-top), 12px)',
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'transparent'
+                }}
             >
                 {language === 'tr' ? 'Atla' : 'Skip'}
             </button>

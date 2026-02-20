@@ -94,10 +94,14 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/60 to-transparent" />
 
-                    <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
+                    <div
+                        className="absolute left-4 right-4 flex justify-between items-center"
+                        style={{ top: 'max(env(safe-area-inset-top), 12px)' }}
+                    >
                         <button
                             onClick={() => setSelectedCollection(null)}
-                            className="size-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white"
+                            className="size-11 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white active:scale-95 touch-manipulation"
+                            style={{ touchAction: 'manipulation' }}
                         >
                             <span className="material-symbols-outlined">arrow_back</span>
                         </button>
@@ -169,11 +173,15 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onBack, onStorySelect
     return (
         <div className="flex flex-col min-h-screen bg-bg-dark pb-24">
             {/* Header */}
-            <div className="sticky top-0 z-40 bg-bg-dark/95 backdrop-blur-md border-b border-white/5 pt-4 pb-2">
+            <div
+                className="sticky top-0 z-40 bg-bg-dark/95 backdrop-blur-md border-b border-white/5 pb-2"
+                style={{ paddingTop: 'max(env(safe-area-inset-top), 10px)' }}
+            >
                 <div className="flex items-center gap-3 px-4 mb-2">
                     <button
                         onClick={onBack}
-                        className="size-10 flex items-center justify-center rounded-full hover:bg-white/5 text-white"
+                        className="size-11 flex items-center justify-center rounded-full hover:bg-white/5 active:scale-95 text-white touch-manipulation"
+                        style={{ touchAction: 'manipulation' }}
                     >
                         <span className="material-symbols-outlined">arrow_back</span>
                     </button>

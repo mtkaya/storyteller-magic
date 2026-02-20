@@ -76,7 +76,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
   return (
     <div className="flex flex-col min-h-screen pb-24">
       {/* Header */}
-      <div className="flex items-start gap-3 p-4 pb-2 justify-between">
+      <div
+        className="flex items-start gap-3 px-4 pb-2 justify-between"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}
+      >
         <button
           onClick={onProfileClick}
           className="flex min-w-0 flex-1 items-center gap-3 hover:opacity-80 transition-opacity"
@@ -93,14 +96,16 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
           {/* Goals Button */}
           <button
             onClick={onGoalsClick}
-            className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+            className="size-11 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-colors touch-manipulation"
+            style={{ touchAction: 'manipulation' }}
           >
             <span className="material-symbols-outlined text-white">flag</span>
           </button>
           {/* Stats Button */}
           <button
             onClick={() => onNavigate('stats' as ScreenName)}
-            className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors relative"
+            className="size-11 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-colors relative touch-manipulation"
+            style={{ touchAction: 'manipulation' }}
           >
             <span className="material-symbols-outlined text-white">bar_chart</span>
             {stats.currentStreak > 0 && (
@@ -112,14 +117,16 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
           {/* Music Button */}
           <button
             onClick={onMusicClick}
-            className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+            className="size-11 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-colors touch-manipulation"
+            style={{ touchAction: 'manipulation' }}
           >
             <span className="material-symbols-outlined text-white">music_note</span>
           </button>
           {/* Settings Button */}
           <button
             onClick={() => onNavigate('settings')}
-            className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+            className="size-11 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-colors touch-manipulation"
+            style={{ touchAction: 'manipulation' }}
           >
             <span className="material-symbols-outlined text-white">settings</span>
           </button>

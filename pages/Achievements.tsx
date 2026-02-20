@@ -25,7 +25,10 @@ const Achievements: React.FC = () => {
 
     return (
         <div className="flex flex-col min-h-screen bg-bg-dark bg-star-dust pb-24">
-            <div className="sticky top-0 z-40 bg-bg-dark/80 backdrop-blur-md p-4 flex items-center justify-center border-b border-white/5">
+            <div
+                className="sticky top-0 z-40 bg-bg-dark/80 backdrop-blur-md px-4 pb-4 flex items-center justify-center border-b border-white/5"
+                style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}
+            >
                 <h2 className="text-white text-xl font-bold">
                     {language === 'tr' ? 'Başarılar' : 'Achievements'}
                 </h2>

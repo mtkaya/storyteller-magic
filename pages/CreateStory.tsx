@@ -328,8 +328,15 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
   return (
     <div className="flex flex-col min-h-screen bg-bg-dark text-white">
       {/* Header */}
-      <div className="flex items-center p-6 pb-2">
-        <button onClick={onBack} className="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20">
+      <div
+        className="flex items-center px-6 pb-2"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
+      >
+        <button
+          onClick={onBack}
+          className="size-11 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 active:scale-95 touch-manipulation"
+          style={{ touchAction: 'manipulation' }}
+        >
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
         <h2 className="flex-1 text-center text-lg font-bold pr-10">{t.create_title}</h2>

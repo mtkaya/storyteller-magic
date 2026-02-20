@@ -71,15 +71,17 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
     return (
         <div
             className="fixed inset-0 z-[100] bg-bg-dark overflow-y-auto overscroll-y-contain"
-            style={{ paddingTop: 'max(env(safe-area-inset-top), 8px)' }}
         >
             {/* Header */}
-            <div className="sticky top-0 z-50 bg-bg-dark/95 backdrop-blur-md border-b border-white/5 px-4 py-3">
+            <div
+                className="sticky top-0 z-50 bg-bg-dark/95 backdrop-blur-md border-b border-white/5 px-4 pb-3"
+                style={{ paddingTop: 'max(env(safe-area-inset-top), 8px)' }}
+            >
                 <div className="flex items-center justify-between">
                     <button
                         onClick={onClose}
                         className="size-11 shrink-0 flex items-center justify-center rounded-full hover:bg-white/10 active:scale-95 text-white touch-manipulation"
-                        style={{ touchAction: 'manipulation' }}
+                        style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
                     >
                         <span className="material-symbols-outlined">close</span>
                     </button>

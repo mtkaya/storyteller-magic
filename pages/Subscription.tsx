@@ -166,7 +166,10 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(127,19,236,0.25),transparent_42%),radial-gradient(circle_at_82%_20%,rgba(238,140,43,0.08),transparent_45%)]" />
 
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between p-4 pb-2">
+      <div
+        className="relative z-10 flex items-center justify-between px-4 pb-2"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}
+      >
         <div className="text-left">
           <p className="text-xs text-white/55">
             {isTr ? 'Pro' : 'Pro'}
@@ -177,7 +180,8 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
         </div>
         <button
           onClick={onBack}
-          className="size-10 rounded-full bg-white/5 text-white hover:bg-white/10 active:scale-95"
+          className="size-11 rounded-full bg-white/5 text-white hover:bg-white/10 active:scale-95 touch-manipulation"
+          style={{ touchAction: 'manipulation' }}
         >
           <span className="material-symbols-outlined">close</span>
         </button>
