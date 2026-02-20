@@ -1,8 +1,15 @@
+import { LIBRARY_STORIES, RECENT_STORIES } from '../data';
+import { Story } from '../types';
+import { normalizeStoryTheme } from './storyCuration';
+
 // AI Story Generation Service via backend proxy
 
 const STORY_API_PATH = '/api/generate-story';
 const STORY_API_BASE_URL = import.meta.env.VITE_STORY_API_URL?.trim() || '';
 const GEMINI_REQUEST_TIMEOUT_MS = 15000;
+const STORY_GENERATION_MODE = (import.meta.env.VITE_STORY_GENERATION_MODE || 'local').trim().toLowerCase();
+
+export type StoryGenerationMode = 'local' | 'hybrid' | 'remote';
 
 function resolveStoryApiEndpoint(): string {
     if (!STORY_API_BASE_URL) return STORY_API_PATH;
@@ -341,6 +348,44 @@ const THEME_FALLBACK_LABELS: Record<string, { en: string; tr: string }> = {
     underwater: { en: 'shimmering ocean path', tr: 'parıltılı okyanus yolu' }
 };
 
+const THEME_DISPLAY_LABELS: Record<string, { en: string; tr: string }> = {
+    adventure: { en: 'Adventure', tr: 'Macera' },
+    friendship: { en: 'Friendship', tr: 'Dostluk' },
+    magic: { en: 'Magic', tr: 'Sihir' },
+    nature: { en: 'Nature', tr: 'Doğa' },
+    space: { en: 'Space', tr: 'Uzay' },
+    underwater: { en: 'Underwater', tr: 'Denizaltı' }
+};
+
+const TONE_DISPLAY_LABELS: Record<StoryPrompt['tone'], { en: string; tr: string }> = {
+    calm: { en: 'Calm', tr: 'Sakin' },
+    exciting: { en: 'Exciting', tr: 'Heyecanlı' },
+    funny: { en: 'Funny', tr: 'Neşeli' },
+    mysterious: { en: 'Mysterious', tr: 'Gizemli' }
+};
+
+const TONE_FLAVOR_SENTENCES: Record<StoryPrompt['tone'], Record<StoryPrompt['language'], string>> = {
+    calm: {
+        en: 'A gentle hush settled over everything, perfect for bedtime.',
+        tr: 'Her yerin üstüne, uykuya çağıran yumuşak bir huzur çökmüş.'
+    },
+    exciting: {
+        en: 'Their hearts fluttered with wonder, yet the night still felt safe.',
+        tr: 'Kalpleri heyecanla kıpırdansa da gece yine de güvenli ve sıcacıkmış.'
+    },
+    funny: {
+        en: 'A tiny giggle escaped, turning the moment into a warm little joke.',
+        tr: 'Minik bir kahkaha patlamış ve anı tatlı bir şakaya çevirmiş.'
+    },
+    mysterious: {
+        en: 'A soft mystery shimmered nearby, inviting curious but gentle steps.',
+        tr: 'Yakında yumuşak bir gizem parlamış ve meraklı ama nazik adımlar çağırmış.'
+    }
+};
+
+const TURKISH_CHAR_PATTERN = /[ğüşöçıİĞÜŞÖÇ]/;
+const TURKISH_WORD_PATTERN = /\b(ve|bir|ile|için|ama|gibi|çok|şimdi|gece|hikaye|masal|uyku|rüya|ruya)\b/i;
+
 function asRecord(value: unknown): Record<string, unknown> | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
     return value as Record<string, unknown>;
@@ -616,6 +661,280 @@ function resolveOptions(input: StoryPrompt | StoryPrompt['language']): StoryProm
         ...input,
         childName: input.childName?.trim() || undefined
     };
+}
+
+function normalizeGenerationMode(value: string): StoryGenerationMode {
+    if (value === 'remote' || value === 'hybrid' || value === 'local') {
+        return value;
+    }
+    return 'local';
+}
+
+export function getStoryGenerationMode(): StoryGenerationMode {
+    return normalizeGenerationMode(STORY_GENERATION_MODE);
+}
+
+function toSeededNumber(input: string): number {
+    let hash = 0;
+    for (let i = 0; i < input.length; i += 1) {
+        hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+    }
+    return hash;
+}
+
+function parseDurationMinutes(duration: string | undefined): number {
+    if (!duration) return DURATION_CONFIG.medium.minutes;
+    const match = duration.match(/(\d+)/);
+    if (!match) return DURATION_CONFIG.medium.minutes;
+    const value = Number(match[1]);
+    return Number.isFinite(value) && value > 0 ? value : DURATION_CONFIG.medium.minutes;
+}
+
+function looksLikeTurkishText(text: string): boolean {
+    const clean = text.trim();
+    if (!clean) return false;
+    if (TURKISH_CHAR_PATTERN.test(clean)) return true;
+    return TURKISH_WORD_PATTERN.test(clean);
+}
+
+function hasTrustedTurkishParagraphs(paragraphs: string[] | undefined): paragraphs is string[] {
+    if (!paragraphs || paragraphs.length === 0) return false;
+    return paragraphs.every((paragraph) => looksLikeTurkishText(paragraph));
+}
+
+function hasLinearTemplate(story: Story): boolean {
+    return Boolean((story.content && story.content.length > 0) || (story.contentTr && story.contentTr.length > 0));
+}
+
+function hasInteractiveTemplate(story: Story): boolean {
+    return Boolean(story.isInteractive && story.branches && story.branches.length > 0);
+}
+
+function hasTurkishLinearTemplate(story: Story): boolean {
+    if (hasTrustedTurkishParagraphs(story.contentTr)) return true;
+    if (hasTrustedTurkishParagraphs(story.content)) return true;
+    return false;
+}
+
+function hasTurkishInteractiveTemplate(story: Story): boolean {
+    if (!story.branches || story.branches.length === 0) return false;
+
+    return story.branches.some((branch) => {
+        if (hasTrustedTurkishParagraphs(branch.paragraphsTr)) return true;
+        if (hasTrustedTurkishParagraphs(branch.paragraphs)) return true;
+        const choices = branch.choices || [];
+        return choices.some((choice) =>
+            looksLikeTurkishText(choice.textTr || '') ||
+            looksLikeTurkishText(choice.text || '') ||
+            looksLikeTurkishText(choice.consequenceTr || '')
+        );
+    });
+}
+
+function buildLocalStoryPool(): Story[] {
+    const byId = new Map<string, Story>();
+    const merged = [...LIBRARY_STORIES, ...RECENT_STORIES];
+
+    for (const story of merged) {
+        const existing = byId.get(story.id);
+        if (!existing) {
+            byId.set(story.id, story);
+            continue;
+        }
+
+        const existingScore =
+            (hasInteractiveTemplate(existing) ? 10 : 0) +
+            (hasLinearTemplate(existing) ? 8 : 0) +
+            (hasTurkishInteractiveTemplate(existing) ? 7 : 0) +
+            (hasTurkishLinearTemplate(existing) ? 6 : 0);
+
+        const candidateScore =
+            (hasInteractiveTemplate(story) ? 10 : 0) +
+            (hasLinearTemplate(story) ? 8 : 0) +
+            (hasTurkishInteractiveTemplate(story) ? 7 : 0) +
+            (hasTurkishLinearTemplate(story) ? 6 : 0);
+
+        if (candidateScore > existingScore) {
+            byId.set(story.id, story);
+        }
+    }
+
+    return Array.from(byId.values());
+}
+
+const LOCAL_STORY_POOL = buildLocalStoryPool();
+
+function resolveThemeDisplayLabel(theme: string, language: StoryPrompt['language']): string {
+    const normalized = normalizeStoryTheme(theme);
+    const fromMap = THEME_DISPLAY_LABELS[normalized]?.[language];
+    if (fromMap) return fromMap;
+
+    if (!theme.trim()) return language === 'tr' ? 'Masal' : 'Story';
+    return theme.trim();
+}
+
+function resolveToneDisplayLabel(tone: string, language: StoryPrompt['language']): string {
+    const entry = TONE_DISPLAY_LABELS[tone as StoryPrompt['tone']];
+    if (entry) return entry[language];
+    if (!tone.trim()) return language === 'tr' ? 'Sakin' : 'Calm';
+    return tone.trim();
+}
+
+function resolveLocalizedTitle(story: Story, language: StoryPrompt['language']): string {
+    if (language === 'tr') {
+        if (story.titleTr && story.titleTr.trim().length > 0) return story.titleTr.trim();
+        if (looksLikeTurkishText(story.title)) return story.title.trim();
+    }
+
+    return story.title.trim() || (language === 'tr' ? 'Sihirli Masal' : 'Magical Story');
+}
+
+function resolveLocalizedSubtitle(story: Story, options: StoryPrompt): string {
+    if (options.language === 'tr') {
+        if (story.subtitleTr && story.subtitleTr.trim().length > 0 && looksLikeTurkishText(story.subtitleTr)) {
+            return story.subtitleTr.trim();
+        }
+        if (story.subtitle && looksLikeTurkishText(story.subtitle)) {
+            return story.subtitle.trim();
+        }
+    } else if (story.subtitle && story.subtitle.trim().length > 0) {
+        return story.subtitle.trim();
+    }
+
+    return `${resolveThemeDisplayLabel(options.theme, options.language)} • ${resolveToneDisplayLabel(options.tone, options.language)}`;
+}
+
+function resolveLocalizedMoral(story: Story, options: StoryPrompt): string {
+    if (options.language === 'tr') {
+        if (story.moralTr && story.moralTr.trim().length > 0 && looksLikeTurkishText(story.moralTr)) {
+            return story.moralTr.trim();
+        }
+        if (story.moral && looksLikeTurkishText(story.moral)) {
+            return story.moral.trim();
+        }
+        return 'Nezaket ve cesaret, en güzel masal yolunu açar.';
+    }
+
+    if (story.moral && story.moral.trim().length > 0) {
+        return story.moral.trim();
+    }
+    return 'Kindness and courage make every bedtime story brighter.';
+}
+
+function resolveStoryCharacter(story: Story, options: StoryPrompt): string {
+    if (options.childName) return options.childName;
+    if (story.character && story.character.trim().length > 0) return story.character.trim();
+    return fallbackCharacter(options);
+}
+
+function resolveLinearSourceParagraphs(story: Story, options: StoryPrompt): string[] {
+    if (options.language === 'tr') {
+        if (hasTrustedTurkishParagraphs(story.contentTr)) return story.contentTr;
+        if (hasTrustedTurkishParagraphs(story.content)) return story.content;
+    }
+
+    const source = story.content && story.content.length > 0
+        ? story.content
+        : (story.contentTr || []);
+
+    return source.map((paragraph) => paragraph.trim()).filter(Boolean);
+}
+
+function addChildPersonalization(
+    paragraphs: string[],
+    options: StoryPrompt
+): string[] {
+    if (!options.childName || paragraphs.length === 0) return paragraphs;
+
+    const childName = options.childName.trim();
+    if (!childName) return paragraphs;
+
+    const firstParagraph = paragraphs[0] || '';
+    const alreadyMentioned = firstParagraph.toLowerCase().includes(childName.toLowerCase());
+    if (alreadyMentioned) return paragraphs;
+
+    const intro = options.language === 'tr'
+        ? `Bu geceki masalda kahramanımız ${childName}.`
+        : `Tonight, ${childName} is the hero of this bedtime story.`;
+
+    return [cleanParagraphText(`${intro} ${firstParagraph}`), ...paragraphs.slice(1)];
+}
+
+function addToneFlavor(
+    paragraphs: string[],
+    options: StoryPrompt
+): string[] {
+    if (paragraphs.length === 0) return paragraphs;
+
+    const toneFlavor = TONE_FLAVOR_SENTENCES[options.tone as StoryPrompt['tone']]?.[options.language];
+    if (!toneFlavor) return paragraphs;
+
+    const index = paragraphs.length > 1 ? 1 : 0;
+    const next = [...paragraphs];
+    next[index] = cleanParagraphText(`${next[index]} ${toneFlavor}`);
+    return polishParagraphSequence(next, options.language, true);
+}
+
+function scoreLocalTemplate(story: Story, options: StoryPrompt): number {
+    let score = 0;
+    const targetTheme = normalizeStoryTheme(options.theme);
+    const storyTheme = normalizeStoryTheme(story.theme);
+
+    if (targetTheme && storyTheme === targetTheme) {
+        score += 60;
+    } else if (targetTheme && storyTheme && (storyTheme.includes(targetTheme) || targetTheme.includes(storyTheme))) {
+        score += 24;
+    }
+
+    const targetMinutes = DURATION_CONFIG[options.duration].minutes;
+    const storyMinutes = parseDurationMinutes(story.duration);
+    score += Math.max(0, 28 - (Math.abs(targetMinutes - storyMinutes) * 2));
+
+    if (options.language === 'tr') {
+        if (options.isInteractive) {
+            score += hasTurkishInteractiveTemplate(story) ? 36 : -18;
+        } else {
+            score += hasTurkishLinearTemplate(story) ? 32 : -15;
+        }
+    }
+
+    if (story.moral || story.moralTr) score += 4;
+    return score;
+}
+
+function pickLocalTemplateStory(options: StoryPrompt): Story | null {
+    const wantsInteractive = Boolean(options.isInteractive);
+    const baseCandidates = LOCAL_STORY_POOL.filter((story) =>
+        wantsInteractive ? hasInteractiveTemplate(story) : hasLinearTemplate(story)
+    );
+    if (baseCandidates.length === 0) return null;
+
+    const languagePreferred = options.language === 'tr'
+        ? baseCandidates.filter((story) =>
+            wantsInteractive ? hasTurkishInteractiveTemplate(story) : hasTurkishLinearTemplate(story)
+        )
+        : baseCandidates;
+
+    const candidates = languagePreferred.length > 0 ? languagePreferred : baseCandidates;
+
+    const ranked = candidates
+        .map((story) => ({
+            story,
+            score: scoreLocalTemplate(story, options)
+        }))
+        .sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return a.story.id.localeCompare(b.story.id);
+        });
+
+    const shortlist = ranked.slice(0, Math.min(6, ranked.length));
+    if (shortlist.length === 1) return shortlist[0].story;
+
+    const seed = toSeededNumber(
+        `${new Date().toISOString().slice(0, 10)}|${options.theme}|${options.tone}|${options.duration}|${options.childName || ''}|${options.language}|${wantsInteractive ? 'interactive' : 'linear'}`
+    );
+
+    return shortlist[seed % shortlist.length]?.story || ranked[0].story;
 }
 
 function fallbackCharacter(options: StoryPrompt): string {
@@ -1062,6 +1381,188 @@ function normalizeGeneratedStory(rawPayload: unknown, options: StoryPrompt): Gen
         isInteractive: false,
         content: normalizedContent
     };
+}
+
+function buildLocalLinearStory(options: StoryPrompt, template: Story): GeneratedStory | null {
+    const durationConfig = DURATION_CONFIG[options.duration];
+    const sourceParagraphs = resolveLinearSourceParagraphs(template, options);
+    if (sourceParagraphs.length === 0) return null;
+
+    let content = sourceParagraphs.map((paragraph, index) =>
+        enrichParagraph(paragraph, options.language, durationConfig.sentencesPerParagraph, index)
+    );
+
+    content = addChildPersonalization(content, options);
+    content = normalizeParagraphs(
+        content,
+        durationConfig.paragraphs,
+        options.language,
+        durationConfig.sentencesPerParagraph
+    );
+    content = addToneFlavor(content, options);
+
+    const character = resolveStoryCharacter(template, options);
+    const moral = resolveLocalizedMoral(template, options);
+    let title = resolveLocalizedTitle(template, options.language);
+
+    if (options.childName && !title.toLowerCase().includes(options.childName.toLowerCase())) {
+        title = options.language === 'tr'
+            ? `${options.childName} ile ${title}`
+            : `${options.childName} and ${title}`;
+    }
+
+    return {
+        title,
+        subtitle: resolveLocalizedSubtitle(template, options),
+        character,
+        moral,
+        ageRange: durationConfig.ageRange,
+        theme: options.theme,
+        isInteractive: false,
+        content
+    };
+}
+
+function buildLocalInteractiveStory(options: StoryPrompt, template: Story): GeneratedStory | null {
+    if (!template.branches || template.branches.length === 0) return null;
+
+    const rawBranches = template.branches
+        .map((branch, branchIndex) => {
+            const paragraphs = options.language === 'tr' && hasTrustedTurkishParagraphs(branch.paragraphsTr)
+                ? branch.paragraphsTr
+                : branch.paragraphs;
+
+            const cleanedParagraphs = (paragraphs || [])
+                .map((paragraph) => paragraph.trim())
+                .filter(Boolean);
+
+            if (cleanedParagraphs.length === 0) return null;
+
+            const choices = (branch.choices || [])
+                .map((choice, choiceIndex) => {
+                    const text = options.language === 'tr' && choice.textTr && looksLikeTurkishText(choice.textTr)
+                        ? choice.textTr.trim()
+                        : (choice.text || '').trim();
+
+                    if (!text || !choice.nextBranchId) return null;
+
+                    const consequence = options.language === 'tr' && choice.consequenceTr && looksLikeTurkishText(choice.consequenceTr)
+                        ? choice.consequenceTr.trim()
+                        : (choice.consequence || '').trim();
+
+                    return {
+                        id: choice.id || `${branch.id || `branch_${branchIndex + 1}`}_choice_${choiceIndex + 1}`,
+                        text,
+                        emoji: choice.emoji || DEFAULT_CHOICE_EMOJIS[choiceIndex % DEFAULT_CHOICE_EMOJIS.length],
+                        nextBranchId: choice.nextBranchId,
+                        consequence: consequence || undefined
+                    };
+                })
+                .filter((choice): choice is NonNullable<typeof choice> => Boolean(choice));
+
+            return {
+                id: branch.id || `branch_${branchIndex + 1}`,
+                paragraphs: cleanedParagraphs,
+                ...(choices.length > 0 ? { choices } : {}),
+                ...(branch.isEnding ? { isEnding: true } : {}),
+                ...(branch.endingType ? { endingType: branch.endingType } : {}),
+                ...((options.language === 'tr' && branch.endingTitleTr && looksLikeTurkishText(branch.endingTitleTr))
+                    ? { endingTitle: branch.endingTitleTr.trim() }
+                    : (branch.endingTitle ? { endingTitle: branch.endingTitle } : {}))
+            };
+        })
+        .filter((branch): branch is NonNullable<typeof branch> => Boolean(branch));
+
+    if (rawBranches.length < 2) return null;
+
+    const baseMeta: Omit<GeneratedStory, 'content'> = {
+        title: resolveLocalizedTitle(template, options.language),
+        subtitle: resolveLocalizedSubtitle(template, options),
+        character: resolveStoryCharacter(template, options),
+        moral: resolveLocalizedMoral(template, options),
+        ageRange: DURATION_CONFIG[options.duration].ageRange,
+        theme: options.theme
+    };
+
+    const normalized = normalizeInteractiveStory(
+        {
+            startBranchId: template.startBranchId || rawBranches[0].id,
+            branches: rawBranches
+        },
+        options,
+        baseMeta
+    );
+
+    if (!normalized) return null;
+
+    if (options.childName && normalized.branches && normalized.branches.length > 0) {
+        const startBranchIndex = normalized.branches.findIndex((branch) => branch.id === normalized.startBranchId);
+        const indexToPatch = startBranchIndex >= 0 ? startBranchIndex : 0;
+        const startBranch = normalized.branches[indexToPatch];
+        const intro = options.language === 'tr'
+            ? `${options.childName}, bu geceki maceranın kahramanı olmuş.`
+            : `${options.childName} became the hero of this adventure tonight.`;
+
+        if (startBranch && startBranch.paragraphs.length > 0) {
+            const updatedParagraphs = [...startBranch.paragraphs];
+            updatedParagraphs[0] = cleanParagraphText(`${intro} ${updatedParagraphs[0]}`);
+            normalized.branches[indexToPatch] = {
+                ...startBranch,
+                paragraphs: updatedParagraphs
+            };
+        }
+
+        normalized.character = options.childName;
+    }
+
+    return normalized;
+}
+
+function generateStoryFromLocalPool(optionsInput: StoryPrompt): GeneratedStory {
+    const options = resolveOptions(optionsInput);
+    const template = pickLocalTemplateStory(options);
+    if (!template) {
+        return getFallbackStory(options);
+    }
+
+    if (options.language === 'tr') {
+        if (options.isInteractive && !hasTurkishInteractiveTemplate(template)) {
+            return getFallbackStory(options);
+        }
+        if (!options.isInteractive && !hasTurkishLinearTemplate(template)) {
+            return getFallbackStory(options);
+        }
+    }
+
+    if (options.isInteractive) {
+        const interactive = buildLocalInteractiveStory(options, template);
+        if (interactive) return interactive;
+        return getFallbackStory(options);
+    }
+
+    const linear = buildLocalLinearStory(options, template);
+    if (linear) return linear;
+    return getFallbackStory(options);
+}
+
+export async function generateStory(optionsInput: StoryPrompt): Promise<GeneratedStory> {
+    const options = resolveOptions(optionsInput);
+    const mode = getStoryGenerationMode();
+
+    if (mode === 'local') {
+        return generateStoryFromLocalPool(options);
+    }
+
+    if (mode === 'remote') {
+        return generateStoryWithAI(options);
+    }
+
+    try {
+        return await generateStoryWithAI(options);
+    } catch (error) {
+        console.warn('Hybrid generation fell back to local story pool:', error);
+        return generateStoryFromLocalPool(options);
+    }
 }
 
 // Call Gemini API

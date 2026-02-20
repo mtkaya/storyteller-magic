@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CreateStep, Story } from '../types';
 import { IMAGES } from '../data';
 import { useLanguage } from '../context/LanguageContext';
-import { generateStoryWithAI, getFallbackStory, StoryPrompt, GeneratedStory } from '../services/storyGenerator';
+import { generateStory, getStoryGenerationMode, getFallbackStory, StoryPrompt, GeneratedStory } from '../services/storyGenerator';
 import { getIllustratedImageUrl } from '../services/illustrationCovers';
 import { buildIllustrationCoverPrompt } from '../services/coverPrompt';
 
@@ -27,6 +27,8 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
   const [generatedStory, setGeneratedStory] = useState<GeneratedStory | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copyPromptStatus, setCopyPromptStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const generationMode = React.useMemo(() => getStoryGenerationMode(), []);
+  const isLocalMode = generationMode === 'local';
 
   const looksLikeTurkishText = (text: string): boolean => {
     const clean = text.trim();
@@ -81,8 +83,23 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
     };
 
     try {
-      const story = await generateStoryWithAI(storyOptions);
+      const story = await generateStory(storyOptions);
       setGeneratedStory(story);
+      if (generationMode === 'local') {
+        setError(
+          language === 'tr'
+            ? 'Maliyet dostu yerel hikaye havuzundan üretildi.'
+            : 'Generated from the local story pool (cost saver mode).'
+        );
+      } else if (generationMode === 'hybrid') {
+        setError(
+          language === 'tr'
+            ? 'Hibrit mod aktif: uygun olduğunda AI, gerekirse yerel havuz kullanılır.'
+            : 'Hybrid mode active: AI when available, local pool as fallback.'
+        );
+      } else {
+        setError(null);
+      }
       setLoadingProgress(100);
       setTimeout(() => setStep(CreateStep.RESULT), 500);
     } catch (err) {
@@ -196,7 +213,9 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
 
           <h2 className="text-3xl font-bold text-white text-center mb-2">{t.create_generating}</h2>
           <p className="text-primary/80 italic mb-8">
-            {language === 'tr' ? 'Sihir başladı...' : 'The magic is at work...'}
+            {isLocalMode
+              ? (language === 'tr' ? 'Hikaye havuzundan sana uygun masal seçiliyor...' : 'Selecting the best match from the story pool...')
+              : (language === 'tr' ? 'Sihir başladı...' : 'The magic is at work...')}
           </p>
 
           <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden border border-white/5">
@@ -465,10 +484,18 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
           className="w-full py-4 rounded-xl bg-accent-peach text-bg-dark text-lg font-extrabold flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,176,142,0.4)] active:scale-95 transition-transform"
         >
           <span className="material-symbols-outlined">auto_fix_high</span>
-          {language === 'tr' ? 'AI ile Hikaye Oluştur' : 'Generate with AI'}
+          {isLocalMode
+            ? (language === 'tr' ? 'Hikaye Oluştur' : 'Generate Story')
+            : (language === 'tr' ? 'AI ile Hikaye Oluştur' : 'Generate with AI')}
         </button>
         <p className="text-center text-white/40 text-xs mt-3 italic">
-          {language === 'tr' ? 'Gemini AI ile sihirli hikayeni yazıyoruz...' : 'Using Gemini AI to weave your magical tale...'}
+          {isLocalMode
+            ? (language === 'tr'
+              ? 'Yüzlerce hikayelik yerel havuzdan kişiselleştirilmiş masal hazırlıyoruz.'
+              : 'Preparing a personalized tale from the local story library.')
+            : (language === 'tr'
+              ? 'Gemini AI ile sihirli hikayeni yazıyoruz...'
+              : 'Using Gemini AI to weave your magical tale...')}
         </p>
       </div>
     </div>

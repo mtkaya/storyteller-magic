@@ -4,7 +4,7 @@ Storyteller Magic is a React + TypeScript app for creating bedtime stories with 
 
 ## Highlights
 
-- AI story generation with Gemini (`gemini-1.5-flash`)
+- Local-first story generation (zero-token cost by default) with optional Gemini (`gemini-1.5-flash`)
 - Interactive "choose your own adventure" stories
 - English and Turkish language support
 - Premium voice narration via OpenAI TTS (`/api/tts`) with browser Speech Synthesis fallback
@@ -41,6 +41,8 @@ OPENAI_API_KEY=your_openai_api_key_here
 # OPENAI_TTS_VOICE_EN=alloy
 # OPENAI_TTS_FORMAT=mp3
 VITE_STORY_API_URL=
+# Optional: story generation strategy (`local`, `hybrid`, `remote`)
+# VITE_STORY_GENERATION_MODE=local
 # Optional: force illustrated covers (default false)
 # VITE_ILLUSTRATION_ONLY_MODE=true
 # Optional: force one illustration technique globally
@@ -52,6 +54,10 @@ VITE_STORY_API_URL=
 - `TRUST_PROXY` controls whether `x-forwarded-for`/`x-real-ip` headers are trusted for rate limiting. Keep `false` unless you are behind a trusted reverse proxy.
 - `CORS_ALLOWED_ORIGINS` is a comma-separated allowlist for browser origins. Set this explicitly in production.
 - `VITE_STORY_API_URL` is optional. Leave empty if frontend and backend share the same domain.
+- `VITE_STORY_GENERATION_MODE` controls generation path:
+  - `local` (default): uses built-in story pool and local composition only
+  - `hybrid`: tries Gemini first, falls back to local story pool
+  - `remote`: always uses Gemini API
 - For mobile builds, set `VITE_STORY_API_URL` to your deployed backend URL (for example `https://api.example.com`).
 - `VITE_ILLUSTRATION_ONLY_MODE` controls cover style. Default is original story images (`false`). Set `true` for illustration-only mode.
 - `VITE_ILLUSTRATION_STYLE_OVERRIDE` optionally locks one visual technique globally (`watercolor`, `gouache`, `flat-storybook`, `cut-paper`).
@@ -149,7 +155,9 @@ npm run cap:run:android
 
 ## Fallback Behavior
 
-If Gemini is unavailable or times out, the app automatically shows a locally generated fallback story so the reading flow continues.
+By default (`VITE_STORY_GENERATION_MODE=local`), stories are produced from the built-in story pool without API calls.
+In `hybrid` mode, Gemini is used when available and local generation takes over on errors/timeouts.
+In `remote` mode, Gemini failures still fall back to a local emergency story so the reading flow continues.
 If OpenAI TTS is unavailable or not configured, the reader falls back to browser Speech Synthesis.
 
 ## Free Background Music
