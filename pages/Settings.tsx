@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ScreenName } from '../types';
+import { RECENT_STORIES, LIBRARY_STORIES } from '../data';
 import { useLanguage, languageOptions } from '../context/LanguageContext';
 import { useAppState } from '../context/AppStateContext';
+import { buildStoryPool } from '../services/storyCuration';
+import {
+    buildCanvaPromptRows,
+    buildCanvaPromptCsv,
+    downloadCanvaPromptCsv
+} from '../services/canvaPromptExport';
 
 interface SettingsProps {
     onNavigate: (screen: ScreenName) => void;
@@ -11,10 +18,35 @@ interface SettingsProps {
 
 const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport }) => {
     const { language, setLanguage, t } = useLanguage();
-    const { settings, updateSettings, planRule, remainingGeneratedStories } = useAppState();
+    const { settings, updateSettings, planRule, remainingGeneratedStories, customStories } = useAppState();
     const [sleepTimer, setSleepTimer] = useState(30); // seconds
     const [notifications, setNotifications] = useState(false);
     const [readingSpeed, setReadingSpeed] = useState(0.9);
+    const [isExportingCanva, setIsExportingCanva] = useState(false);
+
+    const canvaStoryPool = useMemo(
+        () => buildStoryPool(RECENT_STORIES, LIBRARY_STORIES, customStories),
+        [customStories]
+    );
+    const canvaScenesPerStory = 8;
+    const estimatedCanvaPrompts = canvaStoryPool.length * canvaScenesPerStory;
+
+    const handleCanvaPromptExport = () => {
+        if (isExportingCanva) return;
+        setIsExportingCanva(true);
+        try {
+            const rows = buildCanvaPromptRows(canvaStoryPool, {
+                language,
+                scenesPerStory: canvaScenesPerStory,
+            });
+            const csv = buildCanvaPromptCsv(rows);
+            const dateTag = new Date().toISOString().slice(0, 10);
+            const fileName = `storyteller-canva-prompts-${language}-${dateTag}.csv`;
+            downloadCanvaPromptCsv(csv, fileName);
+        } finally {
+            setIsExportingCanva(false);
+        }
+    };
 
     return (
         <div className="flex flex-col min-h-screen bg-bg-dark text-white">
@@ -77,6 +109,34 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                                 )}
                             </button>
                         ))}
+                    </div>
+                </section>
+
+                {/* Canva Prompt Export */}
+                <section>
+                    <h3 className="text-sm font-bold text-white/50 uppercase tracking-wider mb-3 px-1">
+                        {language === 'tr' ? 'Canva İçerik Üretimi' : 'Canva Content Production'}
+                    </h3>
+                    <div className="bg-white/5 rounded-2xl overflow-hidden border border-white/5 p-4 space-y-3">
+                        <p className="text-sm text-white/80">
+                            {language === 'tr'
+                                ? `${canvaStoryPool.length} hikaye için yaklaşık ${estimatedCanvaPrompts} sahne promptu indir.`
+                                : `Download about ${estimatedCanvaPrompts} scene prompts for ${canvaStoryPool.length} stories.`}
+                        </p>
+                        <p className="text-xs text-white/50">
+                            {language === 'tr'
+                                ? 'CSV dosyasını Canva Bulk Create içine yükleyip görselleri toplu üretebilirsin.'
+                                : 'Upload the CSV into Canva Bulk Create to generate visuals in batch.'}
+                        </p>
+                        <button
+                            onClick={handleCanvaPromptExport}
+                            disabled={isExportingCanva}
+                            className="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-primary to-secondary text-bg-dark disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {isExportingCanva
+                                ? (language === 'tr' ? 'Hazırlanıyor...' : 'Preparing...')
+                                : (language === 'tr' ? 'Canva Prompt CSV İndir' : 'Download Canva Prompt CSV')}
+                        </button>
                     </div>
                 </section>
 

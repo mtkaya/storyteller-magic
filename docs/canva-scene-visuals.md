@@ -43,3 +43,16 @@ Ek olarak `buildCanvaStoryboardScenes(story, language, totalScenes)` fonksiyonu 
 
 - `buildCanvaStoryboardScenes` ciktilarini JSON olarak export eden bir admin komutu eklenebilir.
 - Uretilen Canva gorselleri `public/images/story-scenes/<story-id>/` altina alinip story bazli kalici esleme yapilabilir.
+
+## Yeni: Uygulama icinden CSV export
+
+- Ayarlar ekranina `Canva Prompt CSV Indir` butonu eklendi.
+- Kaynak dosya: `services/canvaPromptExport.ts`
+- UI baglantisi: `pages/Settings.tsx`
+- Export icerigi:
+  - `story_id`
+  - `story_title`
+  - `theme`
+  - `scene_number`
+  - `phase`
+  - `prompt`
