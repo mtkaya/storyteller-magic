@@ -764,6 +764,219 @@ function buildLocalStoryPool(): Story[] {
 
 const LOCAL_STORY_POOL = buildLocalStoryPool();
 
+const LOCAL_ROTATION_STORAGE_KEY = 'storyteller_local_story_rotation_v1';
+const MAX_RECENT_BUCKET_IDS = 18;
+
+const LINEAR_VARIANT_TAGS: Record<StoryPrompt['language'], string[]> = {
+    en: ['Moonlit Route', 'Lantern Trail', 'Starlight Turn', 'Cozy Whisper', 'Dream Path', 'Twinkle Step'],
+    tr: ['Ay Işığı Rotası', 'Fener Patikası', 'Yıldız Durağı', 'Sıcak Fısıltı', 'Rüya Yolu', 'Parıltı Adımı']
+};
+
+const INTERACTIVE_VARIANT_TAGS: Record<StoryPrompt['language'], string[]> = {
+    en: ['Choose & Explore', 'Branching Journey', 'Secret Route', 'Adventure Fork', 'Curious Choices'],
+    tr: ['Seç ve Keşfet', 'Dallanan Yol', 'Gizli Rota', 'Macera Ayrımı', 'Meraklı Seçimler']
+};
+
+type InteractiveDetourIdea = {
+    text: string;
+    consequence: string;
+    emoji: string;
+    followText: string;
+    endingText: string;
+};
+
+const INTERACTIVE_DETOUR_IDEAS: Record<StoryPrompt['language'], InteractiveDetourIdea[]> = {
+    en: [
+        { text: 'Follow the tiny lantern glow', consequence: 'A hidden path may open.', emoji: '🏮', followText: 'Return to the main route', endingText: 'Settle into a cozy ending' },
+        { text: 'Listen to the whispering breeze', consequence: 'The breeze might guide you.', emoji: '🍃', followText: 'Continue the adventure', endingText: 'Choose a peaceful finish' },
+        { text: 'Inspect the sparkling clue', consequence: 'You may discover a shortcut.', emoji: '🔎', followText: 'Step back to the main path', endingText: 'Wrap up under the stars' },
+        { text: 'Help a tiny friend nearby', consequence: 'Kindness can change the route.', emoji: '🐾', followText: 'Head to the next chapter', endingText: 'Pause for a gentle ending' },
+        { text: 'Try the moonlit bridge', consequence: 'A new branch may appear.', emoji: '🌉', followText: 'Cross back to the journey', endingText: 'Take a soft bedtime ending' },
+        { text: 'Open the secret map fold', consequence: 'A surprise route might appear.', emoji: '🗺️', followText: 'Follow the map onward', endingText: 'End with a calm discovery' },
+    ],
+    tr: [
+        { text: 'Minik fener izini takip et', consequence: 'Gizli bir yol açılabilir.', emoji: '🏮', followText: 'Ana yola geri dön', endingText: 'Sakin bir sonu seç' },
+        { text: 'Fısıldayan rüzgarı dinle', consequence: 'Rüzgar sana yol gösterebilir.', emoji: '🍃', followText: 'Maceraya devam et', endingText: 'Huzurlu bir kapanış seç' },
+        { text: 'Parlayan ipucunu incele', consequence: 'Kısa bir geçit bulabilirsin.', emoji: '🔎', followText: 'Ana patikaya dön', endingText: 'Yıldızlarla bitir' },
+        { text: 'Yakındaki minik dosta yardım et', consequence: 'İyilik, yolu değiştirebilir.', emoji: '🐾', followText: 'Bir sonraki bölüme geç', endingText: 'Yumuşak bir sona uğra' },
+        { text: 'Ay ışıklı köprüyü dene', consequence: 'Yeni bir dal açılabilir.', emoji: '🌉', followText: 'Yolculuğa geri katıl', endingText: 'Uykuya uygun bir son seç' },
+        { text: 'Haritanın gizli katını aç', consequence: 'Sürpriz bir rota ortaya çıkabilir.', emoji: '🗺️', followText: 'Haritayı izleyerek devam et', endingText: 'Sakin bir keşifle bitir' },
+    ]
+};
+
+type LocalRotationBucket = {
+    order: string[];
+    cursor: number;
+    cycle: number;
+    recent: string[];
+    servedCount: number;
+};
+
+type LocalRotationState = {
+    buckets: Record<string, LocalRotationBucket>;
+};
+
+interface LocalTemplateBundle {
+    primary: Story;
+    alternates: Story[];
+    variantIndex: number;
+}
+
+let localRotationCache: LocalRotationState | null = null;
+
+function canUseLocalStorage(): boolean {
+    return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+}
+
+function shuffleWithSeed<T>(items: T[], seed: number): T[] {
+    const cloned = [...items];
+    let state = seed >>> 0;
+
+    for (let i = cloned.length - 1; i > 0; i -= 1) {
+        state = (1664525 * state + 1013904223) >>> 0;
+        const j = state % (i + 1);
+        [cloned[i], cloned[j]] = [cloned[j], cloned[i]];
+    }
+
+    return cloned;
+}
+
+function loadLocalRotationState(): LocalRotationState {
+    if (localRotationCache) return localRotationCache;
+
+    const fallback: LocalRotationState = { buckets: {} };
+    if (!canUseLocalStorage()) {
+        localRotationCache = fallback;
+        return fallback;
+    }
+
+    try {
+        const raw = window.localStorage.getItem(LOCAL_ROTATION_STORAGE_KEY);
+        if (!raw) {
+            localRotationCache = fallback;
+            return fallback;
+        }
+
+        const parsed = JSON.parse(raw) as LocalRotationState;
+        if (!parsed || typeof parsed !== 'object' || typeof parsed.buckets !== 'object' || !parsed.buckets) {
+            localRotationCache = fallback;
+            return fallback;
+        }
+
+        localRotationCache = parsed;
+        return parsed;
+    } catch {
+        localRotationCache = fallback;
+        return fallback;
+    }
+}
+
+function saveLocalRotationState(state: LocalRotationState): void {
+    localRotationCache = state;
+    if (!canUseLocalStorage()) return;
+    try {
+        window.localStorage.setItem(LOCAL_ROTATION_STORAGE_KEY, JSON.stringify(state));
+    } catch {
+        // Ignore persistence errors and continue with in-memory state.
+    }
+}
+
+function ensureRotationBucket(bucket: LocalRotationBucket | undefined, bucketKey: string, candidateIds: string[]): LocalRotationBucket {
+    const existing = bucket || {
+        order: [],
+        cursor: 0,
+        cycle: 0,
+        recent: [],
+        servedCount: 0
+    };
+
+    const candidateSet = new Set(candidateIds);
+    const keptOrder = existing.order.filter((id) => candidateSet.has(id));
+    const missing = candidateIds.filter((id) => !keptOrder.includes(id));
+    const mergedOrder = [...keptOrder, ...missing];
+
+    if (mergedOrder.length === 0) {
+        return {
+            ...existing,
+            order: [],
+            cursor: 0
+        };
+    }
+
+    const normalizedOrder = mergedOrder.length !== existing.order.length || existing.order.length === 0
+        ? shuffleWithSeed(mergedOrder, toSeededNumber(`${bucketKey}|refresh|${existing.cycle}`))
+        : mergedOrder;
+
+    const safeCursor = Math.min(existing.cursor, Math.max(0, normalizedOrder.length - 1));
+    return {
+        ...existing,
+        order: normalizedOrder,
+        cursor: safeCursor
+    };
+}
+
+function pickFromRotation(bucketKey: string, candidateIds: string[], count: number): { ids: string[]; variantIndex: number } {
+    const safeCount = Math.max(1, count);
+    if (candidateIds.length === 0) return { ids: [], variantIndex: 0 };
+
+    const state = loadLocalRotationState();
+    const bucket = ensureRotationBucket(state.buckets[bucketKey], bucketKey, candidateIds);
+    state.buckets[bucketKey] = bucket;
+
+    const candidateSet = new Set(candidateIds);
+    const picked: string[] = [];
+
+    const nextId = (): string => {
+        if (bucket.order.length === 0) return candidateIds[0];
+
+        let attempts = 0;
+        while (attempts < bucket.order.length * 2) {
+            if (bucket.cursor >= bucket.order.length) {
+                bucket.cycle += 1;
+                bucket.order = shuffleWithSeed(bucket.order, toSeededNumber(`${bucketKey}|cycle|${bucket.cycle}`));
+                bucket.cursor = 0;
+            }
+
+            const candidate = bucket.order[bucket.cursor];
+            bucket.cursor += 1;
+            attempts += 1;
+
+            if (!candidateSet.has(candidate)) continue;
+            if (bucket.recent.includes(candidate) && attempts <= bucket.order.length) continue;
+            return candidate;
+        }
+
+        return bucket.order[0] || candidateIds[0];
+    };
+
+    while (picked.length < safeCount && picked.length < candidateIds.length) {
+        const id = nextId();
+        if (!picked.includes(id)) {
+            picked.push(id);
+        }
+    }
+
+    const primaryId = picked[0] || candidateIds[0];
+    bucket.recent = [...bucket.recent.filter((id) => id !== primaryId), primaryId].slice(-MAX_RECENT_BUCKET_IDS);
+    bucket.servedCount += 1;
+    saveLocalRotationState(state);
+
+    return {
+        ids: picked,
+        variantIndex: Math.max(0, bucket.servedCount - 1)
+    };
+}
+
+function buildVariantTaggedTitle(baseTitle: string, options: StoryPrompt, variantIndex: number): string {
+    const interactiveTags = INTERACTIVE_VARIANT_TAGS[options.language];
+    const linearTags = LINEAR_VARIANT_TAGS[options.language];
+    const tags = options.isInteractive ? interactiveTags : linearTags;
+    const tag = tags[variantIndex % tags.length];
+
+    if (!tag || baseTitle.toLowerCase().includes(tag.toLowerCase())) return baseTitle;
+    return `${baseTitle} • ${tag}`;
+}
+
 function resolveThemeDisplayLabel(theme: string, language: StoryPrompt['language']): string {
     const normalized = normalizeStoryTheme(theme);
     const fromMap = THEME_DISPLAY_LABELS[normalized]?.[language];
@@ -902,7 +1115,7 @@ function scoreLocalTemplate(story: Story, options: StoryPrompt): number {
     return score;
 }
 
-function pickLocalTemplateStory(options: StoryPrompt): Story | null {
+function pickLocalTemplateBundle(options: StoryPrompt): LocalTemplateBundle | null {
     const wantsInteractive = Boolean(options.isInteractive);
     const baseCandidates = LOCAL_STORY_POOL.filter((story) =>
         wantsInteractive ? hasInteractiveTemplate(story) : hasLinearTemplate(story)
@@ -927,14 +1140,28 @@ function pickLocalTemplateStory(options: StoryPrompt): Story | null {
             return a.story.id.localeCompare(b.story.id);
         });
 
-    const shortlist = ranked.slice(0, Math.min(6, ranked.length));
-    if (shortlist.length === 1) return shortlist[0].story;
+    const shortlist = ranked.slice(0, Math.min(12, ranked.length)).map((item) => item.story);
+    if (shortlist.length === 0) return null;
 
-    const seed = toSeededNumber(
-        `${new Date().toISOString().slice(0, 10)}|${options.theme}|${options.tone}|${options.duration}|${options.childName || ''}|${options.language}|${wantsInteractive ? 'interactive' : 'linear'}`
+    const bucketKey = `${options.language}|${wantsInteractive ? 'interactive' : 'linear'}|${normalizeStoryTheme(options.theme) || 'general'}|${options.duration}`;
+    const pickResult = pickFromRotation(
+        bucketKey,
+        shortlist.map((story) => story.id),
+        Math.min(3, shortlist.length)
     );
 
-    return shortlist[seed % shortlist.length]?.story || ranked[0].story;
+    const byId = new Map(shortlist.map((story) => [story.id, story]));
+    const primary = byId.get(pickResult.ids[0]) || shortlist[0];
+    const alternates = pickResult.ids
+        .slice(1)
+        .map((id) => byId.get(id))
+        .filter((story): story is Story => Boolean(story));
+
+    return {
+        primary,
+        alternates,
+        variantIndex: pickResult.variantIndex
+    };
 }
 
 function fallbackCharacter(options: StoryPrompt): string {
@@ -1383,12 +1610,246 @@ function normalizeGeneratedStory(rawPayload: unknown, options: StoryPrompt): Gen
     };
 }
 
-function buildLocalLinearStory(options: StoryPrompt, template: Story): GeneratedStory | null {
+function collectTemplateSnippets(story: Story, options: StoryPrompt): string[] {
+    if (story.isInteractive && story.branches && story.branches.length > 0) {
+        const snippets = story.branches.flatMap((branch) => {
+            const localizedParagraphs = options.language === 'tr' && hasTrustedTurkishParagraphs(branch.paragraphsTr)
+                ? branch.paragraphsTr
+                : branch.paragraphs;
+            return (localizedParagraphs || []).map((paragraph) => paragraph.trim()).filter(Boolean);
+        });
+        if (snippets.length > 0) return snippets;
+    }
+
+    return resolveLinearSourceParagraphs(story, options);
+}
+
+function blendParagraphsWithAlternates(
+    baseParagraphs: string[],
+    alternates: Story[],
+    options: StoryPrompt,
+    variantIndex: number
+): string[] {
+    if (alternates.length === 0 || baseParagraphs.length === 0) return baseParagraphs;
+
+    const blended = [...baseParagraphs];
+    alternates.forEach((alternate, alternateIndex) => {
+        const snippets = collectTemplateSnippets(alternate, options);
+        if (snippets.length === 0) return;
+
+        const source = snippets[(variantIndex + (alternateIndex * 2)) % snippets.length];
+        const replaceIndex = (variantIndex + 2 + (alternateIndex * 3)) % blended.length;
+        blended[replaceIndex] = cleanParagraphText(source);
+
+        if (alternateIndex % 2 === 0 && snippets.length > 2) {
+            const extra = snippets[(variantIndex + alternateIndex + 1) % snippets.length];
+            blended.push(cleanParagraphText(extra));
+        }
+    });
+
+    return blended.map((paragraph) => cleanParagraphText(paragraph)).filter(Boolean);
+}
+
+function createUniqueBranchId(baseId: string, usedIds: Set<string>): string {
+    let candidate = baseId;
+    let suffix = 2;
+
+    while (usedIds.has(candidate)) {
+        candidate = `${baseId}_${suffix}`;
+        suffix += 1;
+    }
+
+    usedIds.add(candidate);
+    return candidate;
+}
+
+function buildSyntheticEndingBranch(
+    options: StoryPrompt,
+    branchId: string,
+    character: string,
+    seedIndex: number
+): StoryBranchType {
+    const paragraphs = options.language === 'tr'
+        ? [
+            `${character}, gecenin sonunda içini ısıtan bir gülümsemeyle durup etrafına bakmış.`,
+            'Yıldızlar usulca parlamış ve tüm yolculuk tatlı bir huzura dönüşmüş.',
+            'Herkes güvenle evine dönerken gece, sakin bir masal ninnisi gibi kapanmış.'
+        ]
+        : [
+            `${character} paused at the end of the journey with a warm smile.`,
+            'Tiny stars shimmered softly, turning every step into calm comfort.',
+            'As everyone returned home safely, the night closed like a gentle lullaby.'
+        ];
+
+    return {
+        id: branchId,
+        paragraphs: polishParagraphSequence(paragraphs, options.language, true),
+        isEnding: true,
+        endingType: ENDING_TYPES[seedIndex % ENDING_TYPES.length],
+        endingTitle: options.language === 'tr' ? 'Huzurlu Son' : 'Peaceful Ending'
+    };
+}
+
+function buildDetourParagraphs(
+    options: StoryPrompt,
+    character: string,
+    idea: InteractiveDetourIdea,
+    snippet: string | undefined
+): string[] {
+    const place = fallbackThemeLabel(options);
+    const toneFlavor = TONE_FLAVOR_SENTENCES[options.tone]?.[options.language] || '';
+
+    if (options.language === 'tr') {
+        const lines = [
+            `${character}, ${place} içinde parlayan küçük bir kıvrım yol fark etmiş.`,
+            snippet && looksLikeTurkishText(snippet)
+                ? cleanParagraphText(snippet)
+                : `Bu kısa yol, beklenmedik ama güvenli bir keşif fırsatı sunuyormuş. ${toneFlavor}`.trim(),
+            `Minik bir duraklama sonrası ${character}, hangi yöne akacağını düşünmüş.`
+        ];
+        return polishParagraphSequence(lines, options.language, false);
+    }
+
+    const lines = [
+        `${character} noticed a tiny glowing detour within the ${place}.`,
+        snippet && !looksLikeTurkishText(snippet)
+            ? cleanParagraphText(snippet)
+            : `The side path felt surprising yet safe, like a gentle secret. ${toneFlavor}`.trim(),
+        `${character} took a breath and considered the next step.`
+    ];
+    return polishParagraphSequence(lines, options.language, false);
+}
+
+function expandInteractiveBranching(
+    story: GeneratedStory,
+    options: StoryPrompt,
+    variantIndex: number,
+    snippetPool: string[]
+): GeneratedStory {
+    if (!story.branches || story.branches.length === 0) return story;
+
+    const branches = story.branches.map((branch) => ({
+        ...branch,
+        paragraphs: [...branch.paragraphs],
+        choices: branch.choices ? [...branch.choices] : undefined
+    }));
+
+    const usedIds = new Set(branches.map((branch) => branch.id));
+    const additions: StoryBranchType[] = [];
+    const character = story.character || fallbackCharacter(options);
+    const ideas = INTERACTIVE_DETOUR_IDEAS[options.language];
+    const desiredChoices = options.duration === 'short' ? 3 : 4;
+    const maxNewDetours = options.duration === 'short' ? 3 : options.duration === 'medium' ? 5 : 7;
+
+    const allBranches = (): StoryBranchType[] => [...branches, ...additions];
+    const endingBranchIds = (): string[] =>
+        allBranches().filter((branch) => branch.isEnding).map((branch) => branch.id);
+
+    while (endingBranchIds().length < 3) {
+        const endingId = createUniqueBranchId(`bonus_ending_${endingBranchIds().length + 1}`, usedIds);
+        additions.push(buildSyntheticEndingBranch(options, endingId, character, variantIndex + additions.length));
+    }
+
+    let detourCount = 0;
+    for (const branch of branches) {
+        if (branch.isEnding) continue;
+
+        const branchChoices = (branch.choices || [])
+            .filter((choice) => Boolean(choice.text && choice.nextBranchId))
+            .map((choice, index) => ({
+                ...choice,
+                id: choice.id || `${branch.id}_choice_${index + 1}`,
+                emoji: choice.emoji || DEFAULT_CHOICE_EMOJIS[index % DEFAULT_CHOICE_EMOJIS.length]
+            }));
+
+        while (branchChoices.length < desiredChoices && detourCount < maxNewDetours) {
+            const idea = ideas[(variantIndex + detourCount) % ideas.length];
+            const detourId = createUniqueBranchId(`${branch.id}_detour_${branchChoices.length + 1}`, usedIds);
+            const activeEndings = endingBranchIds();
+
+            let continueTarget = branchChoices[0]?.nextBranchId
+                || activeEndings[0]
+                || story.startBranchId
+                || branches[0]?.id
+                || detourId;
+
+            if (continueTarget === branch.id) {
+                continueTarget = activeEndings[0] || story.startBranchId || branches[0]?.id || detourId;
+            }
+
+            const endingTarget = activeEndings[(variantIndex + detourCount) % activeEndings.length] || continueTarget;
+            const snippet = snippetPool.length > 0
+                ? snippetPool[(variantIndex + detourCount) % snippetPool.length]
+                : undefined;
+
+            const detourChoices: StoryChoiceType[] = [
+                {
+                    id: `${detourId}_continue`,
+                    text: idea.followText,
+                    emoji: '➡️',
+                    nextBranchId: continueTarget,
+                    consequence: options.language === 'tr'
+                        ? 'Ana hikaye akışına güvenle dönersin.'
+                        : 'You return safely to the main story flow.'
+                }
+            ];
+
+            if (endingTarget && endingTarget !== continueTarget) {
+                detourChoices.push({
+                    id: `${detourId}_ending`,
+                    text: idea.endingText,
+                    emoji: '🌙',
+                    nextBranchId: endingTarget,
+                    consequence: options.language === 'tr'
+                        ? 'Geceyi sıcak bir sonla kapatırsın.'
+                        : 'You close the night with a cozy ending.'
+                });
+            }
+
+            additions.push({
+                id: detourId,
+                paragraphs: buildDetourParagraphs(options, character, idea, snippet),
+                choices: detourChoices,
+                isEnding: false
+            });
+
+            branchChoices.push({
+                id: `${branch.id}_extra_choice_${branchChoices.length + 1}`,
+                text: idea.text,
+                emoji: idea.emoji,
+                nextBranchId: detourId,
+                consequence: idea.consequence
+            });
+
+            detourCount += 1;
+        }
+
+        if (branchChoices.length === 0) {
+            const fallbackTarget = endingBranchIds()[0] || story.startBranchId || branches[0]?.id || branch.id;
+            branch.choices = [buildAutoContinueChoice(branch.id, fallbackTarget, options.language)];
+        } else {
+            branch.choices = branchChoices;
+        }
+        branch.isEnding = false;
+    }
+
+    return {
+        ...story,
+        branches: [...branches, ...additions]
+    };
+}
+
+function buildLocalLinearStory(
+    options: StoryPrompt,
+    template: Story,
+    alternates: Story[],
+    variantIndex: number
+): GeneratedStory | null {
     const durationConfig = DURATION_CONFIG[options.duration];
     const sourceParagraphs = resolveLinearSourceParagraphs(template, options);
     if (sourceParagraphs.length === 0) return null;
 
-    let content = sourceParagraphs.map((paragraph, index) =>
+    let content = blendParagraphsWithAlternates(sourceParagraphs, alternates, options, variantIndex).map((paragraph, index) =>
         enrichParagraph(paragraph, options.language, durationConfig.sentencesPerParagraph, index)
     );
 
@@ -1403,7 +1864,7 @@ function buildLocalLinearStory(options: StoryPrompt, template: Story): Generated
 
     const character = resolveStoryCharacter(template, options);
     const moral = resolveLocalizedMoral(template, options);
-    let title = resolveLocalizedTitle(template, options.language);
+    let title = buildVariantTaggedTitle(resolveLocalizedTitle(template, options.language), options, variantIndex);
 
     if (options.childName && !title.toLowerCase().includes(options.childName.toLowerCase())) {
         title = options.language === 'tr'
@@ -1423,7 +1884,12 @@ function buildLocalLinearStory(options: StoryPrompt, template: Story): Generated
     };
 }
 
-function buildLocalInteractiveStory(options: StoryPrompt, template: Story): GeneratedStory | null {
+function buildLocalInteractiveStory(
+    options: StoryPrompt,
+    template: Story,
+    alternates: Story[],
+    variantIndex: number
+): GeneratedStory | null {
     if (!template.branches || template.branches.length === 0) return null;
 
     const rawBranches = template.branches
@@ -1476,7 +1942,7 @@ function buildLocalInteractiveStory(options: StoryPrompt, template: Story): Gene
     if (rawBranches.length < 2) return null;
 
     const baseMeta: Omit<GeneratedStory, 'content'> = {
-        title: resolveLocalizedTitle(template, options.language),
+        title: buildVariantTaggedTitle(resolveLocalizedTitle(template, options.language), options, variantIndex),
         subtitle: resolveLocalizedSubtitle(template, options),
         character: resolveStoryCharacter(template, options),
         moral: resolveLocalizedMoral(template, options),
@@ -1515,15 +1981,18 @@ function buildLocalInteractiveStory(options: StoryPrompt, template: Story): Gene
         normalized.character = options.childName;
     }
 
-    return normalized;
+    const snippetPool = alternates.flatMap((story) => collectTemplateSnippets(story, options));
+    return expandInteractiveBranching(normalized, options, variantIndex, snippetPool);
 }
 
 function generateStoryFromLocalPool(optionsInput: StoryPrompt): GeneratedStory {
     const options = resolveOptions(optionsInput);
-    const template = pickLocalTemplateStory(options);
-    if (!template) {
+    const bundle = pickLocalTemplateBundle(options);
+    if (!bundle) {
         return getFallbackStory(options);
     }
+
+    const { primary: template, alternates, variantIndex } = bundle;
 
     if (options.language === 'tr') {
         if (options.isInteractive && !hasTurkishInteractiveTemplate(template)) {
@@ -1535,12 +2004,12 @@ function generateStoryFromLocalPool(optionsInput: StoryPrompt): GeneratedStory {
     }
 
     if (options.isInteractive) {
-        const interactive = buildLocalInteractiveStory(options, template);
+        const interactive = buildLocalInteractiveStory(options, template, alternates, variantIndex);
         if (interactive) return interactive;
         return getFallbackStory(options);
     }
 
-    const linear = buildLocalLinearStory(options, template);
+    const linear = buildLocalLinearStory(options, template, alternates, variantIndex);
     if (linear) return linear;
     return getFallbackStory(options);
 }
