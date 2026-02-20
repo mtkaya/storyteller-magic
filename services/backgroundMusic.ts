@@ -33,13 +33,37 @@ export const MUSIC_TRACKS: MusicTrack[] = [
 ];
 
 type NoiseType = 'white' | 'pink' | 'brown';
+type PlayableMusicType = Exclude<MusicType, 'none'>;
+
+const TRACK_GAIN_MULTIPLIER: Record<PlayableMusicType, number> = {
+    lullaby: 0.84,
+    starlight: 0.82,
+    rain: 0.92,
+    forest: 0.9,
+    ocean: 0.9,
+    fireplace: 0.86,
+    wind: 0.88,
+};
+
+const TRACK_DUCKING_TARGET: Record<PlayableMusicType, number> = {
+    lullaby: 0.34,
+    starlight: 0.34,
+    rain: 0.5,
+    forest: 0.48,
+    ocean: 0.5,
+    fireplace: 0.46,
+    wind: 0.48,
+};
 
 class BackgroundMusicService {
     private audioContext: AudioContext | null = null;
     private currentSource: AudioBufferSourceNode | null = null;
     private gainNode: GainNode | null = null;
+    private masterLowpass: BiquadFilterNode | null = null;
+    private compressor: DynamicsCompressorNode | null = null;
     private htmlAudio: HTMLAudioElement | null = null;
     private unavailableFileTracks = new Set<MusicType>();
+    private fileTrackAvailability = new Map<MusicType, boolean>();
     private fadeTimer: number | null = null;
 
     private currentTrack: MusicType = 'none';
@@ -83,7 +107,22 @@ class BackgroundMusicService {
             this.audioContext = new AudioContextCtor();
             this.gainNode = this.audioContext.createGain();
             this.gainNode.gain.value = this.userVolume;
-            this.gainNode.connect(this.audioContext.destination);
+
+            this.masterLowpass = this.audioContext.createBiquadFilter();
+            this.masterLowpass.type = 'lowpass';
+            this.masterLowpass.frequency.value = 4600;
+            this.masterLowpass.Q.value = 0.7;
+
+            this.compressor = this.audioContext.createDynamicsCompressor();
+            this.compressor.threshold.value = -30;
+            this.compressor.knee.value = 16;
+            this.compressor.ratio.value = 2.8;
+            this.compressor.attack.value = 0.03;
+            this.compressor.release.value = 0.28;
+
+            this.gainNode.connect(this.masterLowpass);
+            this.masterLowpass.connect(this.compressor);
+            this.compressor.connect(this.audioContext.destination);
         }
 
         if (this.audioContext.state === 'suspended') {
@@ -99,13 +138,16 @@ class BackgroundMusicService {
     }
 
     private getEffectiveVolume(): number {
-        return Math.max(0, Math.min(1, this.userVolume * this.duckingMultiplier));
+        const trackMix = this.currentTrack !== 'none' ? TRACK_GAIN_MULTIPLIER[this.currentTrack] : 1;
+        return Math.max(0, Math.min(1, this.userVolume * this.duckingMultiplier * trackMix));
     }
 
     private applyVolume() {
         const effectiveVolume = this.getEffectiveVolume();
         if (this.gainNode) {
-            this.gainNode.gain.value = effectiveVolume;
+            const now = this.audioContext?.currentTime ?? 0;
+            this.gainNode.gain.cancelScheduledValues(now);
+            this.gainNode.gain.linearRampToValueAtTime(effectiveVolume, now + 0.06);
         }
         if (this.htmlAudio) {
             this.htmlAudio.volume = effectiveVolume;
@@ -121,6 +163,89 @@ class BackgroundMusicService {
             clearInterval(this.fadeTimer);
             this.fadeTimer = null;
         }
+    }
+
+    private applyEdgeFade(channelData: Float32Array, sampleRate: number, fadeMs = 90) {
+        const fadeSamples = Math.max(32, Math.floor(sampleRate * (fadeMs / 1000)));
+        const length = channelData.length;
+        const limit = Math.min(fadeSamples, Math.floor(length / 2));
+        for (let i = 0; i < limit; i += 1) {
+            const fadeIn = i / limit;
+            const fadeOut = (limit - i) / limit;
+            channelData[i] *= fadeIn;
+            channelData[length - 1 - i] *= fadeOut;
+        }
+    }
+
+    private normalizeBuffer(buffer: AudioBuffer, targetPeak = 0.78) {
+        let peak = 0;
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+            const data = buffer.getChannelData(channel);
+            for (let i = 0; i < data.length; i += 1) {
+                const sample = Math.abs(data[i]);
+                if (sample > peak) peak = sample;
+            }
+        }
+
+        if (peak < 1e-4) return;
+        const scale = Math.min(1.6, targetPeak / peak);
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+            const data = buffer.getChannelData(channel);
+            for (let i = 0; i < data.length; i += 1) {
+                data[i] = Math.tanh(data[i] * scale);
+            }
+        }
+    }
+
+    private finalizeLoopBuffer(buffer: AudioBuffer, targetPeak = 0.78, fadeMs = 90) {
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+            this.applyEdgeFade(buffer.getChannelData(channel), buffer.sampleRate, fadeMs);
+        }
+        this.normalizeBuffer(buffer, targetPeak);
+    }
+
+    private async waitForAudioReady(audio: HTMLAudioElement, timeoutMs = 1600): Promise<boolean> {
+        return new Promise((resolve) => {
+            let settled = false;
+
+            const finish = (result: boolean) => {
+                if (settled) return;
+                settled = true;
+                cleanup();
+                resolve(result);
+            };
+
+            const onCanPlay = () => finish(true);
+            const onError = () => finish(false);
+
+            const cleanup = () => {
+                audio.removeEventListener('canplay', onCanPlay);
+                audio.removeEventListener('canplaythrough', onCanPlay);
+                audio.removeEventListener('error', onError);
+                clearTimeout(timeout);
+            };
+
+            const timeout = window.setTimeout(() => finish(false), timeoutMs);
+            audio.addEventListener('canplay', onCanPlay, { once: true });
+            audio.addEventListener('canplaythrough', onCanPlay, { once: true });
+            audio.addEventListener('error', onError, { once: true });
+            audio.load();
+        });
+    }
+
+    private async ensureFileTrackAvailable(type: MusicType, filePath: string): Promise<boolean> {
+        const cached = this.fileTrackAvailability.get(type);
+        if (cached !== undefined) return cached;
+
+        const probe = new Audio(filePath);
+        probe.preload = 'auto';
+
+        const available = await this.waitForAudioReady(probe);
+        this.fileTrackAvailability.set(type, available);
+        if (!available) {
+            this.unavailableFileTracks.add(type);
+        }
+        return available;
     }
 
     private createNoiseBuffer(duration = 4, type: NoiseType = 'white'): AudioBuffer {
@@ -167,165 +292,239 @@ class BackgroundMusicService {
 
     private createLullabyBuffer(): AudioBuffer {
         const ctx = this.audioContext!;
-        const duration = 12;
+        const duration = 24;
         const sampleRate = ctx.sampleRate;
-        const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
-        const data = buffer.getChannelData(0);
+        const buffer = ctx.createBuffer(2, sampleRate * duration, sampleRate);
 
-        const notes = [261.63, 329.63, 392, 329.63, 293.66, 349.23, 440, 349.23];
-        const noteDuration = 0.75;
+        const progression = [
+            [261.63, 329.63, 392],
+            [293.66, 369.99, 440],
+            [246.94, 311.13, 392],
+            [220, 293.66, 349.23],
+        ];
+        const melodyNotes = [392, 440, 493.88, 440, 392, 349.23, 329.63, 293.66, 261.63, 293.66, 329.63, 349.23, 392, 349.23, 329.63, 293.66];
+        const noteDuration = 1.5;
 
-        for (let i = 0; i < data.length; i += 1) {
-            const t = i / sampleRate;
-            const noteIndex = Math.floor(t / noteDuration) % notes.length;
-            const noteT = t % noteDuration;
-            const freq = notes[noteIndex];
-            const env = Math.sin((noteT / noteDuration) * Math.PI);
-            const melody = Math.sin(2 * Math.PI * freq * t) * env * 0.12;
-            const harmony = Math.sin(2 * Math.PI * (freq / 2) * t) * env * 0.05;
-            data[i] = melody + harmony;
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+            const data = buffer.getChannelData(channel);
+            const panOffset = channel === 0 ? -0.0035 : 0.0035;
+
+            for (let i = 0; i < data.length; i += 1) {
+                const t = i / sampleRate;
+                const tt = t + panOffset;
+                const chord = progression[Math.floor(t / 6) % progression.length];
+                const lfo = 0.55 + 0.45 * Math.sin(2 * Math.PI * 0.07 * t + (channel === 0 ? 0 : Math.PI / 5));
+
+                const pad =
+                    (Math.sin(2 * Math.PI * chord[0] * tt) * 0.016 +
+                        Math.sin(2 * Math.PI * chord[1] * tt) * 0.013 +
+                        Math.sin(2 * Math.PI * chord[2] * tt) * 0.011) * lfo;
+
+                const noteIndex = Math.floor(t / noteDuration) % melodyNotes.length;
+                const noteT = t % noteDuration;
+                const env = Math.pow(Math.sin((noteT / noteDuration) * Math.PI), 1.35);
+                const freq = melodyNotes[noteIndex];
+                const melody =
+                    (Math.sin(2 * Math.PI * freq * tt) * 0.07 +
+                        Math.sin(2 * Math.PI * freq * 2 * tt) * 0.024 +
+                        Math.sin(2 * Math.PI * freq * 3 * tt) * 0.01) * env;
+
+                const bass = Math.sin(2 * Math.PI * (chord[0] / 2) * tt) * 0.024 * (0.7 + 0.3 * Math.sin(2 * Math.PI * 0.09 * t));
+                const air = (Math.sin(2 * Math.PI * 31.5 * tt) + Math.sin(2 * Math.PI * 47.2 * tt)) * 0.0017;
+
+                data[i] = pad + melody + bass + air;
+            }
         }
 
+        this.finalizeLoopBuffer(buffer, 0.64, 130);
         return buffer;
     }
 
     private createStarlightBuffer(): AudioBuffer {
         const ctx = this.audioContext!;
-        const duration = 12;
+        const duration = 20;
         const sampleRate = ctx.sampleRate;
-        const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
-        const data = buffer.getChannelData(0);
+        const buffer = ctx.createBuffer(2, sampleRate * duration, sampleRate);
 
-        const arpeggio = [523.25, 659.25, 783.99, 659.25, 587.33, 739.99, 880, 739.99];
-        const chordRoots = [261.63, 293.66, 349.23, 329.63];
-        const noteDuration = 0.5;
+        const arpeggio = [523.25, 659.25, 783.99, 1046.5, 987.77, 783.99, 659.25, 523.25, 587.33, 739.99, 880, 1174.66, 1046.5, 880, 739.99, 587.33];
+        const roots = [261.63, 293.66, 329.63, 349.23];
+        const stepDuration = 0.5;
 
-        for (let i = 0; i < data.length; i += 1) {
-            const t = i / sampleRate;
-            const step = Math.floor(t / noteDuration);
-            const arpFreq = arpeggio[step % arpeggio.length];
-            const noteT = t % noteDuration;
-            const arpEnv = Math.sin((noteT / noteDuration) * Math.PI);
-            const arp = Math.sin(2 * Math.PI * arpFreq * t) * arpEnv * 0.08;
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+            const data = buffer.getChannelData(channel);
+            const panOffset = channel === 0 ? -0.0028 : 0.0028;
 
-            const chordRoot = chordRoots[Math.floor(t / 3) % chordRoots.length];
-            const lfo = 0.5 + 0.5 * Math.sin(2 * Math.PI * 0.05 * t);
-            const pad =
-                Math.sin(2 * Math.PI * chordRoot * t) * 0.03 +
-                Math.sin(2 * Math.PI * chordRoot * 1.5 * t) * 0.02;
+            for (let i = 0; i < data.length; i += 1) {
+                const t = i / sampleRate;
+                const tt = t + panOffset;
 
-            data[i] = arp + pad * (0.4 + lfo * 0.6);
+                const step = Math.floor(t / stepDuration);
+                const arpFreq = arpeggio[step % arpeggio.length];
+                const stepT = t % stepDuration;
+                const arpEnv = Math.pow(Math.sin((stepT / stepDuration) * Math.PI), 1.8);
+                const sparkle =
+                    (Math.sin(2 * Math.PI * arpFreq * tt) * 0.055 +
+                        Math.sin(2 * Math.PI * arpFreq * 2 * tt) * 0.02 +
+                        Math.sin(2 * Math.PI * arpFreq * 3 * tt) * 0.008) * arpEnv;
+
+                const root = roots[Math.floor(t / 5) % roots.length];
+                const padLfo = 0.45 + 0.55 * Math.sin(2 * Math.PI * 0.043 * t + (channel === 0 ? 0 : Math.PI / 7));
+                const pad =
+                    (Math.sin(2 * Math.PI * root * tt) * 0.018 +
+                        Math.sin(2 * Math.PI * root * 1.25 * tt) * 0.014 +
+                        Math.sin(2 * Math.PI * root * 1.5 * tt) * 0.009) * padLfo;
+
+                const shimmer = Math.sin(2 * Math.PI * 0.23 * t) * 0.012;
+                data[i] = sparkle + pad + shimmer;
+            }
         }
 
+        this.finalizeLoopBuffer(buffer, 0.62, 120);
         return buffer;
     }
 
     private createRainBuffer(): AudioBuffer {
         const ctx = this.audioContext!;
-        const duration = 6;
+        const duration = 18;
         const sampleRate = ctx.sampleRate;
-        const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
-        const data = buffer.getChannelData(0);
+        const buffer = ctx.createBuffer(2, sampleRate * duration, sampleRate);
 
-        let filtered = 0;
-        for (let i = 0; i < data.length; i += 1) {
-            const white = Math.random() * 2 - 1;
-            filtered = filtered * 0.94 + white * 0.06;
-            const drizzle = filtered * 0.18;
-            const drop = Math.random() > 0.9985 ? (Math.random() * 2 - 1) * 0.18 : 0;
-            data[i] = drizzle + drop;
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+            const data = buffer.getChannelData(channel);
+            let filtered = 0;
+            let dropEnergy = 0;
+            let dropFreq = 1100;
+
+            for (let i = 0; i < data.length; i += 1) {
+                const t = i / sampleRate;
+                const white = Math.random() * 2 - 1;
+                filtered = filtered * 0.985 + white * 0.015;
+
+                if (Math.random() > 0.9992) {
+                    dropEnergy = 0.75 + Math.random() * 0.35;
+                    dropFreq = 700 + Math.random() * 1400;
+                }
+
+                dropEnergy *= 0.99925;
+                const drizzle = filtered * 0.18;
+                const drop = Math.sin(2 * Math.PI * dropFreq * t) * dropEnergy * 0.052;
+                const hiss = (Math.random() * 2 - 1) * 0.014 * (0.6 + 0.4 * Math.sin(2 * Math.PI * 0.12 * t));
+                data[i] = drizzle + drop + hiss;
+            }
         }
 
+        this.finalizeLoopBuffer(buffer, 0.74, 100);
         return buffer;
     }
 
     private createOceanBuffer(): AudioBuffer {
         const ctx = this.audioContext!;
-        const duration = 8;
+        const duration = 20;
         const sampleRate = ctx.sampleRate;
-        const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
-        const data = buffer.getChannelData(0);
+        const buffer = ctx.createBuffer(2, sampleRate * duration, sampleRate);
 
-        let brown = 0;
-        for (let i = 0; i < data.length; i += 1) {
-            const t = i / sampleRate;
-            const white = Math.random() * 2 - 1;
-            brown = (brown + white * 0.02) / 1.02;
-            const swell = 0.35 + 0.65 * ((Math.sin(2 * Math.PI * 0.08 * t) + 1) / 2);
-            const foam = (Math.random() * 2 - 1) * 0.03 * (0.6 + 0.4 * Math.sin(2 * Math.PI * 0.4 * t));
-            data[i] = (brown * 0.2 + foam) * swell;
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+            const data = buffer.getChannelData(channel);
+            let brown = 0;
+
+            for (let i = 0; i < data.length; i += 1) {
+                const t = i / sampleRate;
+                const white = Math.random() * 2 - 1;
+                brown = (brown + white * 0.015) / 1.015;
+
+                const swell = 0.32 + 0.68 * ((Math.sin(2 * Math.PI * 0.05 * t + channel * 0.35) + 1) / 2);
+                const waveTone = Math.sin(2 * Math.PI * (0.18 + channel * 0.015) * t) * 0.03;
+                const foam = (Math.random() * 2 - 1) * 0.018 * (0.4 + 0.6 * swell);
+                data[i] = (brown * 0.24 + waveTone + foam) * swell;
+            }
         }
 
+        this.finalizeLoopBuffer(buffer, 0.7, 120);
         return buffer;
     }
 
     private createForestBuffer(): AudioBuffer {
         const ctx = this.audioContext!;
-        const duration = 8;
+        const duration = 18;
         const sampleRate = ctx.sampleRate;
-        const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
-        const data = buffer.getChannelData(0);
+        const buffer = ctx.createBuffer(2, sampleRate * duration, sampleRate);
 
-        let filtered = 0;
-        for (let i = 0; i < data.length; i += 1) {
-            const t = i / sampleRate;
-            const white = Math.random() * 2 - 1;
-            filtered = filtered * 0.96 + white * 0.04;
-            const rustle = filtered * 0.15;
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+            const data = buffer.getChannelData(channel);
+            let filtered = 0;
 
-            const chirpPhase = t % 3.5;
-            const chirp =
-                chirpPhase < 0.12
-                    ? Math.sin(2 * Math.PI * (1200 + chirpPhase * 2600) * chirpPhase) * (1 - chirpPhase / 0.12) * 0.06
-                    : 0;
+            for (let i = 0; i < data.length; i += 1) {
+                const t = i / sampleRate;
+                const white = Math.random() * 2 - 1;
+                filtered = filtered * 0.978 + white * 0.022;
+                const rustle = filtered * 0.16;
 
-            const breeze = Math.sin(2 * Math.PI * 0.18 * t) * 0.02;
-            data[i] = rustle + chirp + breeze;
+                const chirpCycle = 4.2;
+                const chirpPhase = (t + channel * 0.22) % chirpCycle;
+                const chirp =
+                    chirpPhase < 0.095
+                        ? Math.sin(2 * Math.PI * (1450 + chirpPhase * 1700) * chirpPhase) * (1 - chirpPhase / 0.095) * 0.045
+                        : 0;
+
+                const breeze = Math.sin(2 * Math.PI * 0.1 * t + channel * 0.4) * 0.018;
+                data[i] = rustle + chirp + breeze;
+            }
         }
 
+        this.finalizeLoopBuffer(buffer, 0.72, 110);
         return buffer;
     }
 
     private createFireplaceBuffer(): AudioBuffer {
         const ctx = this.audioContext!;
-        const duration = 6;
+        const duration = 16;
         const sampleRate = ctx.sampleRate;
-        const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
-        const data = buffer.getChannelData(0);
+        const buffer = ctx.createBuffer(2, sampleRate * duration, sampleRate);
 
-        let brown = 0;
-        let crack = 0;
-        for (let i = 0; i < data.length; i += 1) {
-            const white = Math.random() * 2 - 1;
-            brown = (brown + white * 0.03) / 1.03;
-            crack *= 0.88;
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+            const data = buffer.getChannelData(channel);
+            let brown = 0;
+            let crack = 0;
 
-            if (Math.random() > 0.9975) {
-                crack += (Math.random() * 2 - 1) * 0.35;
+            for (let i = 0; i < data.length; i += 1) {
+                const white = Math.random() * 2 - 1;
+                brown = (brown + white * 0.026) / 1.026;
+                crack *= 0.86;
+
+                if (Math.random() > 0.9981) {
+                    crack += (Math.random() * 2 - 1) * 0.28;
+                }
+
+                const ember = Math.sin(2 * Math.PI * (120 + channel * 17) * (i / sampleRate)) * 0.008;
+                data[i] = brown * 0.18 + crack * 0.11 + ember;
             }
-
-            data[i] = brown * 0.16 + crack * 0.1;
         }
 
+        this.finalizeLoopBuffer(buffer, 0.72, 100);
         return buffer;
     }
 
     private createWindBuffer(): AudioBuffer {
         const ctx = this.audioContext!;
-        const duration = 6;
+        const duration = 16;
         const sampleRate = ctx.sampleRate;
-        const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
-        const data = buffer.getChannelData(0);
+        const buffer = ctx.createBuffer(2, sampleRate * duration, sampleRate);
 
-        let filtered = 0;
-        for (let i = 0; i < data.length; i += 1) {
-            const t = i / sampleRate;
-            const white = Math.random() * 2 - 1;
-            filtered = filtered * 0.97 + white * 0.03;
-            const gust = 0.25 + 0.75 * ((Math.sin(2 * Math.PI * 0.11 * t) + 1) / 2);
-            data[i] = filtered * 0.18 * gust;
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+            const data = buffer.getChannelData(channel);
+            let filtered = 0;
+
+            for (let i = 0; i < data.length; i += 1) {
+                const t = i / sampleRate;
+                const white = Math.random() * 2 - 1;
+                filtered = filtered * 0.982 + white * 0.018;
+                const gust = 0.2 + 0.8 * ((Math.sin(2 * Math.PI * 0.09 * t + channel * 0.3) + 1) / 2);
+                const whistle = Math.sin(2 * Math.PI * (380 + 60 * gust) * t + channel * 0.7) * 0.012 * gust;
+                data[i] = filtered * 0.17 * gust + whistle;
+            }
         }
 
+        this.finalizeLoopBuffer(buffer, 0.74, 110);
         return buffer;
     }
 
@@ -394,11 +593,37 @@ class BackgroundMusicService {
         return track?.filePath || null;
     }
 
+    private async playProceduralTrack(type: MusicType): Promise<boolean> {
+        const buffer = await this.createAmbientSound(type);
+        if (!buffer || !this.audioContext || !this.gainNode) return false;
+
+        this.currentSource = this.audioContext.createBufferSource();
+        this.currentSource.buffer = buffer;
+        this.currentSource.loop = true;
+
+        const filter = this.setupFilters(type);
+        if (filter) {
+            this.currentSource.connect(filter);
+            filter.connect(this.gainNode);
+        } else {
+            this.currentSource.connect(this.gainNode);
+        }
+
+        this.currentSource.start();
+        this.currentTrack = type;
+        this.isPlaying = true;
+        this.applyVolume();
+        return true;
+    }
+
     private async tryPlayFileTrack(type: MusicType): Promise<boolean> {
         const filePath = this.getTrackFilePath(type);
         if (!filePath || this.unavailableFileTracks.has(type)) return false;
 
         try {
+            const isAvailable = await this.ensureFileTrackAvailable(type, filePath);
+            if (!isAvailable) return false;
+
             const audio = new Audio(filePath);
             audio.loop = true;
             audio.preload = 'auto';
@@ -409,6 +634,12 @@ class BackgroundMusicService {
                 const stopRequested = (audio as HTMLAudioElement & { stopRequested?: boolean }).stopRequested;
                 if (!stopRequested) {
                     this.unavailableFileTracks.add(type);
+                    this.fileTrackAvailability.set(type, false);
+                    if (this.htmlAudio === audio) {
+                        this.htmlAudio = null;
+                    }
+                    this.isPlaying = false;
+                    void this.playProceduralTrack(type);
                 }
             }, { once: true });
 
@@ -416,11 +647,13 @@ class BackgroundMusicService {
             this.htmlAudio = audio;
             this.currentTrack = type;
             this.isPlaying = true;
+            this.applyVolume();
             return true;
         } catch (error) {
             const domName = error instanceof DOMException ? error.name : '';
             if (domName !== 'NotAllowedError') {
                 this.unavailableFileTracks.add(type);
+                this.fileTrackAvailability.set(type, false);
             }
             return false;
         }
@@ -451,24 +684,7 @@ class BackgroundMusicService {
             const playedFromFile = await this.tryPlayFileTrack(type);
             if (playedFromFile) return;
 
-            const buffer = await this.createAmbientSound(type);
-            if (!buffer || !this.audioContext || !this.gainNode) return;
-
-            this.currentSource = this.audioContext.createBufferSource();
-            this.currentSource.buffer = buffer;
-            this.currentSource.loop = true;
-
-            const filter = this.setupFilters(type);
-            if (filter) {
-                this.currentSource.connect(filter);
-                filter.connect(this.gainNode);
-            } else {
-                this.currentSource.connect(this.gainNode);
-            }
-
-            this.currentSource.start();
-            this.currentTrack = type;
-            this.isPlaying = true;
+            await this.playProceduralTrack(type);
         } catch (error) {
             console.error('Error playing background music:', error);
         }
@@ -522,8 +738,13 @@ class BackgroundMusicService {
         return this.isPlaying;
     }
 
-    setDucking(shouldDuck: boolean, targetMultiplier = 0.42, duration = 220): void {
-        const target = shouldDuck ? Math.max(0.15, Math.min(1, targetMultiplier)) : 1;
+    setDucking(shouldDuck: boolean, targetMultiplier?: number, duration = 360): void {
+        const contextualTarget =
+            this.currentTrack !== 'none'
+                ? TRACK_DUCKING_TARGET[this.currentTrack]
+                : 0.4;
+        const requestedTarget = targetMultiplier ?? contextualTarget;
+        const target = shouldDuck ? Math.max(0.15, Math.min(1, requestedTarget)) : 1;
         const start = this.duckingMultiplier;
 
         if (Math.abs(start - target) < 0.001) return;

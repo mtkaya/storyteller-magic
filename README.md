@@ -159,7 +159,7 @@ Background music now works in two layers:
 1. Built-in procedural ambient loops (always available, royalty-free)
 2. Optional local music files under `public/audio` (if you provide them)
 
-If a file is missing, the app automatically falls back to built-in loops.
+If a file is missing or cannot be decoded, the app automatically falls back to built-in loops.
 
 Optional file names:
 
@@ -170,6 +170,24 @@ Optional file names:
 - `public/audio/ocean-waves.mp3`
 - `public/audio/warm-fireplace.mp3`
 - `public/audio/gentle-wind.mp3`
+
+Recommended free sources (commercial-use friendly when properly attributed/licensed):
+
+- Pixabay Music
+- FreePD
+- OpenGameArt (filter by CC0 / Public Domain)
+
+Suggested prep chain (keeps bedtime mixes soft and consistent):
+
+```bash
+ffmpeg -i input.mp3 -af "loudnorm=I=-24:LRA=7:TP=-2,highpass=f=60,lowpass=f=5200,acompressor=threshold=-21dB:ratio=2.5:attack=20:release=220" -ar 44100 -ac 2 output.mp3
+```
+
+In-app mix tips:
+
+- Keep background music around `0.18-0.30`
+- Narration should stay louder than music (`~8-10 dB` difference)
+- Use tracks with sparse mids to avoid masking spoken words
 
 ## API Guardrails
 
