@@ -2,6 +2,7 @@ import { IMAGES } from '../data';
 import { Story, StoryBranch } from '../types';
 import { normalizeStoryTheme } from './storyCuration';
 import { getLocalizedThemeName } from './storyLocalization';
+import { GENERATED_SCENE_IMAGE_POOLS } from '../data/generatedSceneImages';
 
 export type StoryScenePhase = 'opening' | 'journey' | 'choice' | 'climax' | 'resolution';
 
@@ -33,6 +34,10 @@ const DEFAULT_IMAGE_POOL = [
   IMAGES.SLEEPING_ANIMALS,
   IMAGES.ORNATE_MAGICAL_LANTERN,
   IMAGES.FAIRY_CASTLE_MOONLIGHT,
+  IMAGES.MAGICAL_TOWER_STARS,
+  IMAGES.HOT_AIR_BALLOON_STARS,
+  IMAGES.SERENE_LOTUS_MOONWATER,
+  IMAGES.FRIENDLY_ROCKET_STARS,
 ];
 
 const THEME_IMAGE_POOLS: Record<string, string[]> = {
@@ -43,6 +48,10 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.FRIENDLY_ROCKET_STARS,
     IMAGES.TREASURE_KITTEN,
     IMAGES.COZY_TREEHOUSE_NIGHT,
+    IMAGES.MAGICAL_TOWER_STARS,
+    IMAGES.COZY_LIGHTHOUSE_ISLAND,
+    IMAGES.MAGIC_CARPET,
+    IMAGES.MAGIC_BOOK,
   ],
   friendship: [
     IMAGES.BEDTIME_COOKIES,
@@ -51,6 +60,10 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.TURTLE_RABBIT,
     IMAGES.COZY_FOX,
     IMAGES.FAIRY_CASTLE_MOONLIGHT,
+    IMAGES.PILLOW_BATTLE,
+    IMAGES.MAGICAL_DANDELION_WISH,
+    IMAGES.SLEEPING_ANIMALS,
+    IMAGES.BABY_BEAR_CLOUD_SLEEP,
   ],
   magic: [
     IMAGES.MAGIC_BOOK,
@@ -60,6 +73,9 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.ENCHANTED_CHEST,
     IMAGES.MAGICAL_TOWER_STARS,
     IMAGES.WOLF_PRINCESS,
+    IMAGES.MAGIC_QUILL,
+    IMAGES.FAIRY_CASTLE_MOONLIGHT,
+    IMAGES.MAGICAL_DANDELION_WISH,
   ],
   nature: [
     IMAGES.ENCHANTED_FOREST_GLOW,
@@ -69,6 +85,9 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.SERENE_LOTUS_MOONWATER,
     IMAGES.ENCHANTED_OLD_TREE,
     IMAGES.MAGICAL_DANDELION_WISH,
+    IMAGES.GENTLE_WHALE_NIGHTSKY,
+    IMAGES.TEA_PARTY,
+    IMAGES.TURTLE_BUNNY,
   ],
   calm: [
     IMAGES.SLEEPING_CLOUD,
@@ -77,6 +96,9 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.SMILING_CRESCENT_MOON_STARS,
     IMAGES.SLEEPY_OWL,
     IMAGES.SLEEPING_MOON,
+    IMAGES.BABY_BEAR_CLOUD_SLEEP,
+    IMAGES.SERENE_LOTUS_MOONWATER,
+    IMAGES.SLEEPY_OWL_BOOKSHELF,
   ],
   bedtime: [
     IMAGES.SLEEPING_CLOUD,
@@ -85,6 +107,9 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.SMILING_CRESCENT_MOON_STARS,
     IMAGES.SLEEPY_OWL,
     IMAGES.SLEEPING_MOON,
+    IMAGES.BABY_BEAR_CLOUD_SLEEP,
+    IMAGES.MOON_RESULT,
+    IMAGES.SLEEPY_OWL_BOOKSHELF,
   ],
   courage: [
     IMAGES.BRAVE_LION,
@@ -93,6 +118,9 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.MOONLIGHT_LION,
     IMAGES.FRIENDLY_ROCKET_STARS,
     IMAGES.MAGICAL_TOWER_STARS,
+    IMAGES.MAGIC_CARPET,
+    IMAGES.FLYING_CARPET,
+    IMAGES.VINTAGE_MAGIC_COMPASS,
   ],
   wisdom: [
     IMAGES.WISE_OWL,
@@ -101,6 +129,9 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.DETECTIVE_MOUSE,
     IMAGES.COZY_LIGHTHOUSE_ISLAND,
     IMAGES.MAGIC_QUILL,
+    IMAGES.WISE_OWL_LIBRARY,
+    IMAGES.ENCHANTED_OLD_TREE,
+    IMAGES.VINTAGE_MAGIC_COMPASS,
   ],
   mystery: [
     IMAGES.DETECTIVE_MOUSE,
@@ -109,6 +140,9 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.VINTAGE_MAGIC_COMPASS,
     IMAGES.ENCHANTED_OLD_TREE,
     IMAGES.MAGICAL_TOWER_STARS,
+    IMAGES.WOLF_PRINCESS,
+    IMAGES.ORNATE_MAGICAL_LANTERN,
+    IMAGES.TREASURE_KITTEN,
   ],
   family: [
     IMAGES.COZY_LIGHTHOUSE_ISLAND,
@@ -117,6 +151,9 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.BABY_BEAR_CLOUD_SLEEP,
     IMAGES.SLEEPING_ANIMALS,
     IMAGES.GRATEFUL_DEER,
+    IMAGES.BEDTIME_COOKIES,
+    IMAGES.SLEEPY_OWL_BOOKSHELF,
+    IMAGES.SERENE_LOTUS_MOONWATER,
   ],
   wonder: [
     IMAGES.FRIENDLY_ROCKET_STARS,
@@ -125,6 +162,9 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.MAGICAL_TOWER_STARS,
     IMAGES.SERENE_LOTUS_MOONWATER,
     IMAGES.HOT_AIR_BALLOON_STARS,
+    IMAGES.MAGIC_BOOK,
+    IMAGES.FLYING_CARPET,
+    IMAGES.GENTLE_WHALE_NIGHTSKY,
   ],
   kindness: [
     IMAGES.MAGICAL_DANDELION_WISH,
@@ -133,6 +173,9 @@ const THEME_IMAGE_POOLS: Record<string, string[]> = {
     IMAGES.BEDTIME_COOKIES,
     IMAGES.GRATEFUL_DEER,
     IMAGES.SERENE_LOTUS_MOONWATER,
+    IMAGES.BABY_BEAR_CLOUD_SLEEP,
+    IMAGES.ENCHANTED_FOREST_GLOW,
+    IMAGES.TEA_PARTY,
   ],
 };
 
@@ -168,9 +211,36 @@ const PHASE_HINTS: Record<StoryScenePhase, { tr: string; en: string }> = {
 };
 
 const STYLE_LOCK_EN =
-  "children's bedtime story illustration, hand-painted digital art, soft painterly texture, whimsical but calm mood, vertical 3:4, no text, no logo, no photorealism";
+  "children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism";
 const STYLE_LOCK_TR =
-  'cocuk uyku masali ilustrasyonu, elde cizilmis dijital stil, yumusak boyasal doku, huzurlu ama sihirli atmosfer, dikey 3:4, yazi yok, logo yok, fotogercekcilik yok';
+  'cocuk kitabi ilustrasyonu, elde cizilmis dijital sanat, yumusak boyasal formlar, temiz kompozisyon, uykuya uygun huzurlu atmosfer, fotogercekcilik yok';
+const NEGATIVE_PROMPT_EN =
+  'no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo';
+const NEGATIVE_PROMPT_TR =
+  'fotogercekcilik yok, gercek kamera lens efekti yok, fotograf dokusu yok, sert golge yok, korku yok, siddet yok, watermark yok, logo yok';
+
+const THEME_PROMPT_STARTERS: Record<string, { en: string; tr: string }> = {
+  adventure: {
+    en: 'brave but gentle adventure, winding path, glowing horizon, cozy color grading',
+    tr: 'cesur ama nazik macera, kivrimli yol, parlayan ufuk, sicak renk gecisi',
+  },
+  friendship: {
+    en: 'warm friendship moment, soft lantern lights, cozy meadow, inviting expressions',
+    tr: 'sicak dostluk ani, yumusak fener isiklari, huzurlu cayir, davetkar ifadeler',
+  },
+  magic: {
+    en: 'enchanted forest clearing, floating sparkles, magical artifacts, dreamy atmosphere',
+    tr: 'buyulu orman acikligi, havada isiltılar, sihirli nesneler, ruyamsi atmosfer',
+  },
+  nature: {
+    en: 'moonlit forest with calm animals, gentle leaves, peaceful night sky',
+    tr: 'ay isikli orman, sakin hayvanlar, yumusak yapraklar, huzurlu gece gogu',
+  },
+  calm: {
+    en: 'quiet bedtime room, moon glow, sleepy clouds, soft transitions',
+    tr: 'sessiz uyku odasi, ay isigi, uykulu bulutlar, yumusak gecisler',
+  },
+};
 
 const toSeed = (value: string): number => {
   let hash = 2166136261;
@@ -188,6 +258,25 @@ const normalizeBranchToken = (value?: string | null): string =>
     .replace(/_+/g, '_')
     .replace(/^_+|_+$/g, '');
 
+const uniqueImages = (items: string[]): string[] => {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const item of items) {
+    const clean = (item || '').trim();
+    if (!clean) continue;
+    if (seen.has(clean)) continue;
+    seen.add(clean);
+    out.push(clean);
+  }
+  return out;
+};
+
+const normalizeGeneratedThemeKey = (theme: string): string =>
+  theme
+    .toLowerCase()
+    .replace(/[^a-z0-9çğıöşü_-]+/gi, '')
+    .trim();
+
 const detectScenePhase = (input: StorySceneVisualInput): StoryScenePhase => {
   if (input.endingType) return 'resolution';
 
@@ -204,7 +293,19 @@ const detectScenePhase = (input: StorySceneVisualInput): StoryScenePhase => {
 
 const resolveImagePool = (story: Story): string[] => {
   const normalizedTheme = normalizeStoryTheme(story.theme);
-  return THEME_IMAGE_POOLS[normalizedTheme] || DEFAULT_IMAGE_POOL;
+  const generatedThemePool =
+    GENERATED_SCENE_IMAGE_POOLS[normalizedTheme]
+    || GENERATED_SCENE_IMAGE_POOLS[normalizeGeneratedThemeKey(story.theme || '')]
+    || [];
+
+  const staticThemePool = THEME_IMAGE_POOLS[normalizedTheme] || DEFAULT_IMAGE_POOL;
+  const merged = uniqueImages([
+    ...generatedThemePool,
+    ...staticThemePool,
+    story.coverUrl,
+  ]);
+
+  return merged.length > 0 ? merged : DEFAULT_IMAGE_POOL;
 };
 
 const buildScenePrompt = (
@@ -216,6 +317,8 @@ const buildScenePrompt = (
   const themeLabel = getLocalizedThemeName(input.story.theme, language);
   const title = language === 'tr' && input.story.titleTr ? input.story.titleTr : input.story.title;
   const character = input.story.character || (language === 'tr' ? 'sevimli kahraman' : 'friendly hero');
+  const normalizedTheme = normalizeStoryTheme(input.story.theme);
+  const themeStarter = THEME_PROMPT_STARTERS[normalizedTheme];
   const branchHint = normalizeBranchToken(input.branchId).replace(/_/g, ' ');
   const branchText = branchHint ? (language === 'tr' ? `Dal ipucu: ${branchHint}` : `Branch cue: ${branchHint}`) : '';
   const phaseHint = PHASE_HINTS[phase][language];
@@ -227,10 +330,12 @@ const buildScenePrompt = (
       `Karakter: ${character}`,
       `Sahne fazi: ${PHASE_LABELS[phase].tr}`,
       `Sahne niyeti: ${phaseHint}`,
+      themeStarter ? `Tema baslangici: ${themeStarter.tr}` : '',
       branchText,
       `Varyant: ${variantIndex + 1}`,
       'Renk butunlugu: mevcut uygulamadaki gece-masal paletine uyumlu kal.',
       `Stil kilidi: ${STYLE_LOCK_TR}`,
+      `Negatif prompt: ${NEGATIVE_PROMPT_TR}`,
     ]
       .filter(Boolean)
       .join('\n');
@@ -242,10 +347,12 @@ const buildScenePrompt = (
     `Character: ${character}`,
     `Scene phase: ${PHASE_LABELS[phase].en}`,
     `Scene intent: ${phaseHint}`,
+    themeStarter ? `Theme starter: ${themeStarter.en}` : '',
     branchText,
     `Variant: ${variantIndex + 1}`,
     'Color continuity: stay consistent with the app bedtime palette.',
     `Style lock: ${STYLE_LOCK_EN}`,
+    `Negative prompt: ${NEGATIVE_PROMPT_EN}`,
   ]
     .filter(Boolean)
     .join('\n');
@@ -261,9 +368,24 @@ export function resolveStorySceneVisual(input: StorySceneVisualInput): StoryScen
   const choiceDepth = Math.max(0, input.choiceDepth || 0);
   const sceneSeed = `${input.story.id}|${branchToken}|${phase}|${input.paragraphIndex}|${choiceDepth}`;
   const stepSeed = `${input.story.id}|${branchToken}|step`;
-  const baseOffset = toSeed(sceneSeed) % pool.length;
-  const jump = (toSeed(stepSeed) % 4) + 1;
-  const variantIndex = (baseOffset + input.paragraphIndex * jump + choiceDepth) % pool.length;
+  const poolSize = Math.max(1, pool.length);
+  const phaseOffsetMap: Record<StoryScenePhase, number> = {
+    opening: 0,
+    journey: 2,
+    choice: 4,
+    climax: 6,
+    resolution: 8,
+  };
+  const baseOffset = toSeed(sceneSeed) % poolSize;
+  const phaseOffset = phaseOffsetMap[phase] % poolSize;
+  const jump = ((toSeed(stepSeed) % (poolSize - 1 || 1)) + 1);
+  let variantIndex = (baseOffset + phaseOffset + ((input.paragraphIndex + choiceDepth) * jump)) % poolSize;
+  if (poolSize > 1 && input.paragraphIndex > 0) {
+    const prevIndex = (baseOffset + phaseOffset + (((input.paragraphIndex - 1) + choiceDepth) * jump)) % poolSize;
+    if (variantIndex === prevIndex) {
+      variantIndex = (variantIndex + 1) % poolSize;
+    }
+  }
   const imageUrl = pool[variantIndex] || input.fallbackImageUrl;
   const sceneKey = `${branchToken || 'linear'}:${phase}:${input.paragraphIndex}:${variantIndex}`;
 

@@ -56,3 +56,19 @@ Ek olarak `buildCanvaStoryboardScenes(story, language, totalScenes)` fonksiyonu 
   - `scene_number`
   - `phase`
   - `prompt`
+
+## Ucretsiz urettigin yeni gorselleri baglama
+
+1. Gorselleri tema klasorlerine koy:
+   - `public/images/generated/adventure/*.jpg`
+   - `public/images/generated/magic/*.jpg`
+   - `public/images/generated/calm/*.jpg`
+   - vb.
+2. Manifesti yenile:
+   - `npm run images:refresh-scene-manifest`
+3. Uygulamayi build et:
+   - `npm run build`
+
+Not:
+- Promptlar `docs/illustration-prompts.md` stil kilidi + negatif promptlari ile uyumlu hale getirildi.
+- Runtime'da once `generated` klasorundaki gorseller kullanilir, sonra dahili fallback havuzu devreye girer.

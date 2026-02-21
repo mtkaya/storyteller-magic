@@ -13,6 +13,7 @@
     "smoke:full": "SMOKE_API=1 node scripts/smoke-check.mjs",
     "audio:sync": "node scripts/sync-openverse-audio.mjs",
     "audio:sync:force": "node scripts/sync-openverse-audio.mjs --force",
+    "images:refresh-scene-manifest": "node scripts/build-generated-scene-images.mjs",
     "cap:sync": "npx cap sync",
     "cap:open:ios": "npx cap open ios",
     "cap:open:android": "npx cap open android",
