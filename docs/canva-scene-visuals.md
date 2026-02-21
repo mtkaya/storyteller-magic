@@ -72,3 +72,20 @@ Ek olarak `buildCanvaStoryboardScenes(story, language, totalScenes)` fonksiyonu 
 Not:
 - Promptlar `docs/illustration-prompts.md` stil kilidi + negatif promptlari ile uyumlu hale getirildi.
 - Runtime'da once `generated` klasorundaki gorseller kullanilir, sonra dahili fallback havuzu devreye girer.
+
+## Otomatik ucretsiz gorsel uretimi (yeni)
+
+Direkt repo icinde prompttan gorsel uretmek icin:
+
+1. Varsayilan uretim:
+   - `npm run images:generate-free`
+2. Mevcut dosyalari da yenileyerek uretim:
+   - `npm run images:generate-free:force`
+3. Belirli temalar:
+   - `node scripts/generate-free-scene-images.mjs --themes=magic,adventure --count=12`
+
+Script:
+- `scripts/generate-free-scene-images.mjs`
+- Kaynak prompt yapisi: `docs/illustration-prompts.md`
+- Uretimden sonra manifest otomatik yenilenir (`data/generatedSceneImages.ts`).
+- Eger ucretsiz endpoint hata verirse script otomatik olarak tema uyumlu offline SVG fallback sahneleri uretir.
