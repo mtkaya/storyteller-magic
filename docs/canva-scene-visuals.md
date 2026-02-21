@@ -89,3 +89,5 @@ Script:
 - Kaynak prompt yapisi: `docs/illustration-prompts.md`
 - Uretimden sonra manifest otomatik yenilenir (`data/generatedSceneImages.ts`).
 - Eger ucretsiz endpoint hata verirse script otomatik olarak tema uyumlu offline SVG fallback sahneleri uretir.
+- Yeni stil kilidi: tema bazli `technique lock + tone lock` kullanilir; sahneler arasinda stil drift azaltilir.
+- Reader tarafinda generated havuz varsa eski statik havuzla karistirilmaz; boylece hikaye icinde gorsel dili korunur.

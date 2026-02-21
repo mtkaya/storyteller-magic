@@ -28,18 +28,44 @@ const THEME_PROMPTS = {
   wisdom: 'storybook library mood, lantern light, thoughtful calm expressions',
 };
 
-const TECHNIQUE_PRESETS = [
-  'watercolor wash edges, airy blends, soft dreamy transitions',
-  'bold gouache brush strokes, rich matte color blocks, clean silhouettes',
-  'flat storybook geometry, crisp layered shapes, editorial clarity',
-  'cut-paper collage layers, tactile overlaps, handcrafted depth',
-];
+const DEFAULT_STYLE_PROFILE = {
+  technique: 'watercolor wash edges, airy blends, soft dreamy transitions',
+  ageDirection: 'ages 4-8, clear emotions, medium detail, bedtime readability',
+  tone: 'soft contrast, warm highlights, night-safe cozy mood',
+};
 
-const AGE_PRESETS = [
-  'ages 4-6, clear emotions, medium detail',
-  'ages 6-8, richer environment details, balanced complexity',
-  'ages 8+, nuanced lighting, slightly cinematic framing',
-];
+const THEME_STYLE_PROFILES = {
+  adventure: {
+    technique: 'bold gouache brush strokes, rich matte color blocks, clean silhouettes',
+    ageDirection: 'ages 6-8, richer environment details, balanced complexity',
+    tone: 'gentle cinematic depth with clear focal character',
+  },
+  friendship: {
+    technique: 'watercolor wash edges, airy blends, soft dreamy transitions',
+    ageDirection: 'ages 4-7, friendly expressions, low visual noise',
+    tone: 'pastel warmth and cozy shared moments',
+  },
+  magic: {
+    technique: 'cut-paper collage layers, tactile overlaps, handcrafted depth',
+    ageDirection: 'ages 5-8, layered props, readable magical motifs',
+    tone: 'enchanted glow with soft moonlit harmony',
+  },
+  nature: {
+    technique: 'watercolor wash edges, airy blends, soft dreamy transitions',
+    ageDirection: 'ages 4-8, calm animals, medium detail',
+    tone: 'organic greens and soft moonlight blues',
+  },
+  calm: {
+    technique: 'flat storybook geometry, crisp layered shapes, editorial clarity',
+    ageDirection: 'ages 4-7, very readable forms and quiet compositions',
+    tone: 'low stimulation, soothing gradients, soft diffused light',
+  },
+  bedtime: {
+    technique: 'flat storybook geometry, crisp layered shapes, editorial clarity',
+    ageDirection: 'ages 3-7, simple forms and comforting silhouettes',
+    tone: 'night lullaby mood, muted cozy colors',
+  },
+};
 
 const PHASE_VARIANTS = [
   'opening scene, entering the story world',
@@ -104,18 +130,19 @@ const ensureDir = (dir) => {
 };
 
 const buildPrompt = (theme, index) => {
-  const technique = TECHNIQUE_PRESETS[index % TECHNIQUE_PRESETS.length];
-  const agePreset = AGE_PRESETS[index % AGE_PRESETS.length];
+  const profile = THEME_STYLE_PROFILES[theme] || DEFAULT_STYLE_PROFILE;
   const phase = PHASE_VARIANTS[index % PHASE_VARIANTS.length];
 
   return [
     GLOBAL_STYLE_LOCK,
     `theme: ${theme}`,
     THEME_PROMPTS[theme] || THEME_PROMPTS.magic,
+    `style continuity: keep same character design language, brush style, and palette family across all ${theme} scenes`,
     `scene intent: ${phase}`,
-    `technique: ${technique}`,
-    `audience: ${agePreset}`,
-    'vertical 3:4 composition, no title text, no watermark, bedtime-safe palette',
+    `technique lock: ${profile.technique}`,
+    `age direction: ${profile.ageDirection}`,
+    `tone lock: ${profile.tone}`,
+    'vertical 3:4 composition, no title text, no watermark, bedtime-safe palette, avoid style drift between scenes',
   ].join(', ');
 };
 

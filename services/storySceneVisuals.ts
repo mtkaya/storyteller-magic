@@ -298,9 +298,19 @@ const resolveImagePool = (story: Story): string[] => {
     || GENERATED_SCENE_IMAGE_POOLS[normalizeGeneratedThemeKey(story.theme || '')]
     || [];
 
+  const normalizedCover = (story.coverUrl || '').trim();
+  const coverIsGenerated = normalizedCover.startsWith('/images/generated/');
+  if (generatedThemePool.length > 0) {
+    // Keep visual continuity: if generated pool exists, avoid mixing with legacy static pools.
+    const generatedOnly = uniqueImages([
+      ...(coverIsGenerated ? [normalizedCover] : []),
+      ...generatedThemePool,
+    ]);
+    if (generatedOnly.length > 0) return generatedOnly;
+  }
+
   const staticThemePool = THEME_IMAGE_POOLS[normalizedTheme] || DEFAULT_IMAGE_POOL;
   const merged = uniqueImages([
-    ...generatedThemePool,
     ...staticThemePool,
     story.coverUrl,
   ]);
