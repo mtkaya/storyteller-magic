@@ -88,6 +88,6 @@ Script:
 - `scripts/generate-free-scene-images.mjs`
 - Kaynak prompt yapisi: `docs/illustration-prompts.md`
 - Uretimden sonra manifest otomatik yenilenir (`data/generatedSceneImages.ts`).
-- Eger ucretsiz endpoint hata verirse script otomatik olarak tema uyumlu offline SVG fallback sahneleri uretir.
+- Ucretsiz endpoint hata verirse script fallback gorsel uretmez; bu sayede istenmeyen stilde sahne karisimi olmaz.
 - Yeni stil kilidi: tema bazli `technique lock + tone lock` kullanilir; sahneler arasinda stil drift azaltilir.
 - Reader tarafinda generated havuz varsa eski statik havuzla karistirilmaz; boylece hikaye icinde gorsel dili korunur.

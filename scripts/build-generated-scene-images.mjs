@@ -4,7 +4,7 @@ import path from 'node:path';
 const ROOT = process.cwd();
 const SOURCE_ROOT = path.join(ROOT, 'public', 'images', 'generated');
 const OUTPUT_FILE = path.join(ROOT, 'data', 'generatedSceneImages.ts');
-const ALLOWED_EXT = new Set(['.jpg', '.jpeg', '.png', '.webp', '.svg']);
+const ALLOWED_EXT = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 
 const normalizeTheme = (value) =>
   value

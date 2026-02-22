@@ -75,22 +75,6 @@ const PHASE_VARIANTS = [
   'resolution scene, peaceful closure and bedtime calm',
 ];
 
-const THEME_PALETTES = {
-  adventure: { start: '#203a8f', end: '#0f766e', accent: '#fcd34d' },
-  friendship: { start: '#7f1d1d', end: '#7e22ce', accent: '#fde68a' },
-  magic: { start: '#581c87', end: '#1d4ed8', accent: '#fde68a' },
-  nature: { start: '#14532d', end: '#1d4ed8', accent: '#bbf7d0' },
-  space: { start: '#0f172a', end: '#312e81', accent: '#93c5fd' },
-  underwater: { start: '#0f766e', end: '#1d4ed8', accent: '#67e8f9' },
-  bedtime: { start: '#1e1b4b', end: '#312e81', accent: '#a5b4fc' },
-  calm: { start: '#164e63', end: '#3730a3', accent: '#e0e7ff' },
-  courage: { start: '#7c2d12', end: '#b91c1c', accent: '#fdba74' },
-  kindness: { start: '#7e22ce', end: '#0f766e', accent: '#fbcfe8' },
-  mystery: { start: '#312e81', end: '#0f172a', accent: '#c4b5fd' },
-  family: { start: '#7c2d12', end: '#4c1d95', accent: '#fee2e2' },
-  wonder: { start: '#1d4ed8', end: '#4338ca', accent: '#fef08a' },
-  wisdom: { start: '#1f2937', end: '#3730a3', accent: '#fcd34d' },
-};
 
 const parseArgs = () => {
   const args = new Map();
@@ -116,14 +100,6 @@ const onlyThemes = (args.get('themes') || '')
 const activeThemes = onlyThemes.length > 0 ? onlyThemes : Object.keys(THEME_PROMPTS);
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const createRng = (seed) => {
-  let state = seed >>> 0;
-  return () => {
-    state = Math.imul(state, 1664525) + 1013904223;
-    return (state >>> 0) / 4294967295;
-  };
-};
 
 const ensureDir = (dir) => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -188,63 +164,16 @@ const writeImage = (theme, index, data) => {
   return filePath;
 };
 
-const writeFallbackSvg = (theme, index, seed) => {
-  const themeDir = path.join(OUTPUT_ROOT, theme);
-  ensureDir(themeDir);
-  const fileName = `${theme}-${String(index + 1).padStart(3, '0')}.svg`;
-  const filePath = path.join(themeDir, fileName);
-
-  const palette = THEME_PALETTES[theme] || THEME_PALETTES.magic;
-  const rng = createRng(seed);
-  const blobs = Array.from({ length: 9 }, () => {
-    const cx = Math.round(80 + rng() * 600);
-    const cy = Math.round(80 + rng() * 860);
-    const rx = Math.round(70 + rng() * 120);
-    const ry = Math.round(45 + rng() * 100);
-    const opacity = (0.06 + rng() * 0.16).toFixed(3);
-    return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${palette.accent}" opacity="${opacity}" />`;
-  }).join('');
-  const stars = Array.from({ length: 22 }, () => {
-    const x = Math.round(18 + rng() * 732);
-    const y = Math.round(12 + rng() * 1012);
-    const size = (0.8 + rng() * 2.8).toFixed(2);
-    const opacity = (0.42 + rng() * 0.5).toFixed(3);
-    return `<circle cx="${x}" cy="${y}" r="${size}" fill="#ffffff" opacity="${opacity}" />`;
-  }).join('');
-
-  const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="768" height="1024" viewBox="0 0 768 1024">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="${palette.start}" />
-      <stop offset="100%" stop-color="${palette.end}" />
-    </linearGradient>
-    <filter id="blur"><feGaussianBlur stdDeviation="10"/></filter>
-  </defs>
-  <rect width="768" height="1024" fill="url(#bg)"/>
-  ${blobs}
-  ${stars}
-  <circle cx="384" cy="430" r="${Math.round(130 + rng() * 60)}" fill="${palette.accent}" opacity="0.22" filter="url(#blur)"/>
-  <path d="M120 860 C240 760 360 790 500 730 C590 690 660 700 760 660 L760 1024 L120 1024 Z" fill="#ffffff" opacity="0.08"/>
-</svg>
-`.trim();
-
-  fs.writeFileSync(filePath, svg, 'utf8');
-  return filePath;
-};
-
 const fileExists = (theme, index) => {
   const base = `${theme}-${String(index + 1).padStart(3, '0')}`;
-  return (
-    fs.existsSync(path.join(OUTPUT_ROOT, theme, `${base}.jpg`)) ||
-    fs.existsSync(path.join(OUTPUT_ROOT, theme, `${base}.svg`))
-  );
+  return fs.existsSync(path.join(OUTPUT_ROOT, theme, `${base}.jpg`));
 };
 
 const run = async () => {
   ensureDir(OUTPUT_ROOT);
   let generated = 0;
   let skipped = 0;
+  let failed = 0;
 
   for (const theme of activeThemes) {
     for (let i = 0; i < countPerTheme; i += 1) {
@@ -283,11 +212,8 @@ const run = async () => {
       }
 
       if (!success) {
-        const fallbackPath = writeFallbackSvg(theme, i, seed);
-        console.warn(
-          `[fallback-svg] ${theme} #${i + 1} -> ${path.relative(ROOT, fallbackPath)} (${lastError?.message || 'unknown error'})`
-        );
-        generated += 1;
+        failed += 1;
+        console.warn(`[skip] ${theme} #${i + 1}: ${lastError?.message || 'unknown error'}`);
       }
     }
   }
@@ -297,7 +223,7 @@ const run = async () => {
   }
 
   console.log(
-    `[free-image-gen] themes=${activeThemes.length} generated=${generated} skipped=${skipped} countPerTheme=${countPerTheme}`
+    `[free-image-gen] themes=${activeThemes.length} generated=${generated} skipped=${skipped} failed=${failed} countPerTheme=${countPerTheme}`
   );
 };
 

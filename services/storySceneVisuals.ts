@@ -277,6 +277,9 @@ const normalizeGeneratedThemeKey = (theme: string): string =>
     .replace(/[^a-z0-9çğıöşü_-]+/gi, '')
     .trim();
 
+const isRasterGeneratedImage = (value: string): boolean =>
+  /\.(jpg|jpeg|png|webp)$/i.test(value.trim());
+
 const detectScenePhase = (input: StorySceneVisualInput): StoryScenePhase => {
   if (input.endingType) return 'resolution';
 
@@ -294,9 +297,9 @@ const detectScenePhase = (input: StorySceneVisualInput): StoryScenePhase => {
 const resolveImagePool = (story: Story): string[] => {
   const normalizedTheme = normalizeStoryTheme(story.theme);
   const generatedThemePool =
-    GENERATED_SCENE_IMAGE_POOLS[normalizedTheme]
+    (GENERATED_SCENE_IMAGE_POOLS[normalizedTheme]
     || GENERATED_SCENE_IMAGE_POOLS[normalizeGeneratedThemeKey(story.theme || '')]
-    || [];
+    || []).filter(isRasterGeneratedImage);
 
   const normalizedCover = (story.coverUrl || '').trim();
   const coverIsGenerated = normalizedCover.startsWith('/images/generated/');
