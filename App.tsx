@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { ScreenName, Story } from './types';
 import Home from './pages/Home';
 import CreateStory from './pages/CreateStory';
@@ -43,6 +45,17 @@ const AppContent: React.FC = () => {
 
   const { isLimitReached, settings, updateSettings, saveCustomStory, customStories, markStorySeen } = useAppState();
   const { language } = useLanguage();
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const timer = window.setTimeout(() => {
+      void SplashScreen.hide({ fadeOutDuration: 220 });
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const localizedCustomStories = React.useMemo(
     () => filterStoriesForLanguage(customStories, language),
     [customStories, language]
