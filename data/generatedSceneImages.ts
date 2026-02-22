@@ -7,6 +7,7 @@ export const GENERATED_SCENE_IMAGE_POOLS: Record<string, string[]> = {
     "/images/generated/adventure/adventure-cover-02.jpg",
     "/images/generated/adventure/adventure-curious-kitten-treasure.jpg",
     "/images/generated/adventure/adventure-flying-carpet-journey.jpg",
+    "/images/generated/adventure/adventure-forest-crossroads-01.png",
     "/images/generated/adventure/adventure-scene-invitation-01.jpg",
     "/images/generated/adventure/adventure-scene-journey-01.jpg",
     "/images/generated/adventure/adventure-scene-opening-01.jpg",
@@ -14,12 +15,14 @@ export const GENERATED_SCENE_IMAGE_POOLS: Record<string, string[]> = {
   "bedtime": [
     "/images/generated/bedtime/bedtime-cover-01.jpg",
     "/images/generated/bedtime/bedtime-cover-02.jpg",
+    "/images/generated/bedtime/bedtime-goodnight-dreamer-01.png",
     "/images/generated/bedtime/bedtime-sleepy-owl-bookshelf.jpg",
   ],
   "calm": [
     "/images/generated/calm/calm-a-peaceful-crescent-moon-face-with-closed-eyes-sleeping-among-soft-clouds-stars-.jpg",
     "/images/generated/calm/calm-cover-01.jpg",
     "/images/generated/calm/calm-peaceful-sleeping-animals-under-a-gentle-crescent-moon-soft-clouds-twinkling-sta.jpg",
+    "/images/generated/calm/calm-sleeping-child-room-01.png",
   ],
   "courage": [
     "/images/generated/courage/courage-cover-01.jpg",
@@ -28,16 +31,21 @@ export const GENERATED_SCENE_IMAGE_POOLS: Record<string, string[]> = {
   ],
   "family": [
     "/images/generated/family/family-cover-01.jpg",
+    "/images/generated/family/family-moon-walk-01.png",
+    "/images/generated/family/family-moon-walk-02.png",
   ],
   "friendship": [
+    "/images/generated/friendship/friendship-bedroom-pets-01.jpg",
     "/images/generated/friendship/friendship-bunny-bear-cookies.jpg",
     "/images/generated/friendship/friendship-cover-01.jpg",
+    "/images/generated/friendship/friendship-forest-fox-lantern-01.png",
     "/images/generated/friendship/friendship-forest-tea-party.jpg",
     "/images/generated/friendship/friendship-foxes-fireplace.jpg",
     "/images/generated/friendship/friendship-pillow-fun.jpg",
   ],
   "kindness": [
     "/images/generated/kindness/kindness-bunny-helps-bird.jpg",
+    "/images/generated/kindness/kindness-child-bear-star-01.png",
     "/images/generated/kindness/kindness-cover-01.jpg",
     "/images/generated/kindness/kindness-cover-02.jpg",
     "/images/generated/kindness/kindness-grateful-deer-oak.jpg",
@@ -46,6 +54,8 @@ export const GENERATED_SCENE_IMAGE_POOLS: Record<string, string[]> = {
     "/images/generated/magic/magic-cover-01.jpg",
     "/images/generated/magic/magic-cover-02.jpg",
     "/images/generated/magic/magic-fairy-dust-storybook.jpg",
+    "/images/generated/magic/magic-loft-treasure-01.png",
+    "/images/generated/magic/magic-loft-treasure-02.jpg",
     "/images/generated/magic/magic-quill-writing.jpg",
     "/images/generated/magic/magic-treasure-opening.jpg",
   ],
@@ -53,6 +63,7 @@ export const GENERATED_SCENE_IMAGE_POOLS: Record<string, string[]> = {
     "/images/generated/mystery/mystery-cover-01.jpg",
     "/images/generated/mystery/mystery-cover-02.jpg",
     "/images/generated/mystery/mystery-detective-mouse.jpg",
+    "/images/generated/mystery/mystery-owl-riddle-door-01.png",
   ],
   "nature": [
     "/images/generated/nature/nature-cover-01.jpg",
@@ -69,6 +80,7 @@ export const GENERATED_SCENE_IMAGE_POOLS: Record<string, string[]> = {
     "/images/generated/wonder/wonder-cover-02.jpg",
     "/images/generated/wonder/wonder-cover-03.jpg",
     "/images/generated/wonder/wonder-cover-04.jpg",
+    "/images/generated/wonder/wonder-moon-sky-ride-01.png",
     "/images/generated/wonder/wonder-penguin-stage.jpg",
   ],
 };
