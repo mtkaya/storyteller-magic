@@ -801,20 +801,20 @@ type InteractiveDetourIdea = {
 
 const INTERACTIVE_DETOUR_IDEAS: Record<StoryPrompt['language'], InteractiveDetourIdea[]> = {
     en: [
-        { text: 'Follow the tiny lantern glow', consequence: 'A hidden path may open.', emoji: '🏮', followText: 'Return to the main route', endingText: 'Settle into a cozy ending' },
-        { text: 'Listen to the whispering breeze', consequence: 'The breeze might guide you.', emoji: '🍃', followText: 'Continue the adventure', endingText: 'Choose a peaceful finish' },
-        { text: 'Inspect the sparkling clue', consequence: 'You may discover a shortcut.', emoji: '🔎', followText: 'Step back to the main path', endingText: 'Wrap up under the stars' },
-        { text: 'Help a tiny friend nearby', consequence: 'Kindness can change the route.', emoji: '🐾', followText: 'Head to the next chapter', endingText: 'Pause for a gentle ending' },
-        { text: 'Try the moonlit bridge', consequence: 'A new branch may appear.', emoji: '🌉', followText: 'Cross back to the journey', endingText: 'Take a soft bedtime ending' },
-        { text: 'Open the secret map fold', consequence: 'A surprise route might appear.', emoji: '🗺️', followText: 'Follow the map onward', endingText: 'End with a calm discovery' },
+        { text: 'Follow the tiny lantern glow', consequence: 'You may find who left the welcome lights on.', emoji: '🏮', followText: 'Return to the main route', endingText: 'Settle into a cozy ending' },
+        { text: 'Listen to the whispering breeze', consequence: 'The breeze may carry a clue from the garden.', emoji: '🍃', followText: 'Continue the adventure', endingText: 'Choose a peaceful finish' },
+        { text: 'Inspect the sparkling clue', consequence: 'A shortcut may lead to the missing table cloth.', emoji: '🔎', followText: 'Step back to the main path', endingText: 'Wrap up under the stars' },
+        { text: 'Help a tiny friend nearby', consequence: 'A small helper may know which guest is still waiting.', emoji: '🐾', followText: 'Head to the next chapter', endingText: 'Pause for a gentle ending' },
+        { text: 'Try the moonlit bridge', consequence: 'It may lead to the best place for the welcome table.', emoji: '🌉', followText: 'Cross back to the journey', endingText: 'Take a soft bedtime ending' },
+        { text: 'Open the secret map fold', consequence: 'The hidden map may reveal the final missing stop.', emoji: '🗺️', followText: 'Follow the map onward', endingText: 'End with a calm discovery' },
     ],
     tr: [
-        { text: 'Minik fener izini takip et', consequence: 'Gizli bir yol açılabilir.', emoji: '🏮', followText: 'Ana yola geri dön', endingText: 'Sakin bir sonu seç' },
-        { text: 'Fısıldayan rüzgarı dinle', consequence: 'Rüzgar sana yol gösterebilir.', emoji: '🍃', followText: 'Maceraya devam et', endingText: 'Huzurlu bir kapanış seç' },
-        { text: 'Parlayan ipucunu incele', consequence: 'Kısa bir geçit bulabilirsin.', emoji: '🔎', followText: 'Ana patikaya dön', endingText: 'Yıldızlarla bitir' },
-        { text: 'Yakındaki minik dosta yardım et', consequence: 'İyilik, yolu değiştirebilir.', emoji: '🐾', followText: 'Bir sonraki bölüme geç', endingText: 'Yumuşak bir sona uğra' },
-        { text: 'Ay ışıklı köprüyü dene', consequence: 'Yeni bir dal açılabilir.', emoji: '🌉', followText: 'Yolculuğa geri katıl', endingText: 'Uykuya uygun bir son seç' },
-        { text: 'Haritanın gizli katını aç', consequence: 'Sürpriz bir rota ortaya çıkabilir.', emoji: '🗺️', followText: 'Haritayı izleyerek devam et', endingText: 'Sakin bir keşifle bitir' },
+        { text: 'Minik fener izini takip et', consequence: 'Karşılama ışıklarını kimin yaktığını bulabilirsin.', emoji: '🏮', followText: 'Ana yola geri dön', endingText: 'Sakin bir sonu seç' },
+        { text: 'Fısıldayan rüzgarı dinle', consequence: 'Bahçeden gelen bir ipucu duyabilirsin.', emoji: '🍃', followText: 'Maceraya devam et', endingText: 'Huzurlu bir kapanış seç' },
+        { text: 'Parlayan ipucunu incele', consequence: 'Eksik masa örtüsüne giden kısa yolu bulabilirsin.', emoji: '🔎', followText: 'Ana patikaya dön', endingText: 'Yıldızlarla bitir' },
+        { text: 'Yakındaki minik dosta yardım et', consequence: 'Bekleyen misafirin nerede olduğunu öğrenebilirsin.', emoji: '🐾', followText: 'Bir sonraki bölüme geç', endingText: 'Yumuşak bir sona uğra' },
+        { text: 'Ay ışıklı köprüyü dene', consequence: 'Karşılama masasını kurmak için en iyi yere çıkabilirsin.', emoji: '🌉', followText: 'Yolculuğa geri katıl', endingText: 'Uykuya uygun bir son seç' },
+        { text: 'Haritanın gizli katını aç', consequence: 'Son eksik durağı gösteren işaret ortaya çıkabilir.', emoji: '🗺️', followText: 'Haritayı izleyerek devam et', endingText: 'Sakin bir keşifle bitir' },
     ]
 };
 
@@ -1306,10 +1306,10 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
 
     if (options.language === 'tr') {
         return {
-            title: 'Yıldızlı Yol Ayrımı',
+            title: 'Gece Bahçesi Hazırlığı',
             subtitle: 'Macera • Seçimler',
             character,
-            moral: 'Nazik seçimler, en güzel sonlara götürür.',
+            moral: 'Nazik ve somut seçimler, güzel bir geceyi birlikte kurar.',
             ageRange,
             theme: options.theme,
             isInteractive: true,
@@ -1319,39 +1319,39 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                 {
                     id: 'start',
                     paragraphs: [
-                        `${character}, ay ışığında parlayan yolda yürürken uzakta iki farklı ışık görmüş.`,
-                        'Bir yol göl kenarına, diğer yol ise yıldız bahçesine gidiyormuş.',
-                        'Gökyüzündeki yıldızlar sanki hangi yolu seçeceğini merak eder gibi parıldıyormuş.',
-                        'Hangisini seçmeli?'
+                        `${character}, gece bahçesinde kurulacak karşılama masası için son hazırlıkları kontrol ediyormuş.`,
+                        'Ama masadaki ışık fenerlerinden biri eksikmiş ve misafirlerden biri hâlâ doğru yolu bulamamış.',
+                        'Önünde iki seçenek varmış: önce göl kıyısındaki feneri aramak ya da yıldız bahçesindeki misafiri bulmak.',
+                        'İlk olarak hangisiyle ilgilenmeli?'
                     ],
                     choices: [
-                        { id: 'secim_gol', text: 'Göl yolunu izle', emoji: '🌊', nextBranchId: 'lake_path', consequence: 'Yeni bir dostla karşılaşabilirsin.' },
-                        { id: 'secim_yildiz', text: 'Yıldız bahçesine git', emoji: '🌟', nextBranchId: 'star_garden', consequence: 'Parlayan bir sürpriz bulabilirsin.' }
+                        { id: 'secim_gol', text: 'Göl kıyısındaki feneri ara', emoji: '🌊', nextBranchId: 'lake_path', consequence: 'Masayı aydınlatacak ışığı geri getirebilirsin.' },
+                        { id: 'secim_yildiz', text: 'Yıldız bahçesindeki misafiri bul', emoji: '🌟', nextBranchId: 'star_garden', consequence: 'Bekleyen konuğun geceye katılmasını sağlayabilirsin.' }
                     ]
                 },
                 {
                     id: 'lake_path',
                     paragraphs: [
-                        `${character}, göl kıyısında yönünü kaybetmiş minik bir kurbağa görmüş.`,
-                        'Kurbağanın yuvasına dönmesine yardım etmek için sabırla etrafı incelemiş.',
-                        'Rüzgar hafifçe esmiş ve suyun üstünde gümüş bir iz bırakmış.',
+                        `${character}, göl kıyısında sazlıkların arasına sıkışmış küçük bir fener bulmuş.`,
+                        'Yakında yönünü karıştırmış minik bir kurbağa da eve dönmeye çalışıyormuş.',
+                        'Feneri almak kolaymış ama kurbağaya yardım etmeden dönmek içe sinmeyecek gibiymiş.',
                         'Şimdi ne yapmalı?'
                     ],
                     choices: [
-                        { id: 'secim_sarki', text: 'Kurbağayla sakin bir şarkı söyle', emoji: '🎵', nextBranchId: 'ending_friendship', consequence: 'Kalpleri ısıtan bir an yaşanır.' },
-                        { id: 'secim_fener', text: 'Yol göstermek için fener yak', emoji: '🏮', nextBranchId: 'ending_lesson', consequence: 'Herkes güvenle evine ulaşır.' }
+                        { id: 'secim_sarki', text: 'Kurbağayı sakinleştirip birlikte yol ara', emoji: '🎵', nextBranchId: 'ending_friendship', consequence: 'Hem dost kazanabilir hem feneri güvenle taşıyabilirsin.' },
+                        { id: 'secim_fener', text: 'Önce feneri yakıp yolu aydınlat', emoji: '🏮', nextBranchId: 'ending_lesson', consequence: 'Herkesin eve dönüşü kolaylaşabilir.' }
                     ]
                 },
                 {
                     id: 'star_garden',
                     paragraphs: [
-                        `${character}, yıldız bahçesinde dilek tohumlarıyla dolu bir kutu bulmuş.`,
-                        'Tohumlar yalnızca paylaşılırsa parlıyormuş.',
-                        'Bahçedeki çiçekler, nazik bir seçim bekliyormuş gibi hafifçe sallanmış.',
-                        `${character} kutuyu arkadaşlarıyla paylaşmaya karar vermiş.`
+                        `${character}, yıldız bahçesinde yolu bekleyen utangaç bir kirpiyle karşılaşmış.`,
+                        'Kirpi, karşılama masasına götürmesi gereken parlayan tohumları tek başına taşıyamıyormuş.',
+                        'Tohumlar acele edilince sönüyor, dikkatle paylaşılınca yeniden ışıldıyormuş.',
+                        `${character}, gece başlamadan önce doğru yardımı seçmek zorundaymış.`
                     ],
                     choices: [
-                        { id: 'secim_paylas', text: 'Dilek tohumlarını paylaş', emoji: '✨', nextBranchId: 'ending_happy', consequence: 'Bahçe ışıl ışıl olur.' }
+                        { id: 'secim_paylas', text: 'Tohumları birlikte paylaştır ve kirpiyi masaya götür', emoji: '✨', nextBranchId: 'ending_happy', consequence: 'Karşılama masası eksiksiz kurulabilir.' }
                     ]
                 },
                 {
@@ -1392,10 +1392,10 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
     }
 
     return {
-        title: 'The Starlit Crossroads',
+        title: 'Preparing the Night Garden',
         subtitle: 'Adventure • Choices',
         character,
-        moral: 'Kind choices lead to beautiful endings.',
+        moral: 'Concrete, kind choices help build a better night together.',
         ageRange,
         theme: options.theme,
         isInteractive: true,
@@ -1405,39 +1405,39 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
             {
                 id: 'start',
                 paragraphs: [
-                    `${character} walked under moonlight and noticed two glowing paths ahead.`,
-                    'One path led to a calm lake, and the other led to a garden of stars.',
-                    'The stars above shimmered as if they were waiting for the next choice.',
-                    'Which way should the journey continue?'
+                    `${character} was checking the final setup for a welcome table in the night garden.`,
+                    'One lantern was missing, and one guest still had not found the right path.',
+                    'There were two good options: search for the lost lantern by the lake or help the waiting guest in the star garden first.',
+                    'Which problem should be solved first?'
                 ],
                 choices: [
-                    { id: 'choice_lake', text: 'Follow the lake path', emoji: '🌊', nextBranchId: 'lake_path', consequence: 'A new friend might need help.' },
-                    { id: 'choice_stars', text: 'Visit the star garden', emoji: '🌟', nextBranchId: 'star_garden', consequence: 'A sparkling surprise may appear.' }
+                    { id: 'choice_lake', text: 'Search for the lantern by the lake', emoji: '🌊', nextBranchId: 'lake_path', consequence: 'You may bring back the missing light for the table.' },
+                    { id: 'choice_stars', text: 'Find the guest in the star garden', emoji: '🌟', nextBranchId: 'star_garden', consequence: 'You may help the last guest join the evening.' }
                 ]
             },
             {
                 id: 'lake_path',
                 paragraphs: [
-                    `${character} found a tiny frog who could not find the way home.`,
-                    'Together they looked around carefully and listened to the quiet night sounds.',
-                    'A silver ripple moved across the water as the breeze whispered by.',
-                    'What should they try next?'
+                    `${character} found the missing lantern caught between the reeds near the lake.`,
+                    'A tiny frog nearby was also trying to find the way home.',
+                    'Taking the lantern back would be easy, but leaving without helping the frog did not feel right.',
+                    'What should happen next?'
                 ],
                 choices: [
-                    { id: 'choice_song', text: 'Sing a calming song', emoji: '🎵', nextBranchId: 'ending_friendship', consequence: 'The frog may feel brave again.' },
-                    { id: 'choice_lantern', text: 'Light a gentle lantern', emoji: '🏮', nextBranchId: 'ending_lesson', consequence: 'A safe path may appear.' }
+                    { id: 'choice_song', text: 'Calm the frog and search together', emoji: '🎵', nextBranchId: 'ending_friendship', consequence: 'You may help both the frog and the lantern reach home safely.' },
+                    { id: 'choice_lantern', text: 'Light the lantern and guide the way', emoji: '🏮', nextBranchId: 'ending_lesson', consequence: 'A safe route may appear for everyone.' }
                 ]
             },
             {
                 id: 'star_garden',
                 paragraphs: [
-                    `${character} discovered a box filled with tiny wishing seeds in the star garden.`,
-                    'The seeds glowed only when they were shared kindly.',
-                    'The flowers in the garden swayed softly, waiting for a gentle decision.',
-                    `${character} decided to share every glowing seed with friends.`
+                    `${character} met a shy hedgehog waiting in the star garden.`,
+                    'The hedgehog was carrying glowing seeds meant for the welcome table, but could not carry them alone.',
+                    'The seeds dimmed when rushed and brightened when shared carefully.',
+                    `${character} needed to choose the kindest way to help before the evening could begin.`
                 ],
                 choices: [
-                    { id: 'choice_share', text: 'Share the wishing seeds', emoji: '✨', nextBranchId: 'ending_happy', consequence: 'The sky might light up.' }
+                    { id: 'choice_share', text: 'Share the seeds and escort the hedgehog', emoji: '✨', nextBranchId: 'ending_happy', consequence: 'The welcome table may be ready in time.' }
                 ]
             },
             {
