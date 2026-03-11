@@ -466,88 +466,104 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
         </div>
 
         {/* Theme Grid */}
-        <h3 className="text-lg font-bold mb-3">{t.create_choose_theme}</h3>
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {themes.map((theme) => (
-            <button
-              key={theme.id}
-              onClick={() => setSelectedTheme(theme.id)}
-              className={`p-2 rounded-xl border transition-all ${selectedTheme === theme.id
-                  ? 'bg-white/10 border-accent-peach ring-2 ring-accent-peach/50'
-                  : 'bg-white/5 border-white/10 hover:bg-white/10'
-                }`}
-            >
-              <div className="w-full aspect-square rounded-lg bg-[#2d2e4d] mb-2 overflow-hidden shadow-inner">
-                <img
-                  src={getIllustratedImageUrl({
-                    title: theme.name,
-                    subtitle: language === 'tr' ? 'Tema' : 'Theme',
-                    theme: theme.id,
-                    src: theme.icon,
-                    icon: theme.visualIcon
-                  })}
-                  alt={theme.name}
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-              <span className="font-medium text-xs">{theme.name}</span>
-            </button>
-          ))}
+        <div className="mb-6 rounded-[24px] border border-white/10 bg-white/5 p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h3 className="text-lg font-bold">{t.create_choose_theme}</h3>
+            <span className="text-[11px] uppercase tracking-[0.18em] text-white/45">
+              {language === 'tr' ? 'Gorsel Yon' : 'Visual Direction'}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {themes.map((theme) => (
+              <button
+                key={theme.id}
+                onClick={() => setSelectedTheme(theme.id)}
+                className={`rounded-2xl border p-2.5 transition-all ${selectedTheme === theme.id
+                    ? 'bg-white/10 border-accent-peach ring-2 ring-accent-peach/50 shadow-[0_12px_30px_rgba(255,176,142,0.12)]'
+                    : 'bg-white/5 border-white/10 hover:bg-white/10'
+                  }`}
+              >
+                <div className="w-full aspect-square rounded-xl bg-[#2d2e4d] mb-2 overflow-hidden shadow-inner">
+                  <img
+                    src={getIllustratedImageUrl({
+                      title: theme.name,
+                      subtitle: language === 'tr' ? 'Tema' : 'Theme',
+                      theme: theme.id,
+                      src: theme.icon,
+                      icon: theme.visualIcon
+                    })}
+                    alt={theme.name}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <span className="block font-semibold text-xs leading-snug">{theme.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Tone */}
-        <h3 className="text-lg font-bold mb-3">{t.create_choose_tone}</h3>
-        <div className="flex flex-wrap gap-2 mb-6">
-          {tones.map((tone) => (
-            <button
-              key={tone.id}
-              onClick={() => setSelectedTone(tone.id)}
-              className={`px-4 py-2 rounded-full font-bold text-sm transition-all ${selectedTone === tone.id
-                  ? 'bg-secondary text-white border border-white/20'
-                  : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'
-                }`}
-            >
-              {tone.name}
-            </button>
-          ))}
-        </div>
+        {/* Tone + Duration */}
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+            <h3 className="text-lg font-bold mb-3">{t.create_choose_tone}</h3>
+            <div className="flex flex-wrap gap-2">
+              {tones.map((tone) => (
+                <button
+                  key={tone.id}
+                  onClick={() => setSelectedTone(tone.id)}
+                  className={`px-4 py-2.5 rounded-full font-bold text-sm transition-all ${selectedTone === tone.id
+                      ? 'bg-secondary text-white border border-white/20 shadow-[0_10px_24px_rgba(145,92,255,0.18)]'
+                      : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'
+                    }`}
+                >
+                  {tone.name}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        {/* Duration */}
-        <h3 className="text-lg font-bold mb-3">{t.create_choose_duration}</h3>
-        <div className="flex gap-2 mb-6">
-          {durations.map((dur) => (
-            <button
-              key={dur.id}
-              onClick={() => setSelectedDuration(dur.id)}
-              className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${selectedDuration === dur.id
-                  ? 'bg-primary text-bg-dark'
-                  : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'
-                }`}
-            >
-              {dur.name}
-            </button>
-          ))}
+          <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+            <h3 className="text-lg font-bold mb-3">{t.create_choose_duration}</h3>
+            <div className="grid grid-cols-3 gap-2">
+              {durations.map((dur) => (
+                <button
+                  key={dur.id}
+                  onClick={() => setSelectedDuration(dur.id)}
+                  className={`py-3 rounded-xl font-bold text-sm transition-all ${selectedDuration === dur.id
+                      ? 'bg-primary text-bg-dark shadow-[0_10px_24px_rgba(255,176,142,0.18)]'
+                      : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'
+                    }`}
+                >
+                  {dur.name}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Interactive Toggle */}
-        <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 mb-6">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🎮</span>
-            <div>
-              <p className="font-bold text-sm">
-                {language === 'tr' ? 'Etkileşimli Hikaye' : 'Interactive Story'}
-              </p>
-              <p className="text-white/50 text-xs">
-                {language === 'tr' ? 'Seçimlerle akışı yönlendir' : 'Guide the flow with simple choices'}
-              </p>
+        <div className="mb-6 rounded-[24px] border border-white/10 bg-gradient-to-br from-white/8 to-white/4 p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/8 text-white/80">
+                <span className="material-symbols-outlined">alt_route</span>
+              </div>
+              <div>
+                <p className="font-bold text-sm">
+                  {language === 'tr' ? 'Etkileşimli Hikaye' : 'Interactive Story'}
+                </p>
+                <p className="text-white/50 text-xs leading-relaxed max-w-[220px]">
+                  {language === 'tr' ? 'Secimlerle akis degissin, sonlar farklilassin.' : 'Let simple choices change the flow and ending.'}
+                </p>
+              </div>
             </div>
+            <button
+              onClick={() => setIsInteractive(!isInteractive)}
+              className={`w-12 h-7 rounded-full relative transition-colors ${isInteractive ? 'bg-secondary' : 'bg-white/10'}`}
+            >
+              <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${isInteractive ? 'right-1' : 'left-1'}`}></div>
+            </button>
           </div>
-          <button
-            onClick={() => setIsInteractive(!isInteractive)}
-            className={`w-12 h-7 rounded-full relative transition-colors ${isInteractive ? 'bg-secondary' : 'bg-white/10'}`}
-          >
-            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${isInteractive ? 'right-1' : 'left-1'}`}></div>
-          </button>
         </div>
       </div>
 
