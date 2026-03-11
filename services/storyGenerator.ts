@@ -801,20 +801,28 @@ type InteractiveDetourIdea = {
 
 const INTERACTIVE_DETOUR_IDEAS: Record<StoryPrompt['language'], InteractiveDetourIdea[]> = {
     en: [
-        { text: 'Follow the tiny lantern glow', consequence: 'You may find who left the welcome lights on.', emoji: '🏮', followText: 'Return to the main route', endingText: 'Settle into a cozy ending' },
-        { text: 'Listen to the whispering breeze', consequence: 'The breeze may carry a clue from the garden.', emoji: '🍃', followText: 'Continue the adventure', endingText: 'Choose a peaceful finish' },
-        { text: 'Inspect the sparkling clue', consequence: 'A shortcut may lead to the missing table cloth.', emoji: '🔎', followText: 'Step back to the main path', endingText: 'Wrap up under the stars' },
-        { text: 'Help a tiny friend nearby', consequence: 'A small helper may know which guest is still waiting.', emoji: '🐾', followText: 'Head to the next chapter', endingText: 'Pause for a gentle ending' },
-        { text: 'Try the moonlit bridge', consequence: 'It may lead to the best place for the welcome table.', emoji: '🌉', followText: 'Cross back to the journey', endingText: 'Take a soft bedtime ending' },
-        { text: 'Open the secret map fold', consequence: 'The hidden map may reveal the final missing stop.', emoji: '🗺️', followText: 'Follow the map onward', endingText: 'End with a calm discovery' },
+        { text: 'Follow the tiny lantern glow', consequence: 'Someone ahead left the light on — it may be a clue.', emoji: '🏮', followText: 'Return to the main route', endingText: 'Settle into a cozy ending' },
+        { text: 'Listen to the whispering breeze', consequence: 'The breeze may carry the one sound you have been waiting for.', emoji: '🍃', followText: 'Continue the adventure', endingText: 'Choose a peaceful finish' },
+        { text: 'Inspect the glinting object', consequence: 'It could be the missing piece that unlocks the next step.', emoji: '🔎', followText: 'Step back to the main path', endingText: 'Wrap up under the stars' },
+        { text: 'Help a small creature nearby', consequence: 'Even a tiny helper often knows which path to take.', emoji: '🐾', followText: 'Head to the next chapter', endingText: 'Pause for a gentle ending' },
+        { text: 'Cross the moonlit bridge', consequence: 'It may lead somewhere no one has looked yet.', emoji: '🌉', followText: 'Cross back to the journey', endingText: 'Take a soft bedtime ending' },
+        { text: 'Open the hidden map fold', consequence: 'The folded edge might reveal the last missing clue.', emoji: '🗺️', followText: 'Follow the map onward', endingText: 'End with a calm discovery' },
+        { text: 'Climb the short mossy ridge', consequence: 'A higher view might show you exactly where to go next.', emoji: '🌿', followText: 'Descend and carry on', endingText: 'Watch the stars and rest' },
+        { text: 'Check on the sound from the hollow', consequence: 'Something small may be stuck and waiting for help.', emoji: '🍂', followText: 'Continue past the hollow', endingText: 'Rest beside the hollow' },
+        { text: 'Follow the trail of pebbles', consequence: 'Someone thoughtful left them there on purpose.', emoji: '🪨', followText: 'Leave the trail and press on', endingText: 'Find the calm end of the trail' },
+        { text: 'Stop and count the stars together', consequence: 'A shared pause often shows you what truly matters.', emoji: '✦', followText: 'Resume the journey refreshed', endingText: 'Let the stars close the night' },
     ],
     tr: [
-        { text: 'Minik fener izini takip et', consequence: 'Karşılama ışıklarını kimin yaktığını bulabilirsin.', emoji: '🏮', followText: 'Ana yola geri dön', endingText: 'Sakin bir sonu seç' },
-        { text: 'Fısıldayan rüzgarı dinle', consequence: 'Bahçeden gelen bir ipucu duyabilirsin.', emoji: '🍃', followText: 'Maceraya devam et', endingText: 'Huzurlu bir kapanış seç' },
-        { text: 'Parlayan ipucunu incele', consequence: 'Eksik masa örtüsüne giden kısa yolu bulabilirsin.', emoji: '🔎', followText: 'Ana patikaya dön', endingText: 'Yıldızlarla bitir' },
-        { text: 'Yakındaki minik dosta yardım et', consequence: 'Bekleyen misafirin nerede olduğunu öğrenebilirsin.', emoji: '🐾', followText: 'Bir sonraki bölüme geç', endingText: 'Yumuşak bir sona uğra' },
-        { text: 'Ay ışıklı köprüyü dene', consequence: 'Karşılama masasını kurmak için en iyi yere çıkabilirsin.', emoji: '🌉', followText: 'Yolculuğa geri katıl', endingText: 'Uykuya uygun bir son seç' },
-        { text: 'Haritanın gizli katını aç', consequence: 'Son eksik durağı gösteren işaret ortaya çıkabilir.', emoji: '🗺️', followText: 'Haritayı izleyerek devam et', endingText: 'Sakin bir keşifle bitir' },
+        { text: 'Minik fener izini takip et', consequence: 'İleride biri ışığı açık bırakmış — bu bir ipucu olabilir.', emoji: '🏮', followText: 'Ana yola geri dön', endingText: 'Sakin bir sonu seç' },
+        { text: 'Fısıldayan rüzgarı dinle', consequence: 'Rüzgar, beklediğin sesi taşıyor olabilir.', emoji: '🍃', followText: 'Maceraya devam et', endingText: 'Huzurlu bir kapanış seç' },
+        { text: 'Parlayan nesneyi incele', consequence: 'Bir sonraki adımın anahtarı olan eksik parça olabilir.', emoji: '🔎', followText: 'Ana patikaya dön', endingText: 'Yıldızların altında bitir' },
+        { text: 'Yakındaki küçük yaratığa yardım et', consequence: 'Küçük bir yardımcı bile çoğu zaman doğru yolu bilir.', emoji: '🐾', followText: 'Bir sonraki bölüme geç', endingText: 'Yumuşak bir sona uğra' },
+        { text: 'Ay ışıklı köprüden geç', consequence: 'Kimsenin henüz bakmadığı bir yere çıkabilir.', emoji: '🌉', followText: 'Yolculuğa geri katıl', endingText: 'Uykuya uygun bir son seç' },
+        { text: 'Haritanın gizli katını aç', consequence: 'Katlanan kenar, son eksik ipucunu açığa çıkarabilir.', emoji: '🗺️', followText: 'Haritayı izleyerek devam et', endingText: 'Sakin bir keşifle bitir' },
+        { text: 'Yosunlu kısa yamacı tırman', consequence: 'Yukarıdan bakış, nereye gideceğini tam olarak gösterebilir.', emoji: '🌿', followText: 'İn ve yola devam et', endingText: 'Yıldızları izleyerek dinlen' },
+        { text: 'Kovuktaki sesi kontrol et', consequence: 'Küçük bir şey sıkışıp yardım bekliyor olabilir.', emoji: '🍂', followText: 'Kovuğun yanından geç', endingText: 'Kovuğun yanında dinlen' },
+        { text: 'Taş izini takip et', consequence: 'Düşünceli biri onları özellikle oraya bırakmıştır.', emoji: '🪨', followText: 'İzi bırak ve ilerle', endingText: 'İzin sakin sonuna ulaş' },
+        { text: 'Durup birlikte yıldızları say', consequence: 'Ortak bir mola, gerçekten önemli olanı gösterir.', emoji: '✦', followText: 'Dinlenmiş olarak yola devam et', endingText: 'Yıldızların geceyi kapatmasına izin ver' },
     ]
 };
 
