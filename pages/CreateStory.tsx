@@ -50,10 +50,10 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
         };
       case 'remote':
         return {
-          label: language === 'tr' ? 'Mod: Remote AI' : 'Mode: Remote AI',
+          label: language === 'tr' ? 'Mod: Uzak Kaynak' : 'Mode: Remote Source',
           description: language === 'tr'
-            ? 'Hikaye üretimi için uzak AI servisi kullanılır.'
-            : 'Uses the remote AI service for story generation.'
+            ? 'Hikaye uzak üretim servisi üzerinden hazırlanır.'
+            : 'Uses the remote generation service for story creation.'
         };
       default:
         return {
@@ -142,8 +142,8 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       } else if (generationMode === 'hybrid') {
         setError(
           language === 'tr'
-            ? 'Hibrit mod aktif: uygun olduğunda AI, gerekirse yerel havuz kullanılır.'
-            : 'Hybrid mode active: AI when available, local pool as fallback.'
+            ? 'Hibrit mod aktif: uygun olduğunda uzak üretim, gerekirse yerel havuz kullanılır.'
+            : 'Hybrid mode active: remote generation when available, local pool as fallback.'
         );
       } else {
         setError(null);
@@ -157,11 +157,11 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       setError(
         isTimeout
           ? (language === 'tr'
-            ? 'AI yanıtı gecikti, yedek hikaye gösteriliyor.'
-            : 'AI response timed out, showing a fallback story.')
+            ? 'Uzak üretim gecikti, yedek hikaye gösteriliyor.'
+            : 'Remote generation timed out, showing a fallback story.')
           : (language === 'tr'
-            ? 'AI servisine ulaşılamadı, yedek hikaye gösteriliyor.'
-            : 'Could not reach AI service, showing a fallback story.')
+            ? 'Uzak üretim servisine ulaşılamadı, yedek hikaye gösteriliyor.'
+            : 'Could not reach the remote generation service, showing a fallback story.')
       );
       // Use fallback story
       const fallbackStory = getFallbackStory(storyOptions);
@@ -441,7 +441,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
         <div className="mb-5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-white/90">{generationModeMeta.label}</p>
-            <span className="text-[11px] text-white/45">{isLocalMode ? 'No API cost' : 'AI enabled'}</span>
+            <span className="text-[11px] text-white/45">{isLocalMode ? 'No API cost' : (language === 'tr' ? 'Uzak üretim açık' : 'Remote generation enabled')}</span>
           </div>
           <p className="mt-2 text-xs text-white/60">{generationModeMeta.description}</p>
         </div>
@@ -558,7 +558,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
           <span className="material-symbols-outlined">auto_fix_high</span>
           {isLocalMode
             ? (language === 'tr' ? 'Hikaye Oluştur' : 'Generate Story')
-            : (language === 'tr' ? 'AI ile Hikaye Oluştur' : 'Generate with AI')}
+            : (language === 'tr' ? 'Yeni Hikaye Oluştur' : 'Create New Story')}
         </button>
         <p className="text-center text-white/40 text-xs mt-3 italic">
           {isLocalMode
@@ -567,11 +567,11 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
               : 'Preparing a personalized tale from the local story library.')
             : generationMode === 'hybrid'
               ? (language === 'tr'
-                ? 'Önce AI ile deniyoruz; gerekirse yerel havuza dönüyoruz.'
-                : 'Trying AI first, with local fallback when needed.')
+                ? 'Önce uzak üretimi deniyoruz; gerekirse yerel havuza dönüyoruz.'
+                : 'Trying remote generation first, with local fallback when needed.')
               : (language === 'tr'
-                ? 'AI ile yeni hikaye üretiliyor.'
-                : 'Generating a new story with AI.')}
+                ? 'Uzak üretimle yeni hikaye hazırlanıyor.'
+                : 'Preparing a new story with remote generation.')}
         </p>
         <p className="text-center text-white/40 text-[11px] mt-2">
           {remainingGeneratedStories === Infinity

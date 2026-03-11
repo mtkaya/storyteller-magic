@@ -1,15 +1,15 @@
 # Storyteller Magic
 
-Storyteller Magic is a React + TypeScript app for creating bedtime stories with AI, reading them with voice narration, and tracking child-friendly reading progress.
+Storyteller Magic is a React + TypeScript bedtime story app built around a curated story library, interactive reading paths, voice narration, and child-friendly reading progress.
 
 ## Highlights
 
-- Local-first story generation (zero-token cost by default) with optional Gemini (`gemini-1.5-flash`)
+- Library-first story experience (zero-token cost by default)
 - Interactive "choose your own adventure" stories
 - Expanded local story vault (~160 stories) with rotation to reduce repeats
 - Expanded interactive branching (detours + extra choices per node)
 - English and Turkish language support
-- Premium voice narration via OpenAI TTS (`/api/tts`) with browser Speech Synthesis fallback
+- Optional premium narration via OpenAI TTS (`/api/tts`) with browser Speech Synthesis fallback
 - Profiles, favorites, badges, streaks, and parent-oriented stats
 - Daily reading limits and parental gate flow
 - Mobile-ready setup with Capacitor (iOS + Android folders included)
@@ -62,9 +62,9 @@ VITE_STORY_API_URL=
 - `CORS_ALLOWED_ORIGINS` is a comma-separated allowlist for browser origins. Set this explicitly in production.
 - See [PRIVACY.md](./PRIVACY.md) and [SECURITY.md](./SECURITY.md) before public deployment.
 - `VITE_STORY_API_URL` is optional. Leave empty if frontend and backend share the same domain.
-- `VITE_STORY_GENERATION_MODE` controls generation path:
-  - `local` (default): uses built-in story pool and local composition only
-  - `hybrid`: tries Gemini first, falls back to local story pool
+- `VITE_STORY_GENERATION_MODE` controls story sourcing:
+  - `local` (default): uses the built-in story library and local composition only
+  - `hybrid`: tries Gemini first, falls back to the local story library
   - `remote`: always uses Gemini API
 - For mobile builds, set `VITE_STORY_API_URL` to your deployed backend URL (for example `https://api.example.com`).
 - `VITE_ILLUSTRATION_ONLY_MODE` controls cover style. Default is original story images (`false`). Set `true` for illustration-only mode.
@@ -165,8 +165,8 @@ npm run cap:run:android
 |- context/         # app-wide state and localization
 |- data/            # static story collections
 |- pages/           # screen-level pages
-|- services/        # AI generation, audio, notifications
-|- server/          # backend proxy for Gemini story + OpenAI TTS APIs
+|- services/        # story sourcing, audio, notifications
+|- server/          # optional backend proxy for Gemini story + OpenAI TTS APIs
 |- android/         # Capacitor Android native project
 |- ios/             # Capacitor iOS native project
 |- App.tsx          # app shell + navigation flow
@@ -176,8 +176,8 @@ npm run cap:run:android
 
 ## Fallback Behavior
 
-By default (`VITE_STORY_GENERATION_MODE=local`), stories are produced from the built-in story pool without API calls.
-In `hybrid` mode, Gemini is used when available and local generation takes over on errors/timeouts.
+By default (`VITE_STORY_GENERATION_MODE=local`), stories come from the built-in story library without API calls.
+In `hybrid` mode, Gemini is optional: when it is unavailable, local story generation takes over on errors/timeouts.
 In `remote` mode, Gemini failures still fall back to a local emergency story so the reading flow continues.
 If OpenAI TTS is unavailable or not configured, the reader falls back to browser Speech Synthesis.
 

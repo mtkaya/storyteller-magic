@@ -1,7 +1,7 @@
 {
     "name": "Storyteller Magic",
     "short_name": "Storyteller",
-    "description": "AI-powered bedtime stories for children with interactive adventures",
+    "description": "Personalized bedtime stories for children with interactive adventures and a curated library",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#1E1F44",
@@ -67,7 +67,7 @@
         {
             "name": "Create Story",
             "short_name": "Create",
-            "description": "Create a new AI-powered story",
+            "description": "Create a new personalized story",
             "url": "/?action=create",
             "icons": [
                 {

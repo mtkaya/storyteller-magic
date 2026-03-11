@@ -1922,7 +1922,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'basic',
     name: 'Basic',
     price: 'Free',
-    features: ['3 Free AI Stories/mo', 'Access to Public Library', 'Ads included'],
+    features: ['3 personalized story creations / month', 'Access to the curated library', 'Ads included'],
     color: 'bg-white/10',
     buttonText: 'Current Plan'
   },
@@ -1931,7 +1931,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: 'Pro',
     price: '$9.99',
     period: '/month',
-    features: ['Unlimited AI Stories', 'No Ads', 'Exclusive Themes', 'HD Audio'],
+    features: ['Higher story capacity', 'No Ads', 'Exclusive Themes', 'HD Audio'],
     isPopular: true,
     color: 'bg-gradient-to-br from-secondary to-purple-800',
     buttonText: 'Upgrade to Pro'
