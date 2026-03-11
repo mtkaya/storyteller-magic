@@ -74,7 +74,7 @@ const SUBTITLE_TERM_TR: Record<string, string> = {
   Change: 'Değişim',
   Hope: 'Umut',
   Mindfulness: 'Farkındalık',
-  Interactive: 'İnteraktif',
+  Interactive: 'Seçimli Hikaye',
 };
 
 const SUBTITLE_TERM_TR_NORMALIZED: Record<string, string> = Object.fromEntries(
@@ -116,7 +116,7 @@ const THEME_TERM_TR: Record<string, string> = {
   change: 'Değişim',
   hope: 'Umut',
   mindfulness: 'Farkındalık',
-  interactive: 'İnteraktif',
+  interactive: 'Seçimli Hikaye',
 };
 
 const translateSubtitleToken = (token: string): string => {
@@ -152,7 +152,7 @@ const translateSubtitleFallback = (subtitle: string | undefined): string | undef
   }
 
   if (subtitle.startsWith('🎮')) {
-    return subtitle.replace(/^🎮\s*/,'').replace(/Interactive/gi, 'İnteraktif');
+    return subtitle.replace(/^🎮\s*/,'').replace(/Interactive/gi, 'Seçimli Hikaye');
   }
 
   return translateSubtitleToken(subtitle);

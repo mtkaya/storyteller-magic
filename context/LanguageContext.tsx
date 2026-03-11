@@ -213,7 +213,7 @@ const tr: Translations = {
     library_all: '✨ Tümü',
     library_favorites: '❤️ Favoriler',
     library_full_story: '📖 Tam Hikaye',
-    library_interactive: '🎮 İnteraktif',
+    library_interactive: 'Seçimli',
 
     reader_reading: 'Okunuyor...',
     reader_the_end: 'Son',
