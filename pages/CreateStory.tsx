@@ -318,7 +318,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
     return (
       <div className="flex flex-col h-screen bg-bg-dark relative">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
+          className="absolute inset-0 bg-cover bg-center opacity-40"
           style={{
             backgroundImage: `url("${getIllustratedImageUrl({
               title: generatedStory.title,
@@ -330,37 +330,42 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             })}")`
           }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_35%),linear-gradient(180deg,rgba(13,14,32,0.24),rgba(13,14,32,0.92)_45%,rgba(13,14,32,1))]"></div>
 
-        <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6 text-center">
-          <div className="w-48 h-48 rounded-2xl overflow-hidden shadow-2xl border-2 border-primary/30 mb-8 mx-auto">
-            <img
-              src={getIllustratedImageUrl({
-                title: generatedStory.title,
-                subtitle: generatedStory.subtitle,
-                theme: generatedStory.theme,
-                ageRange: generatedStory.ageRange,
-                src: themes.find(t => t.id === generatedStory.theme)?.icon || IMAGES.MOON_RESULT,
-                icon: themes.find(t => t.id === generatedStory.theme)?.visualIcon
-              })}
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
-            <div className="rounded-full border border-white/15 bg-white/10 px-4 py-1">
-              <span className="text-white text-sm font-bold">{generationModeMeta.label}</span>
+        <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6 text-center py-8">
+          <div className="w-full max-w-sm rounded-[28px] border border-white/12 bg-black/20 backdrop-blur-md shadow-[0_30px_80px_rgba(0,0,0,0.35)] px-5 py-6">
+            <div className="mx-auto mb-5 inline-flex items-center rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/75">
+              {language === 'tr' ? 'Hikaye Hazır' : 'Story Ready'}
             </div>
-            {generatedStory.isInteractive && (
-              <div className="bg-gradient-to-r from-secondary to-purple-500 px-4 py-1 rounded-full">
-                <span className="text-white text-sm font-bold">{language === 'tr' ? 'Etkileşimli Hikaye' : 'Interactive Story'}</span>
-              </div>
-            )}
-          </div>
 
-          <h1 className="text-3xl font-bold text-white mb-2">{generatedStory.title}</h1>
-          <p className="text-white/70 mb-2">{generatedStory.subtitle}</p>
-          <p className="text-primary/80 text-sm italic mb-8">"{generatedStory.moral}"</p>
+            <div className="w-52 h-52 rounded-[24px] overflow-hidden shadow-2xl border border-white/15 mb-6 mx-auto">
+              <img
+                src={getIllustratedImageUrl({
+                  title: generatedStory.title,
+                  subtitle: generatedStory.subtitle,
+                  theme: generatedStory.theme,
+                  ageRange: generatedStory.ageRange,
+                  src: themes.find(t => t.id === generatedStory.theme)?.icon || IMAGES.MOON_RESULT,
+                  icon: themes.find(t => t.id === generatedStory.theme)?.visualIcon
+                })}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+              <div className="rounded-full border border-white/15 bg-white/10 px-4 py-1">
+                <span className="text-white text-sm font-bold">{generationModeMeta.label}</span>
+              </div>
+              {generatedStory.isInteractive && (
+                <div className="rounded-full border border-white/15 bg-white/10 px-4 py-1">
+                  <span className="text-white text-sm font-bold">{language === 'tr' ? 'Etkileşimli Hikaye' : 'Interactive Story'}</span>
+                </div>
+              )}
+            </div>
+
+            <h1 className="text-[30px] font-bold text-white leading-tight mb-2">{generatedStory.title}</h1>
+            <p className="text-white/68 text-sm mb-2">{generatedStory.subtitle}</p>
+            <p className="text-primary/80 text-sm italic mb-6">"{generatedStory.moral}"</p>
           {error && (
             <div className="w-full mb-4 rounded-xl border border-amber-300/30 bg-amber-200/10 px-4 py-3 text-left">
               <p className="text-xs font-semibold text-amber-200">
@@ -399,6 +404,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
           <button onClick={() => { setError(null); setStep(CreateStep.THEME); }} className="text-white/50 text-sm hover:text-white">
             {language === 'tr' ? 'Başka Bir Hikaye Oluştur' : 'Create Another'}
           </button>
+          </div>
         </div>
       </div>
     );

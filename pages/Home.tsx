@@ -158,30 +158,34 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
 
       {/* Hero CTA */}
       <div className="p-6 pt-2">
-        <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border border-white/10 group cursor-pointer" onClick={() => onNavigate('create_story')}>
+        <div className="relative w-full rounded-[28px] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.35)] border border-white/10 group cursor-pointer" onClick={() => onNavigate('create_story')}>
           <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.03]"
             style={{
               backgroundImage: `url("${getIllustratedImageUrl({
-                title: language === 'tr' ? 'Sihirli Hikaye' : 'Magic Story',
-                subtitle: language === 'tr' ? 'Oluştur' : 'Create',
-                theme: 'magic',
+                title: language === 'tr' ? 'Geceye Uygun Hikaye' : 'A Story for Tonight',
+                subtitle: language === 'tr' ? 'Kisisel secimlerle' : 'With personal choices',
+                theme: 'bedtime',
                 src: IMAGES.MAGIC_QUILL,
-                icon: '✨'
+                icon: '☾'
               })}")`
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1e1f44] via-[#1e1f44]/40 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#151632] via-[#151632]/55 to-transparent"></div>
           </div>
-          <div className="relative z-10 p-6 pt-32 flex flex-col items-start gap-3">
-            <div className="inline-flex items-center rounded-full border border-white/15 bg-black/25 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur-sm">
-              {language === 'tr' ? 'Kişisel Hikaye' : 'Personalized Story'}
+          <div className="relative z-10 p-6 pt-28 flex flex-col items-start gap-3">
+            <div className="inline-flex items-center rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur-sm">
+              {language === 'tr' ? 'Local Story Engine' : 'Local Story Engine'}
             </div>
-            <div>
-              <h3 className="text-white text-2xl font-bold leading-tight">{t.home_create_magic}</h3>
-              <p className="text-white/80 text-sm mt-1 font-medium text-shadow">{t.home_create_subtitle}</p>
+            <div className="max-w-[260px]">
+              <h3 className="text-white text-[28px] font-bold leading-[1.05]">{t.home_create_magic}</h3>
+              <p className="text-white/78 text-sm mt-2 leading-relaxed">{t.home_create_subtitle}</p>
             </div>
-            <button className="mt-2 px-6 py-2.5 bg-white text-bg-dark font-bold rounded-full text-sm hover:scale-105 transition-transform shadow-lg">
+            <div className="mt-1 flex items-center gap-2 text-[11px] text-white/60">
+              <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1">{language === 'tr' ? 'Yerel Kütüphane' : 'Curated Library'}</span>
+              <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1">{language === 'tr' ? 'Etkilesimli' : 'Interactive'}</span>
+            </div>
+            <button className="mt-3 px-6 py-2.5 bg-white text-bg-dark font-bold rounded-full text-sm hover:scale-105 transition-transform shadow-lg">
               {language === 'tr' ? 'Başla' : 'Start Now'}
             </button>
           </div>
@@ -239,8 +243,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
               </button>
               {/* Interactive badge */}
               {story.isInteractive && (
-                <div className="absolute top-2 left-2 bg-secondary/90 px-2 py-0.5 rounded-full">
-                  <span className="text-[10px] font-bold text-white">🎮</span>
+                <div className="absolute top-2 left-2 rounded-full border border-white/10 bg-black/45 px-2 py-0.5 backdrop-blur-sm">
+                  <span className="text-[10px] font-bold text-white">{language === 'tr' ? 'Seçimli' : 'Interactive'}</span>
                 </div>
               )}
             </div>
@@ -292,8 +296,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
               <div key={`interactive-${story.id}`} className="snap-start min-w-[160px] flex flex-col gap-3 group cursor-pointer">
                 <div className="w-full aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg border border-secondary/40" onClick={() => onStorySelect(story)}>
                   <img src={getStoryCoverUrl(story)} alt={getStoryTitle(story)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute top-2 left-2 bg-secondary/90 px-2 py-0.5 rounded-full">
-                    <span className="text-[10px] font-bold text-white">🎮 {language === 'tr' ? 'İnteraktif' : 'Interactive'}</span>
+                  <div className="absolute top-2 left-2 rounded-full border border-white/10 bg-black/45 px-2 py-0.5 backdrop-blur-sm">
+                    <span className="text-[10px] font-bold text-white">{language === 'tr' ? 'Seçimli Hikaye' : 'Interactive Story'}</span>
                   </div>
                 </div>
                 <div onClick={() => onStorySelect(story)}>
