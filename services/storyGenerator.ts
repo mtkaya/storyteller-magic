@@ -521,19 +521,19 @@ function countSentences(text: string): number {
 
 function detailSentence(language: StoryPrompt['language'], index: number): string {
     const trDetails = [
-        'Gökyüzü sakinleşirken minik yıldızlar yolu nazikçe aydınlatmış.',
-        'Rüzgarın yumuşak sesi herkese güven ve huzur vermiş.',
-        'Küçük dostlar birlikte hareket edince her şey daha kolay olmuş.',
-        'Gece boyunca paylaşılan iyilikler kalpleri ısıtmış.',
-        'Ay ışığı, adımların üzerinde gümüş bir iz bırakmış.'
+        'Gökyüzü kararırken patikanın kenarındaki fenerler tek tek yanmaya başlamış.',
+        'Rüzgar, ilerideki köprünün tahtalarını hafifçe sallayarak yolu hissettirmiş.',
+        'Küçük dostlar görevleri paylaşıp daha hızlı ilerlemeyi başarmış.',
+        'Buldukları her küçük ipucu, bir sonraki adıma daha net karar vermelerini sağlamış.',
+        'Ay ışığı, taşların üzerine gümüş gibi ince bir rota çizmiş.'
     ];
 
     const enDetails = [
-        'As the sky settled, tiny stars gently lit the path ahead.',
-        'A soft breeze carried a calm feeling through the night.',
-        'Moving together made every little challenge easier.',
-        'Small acts of kindness warmed every heart along the way.',
-        'Moonlight left a silver trail under each careful step.'
+        'As the sky darkened, the lanterns along the path began to light one by one.',
+        'A soft breeze nudged the wooden bridge ahead, making the route easier to notice.',
+        'The small friends split up simple tasks and moved forward faster together.',
+        'Each clue they found made the next decision clearer.',
+        'Moonlight sketched a thin silver route across the stones.'
     ];
 
     const details = language === 'tr' ? trDetails : enDetails;
@@ -1267,14 +1267,14 @@ function buildLinearFallbackParagraphs(options: StoryPrompt): string[] {
 
     const starterParagraphs = options.language === 'tr'
         ? [
-            `Bir varmış bir yokmuş, ${character} her gece ${place} boyunca yumuşak adımlarla yürürmüş.`,
-            `${character}, gökyüzündeki yıldızlara bakıp derin bir nefes almış ve kalbindeki merakı dinlemiş.`,
-            `Yolda karşılaştığı küçük dostlarına nazikçe yardım etmiş, herkesin yüzünde sıcak bir gülümseme bırakmış.`,
-            `Birlikte sakin bir şarkı mırıldanmışlar ve rüzgarın sesi onlara güvenli bir yol göstermiş.`,
-            `${character}, ay ışığında parlayan taşların üstünden geçerken küçük bir ışık kelebeğiyle arkadaş olmuş.`,
-            `Kelebek, yolunu kaybeden minik bir kirpiye eşlik etmelerini isteyince ${character} hemen kabul etmiş.`,
-            `Hepsi birlikte yavaş adımlarla ilerleyip kirpiyi sıcak yuvasına ulaştırmış ve gece sessizce gülümsemiş.`,
-            `Gecenin sonunda ${character}, en güzel maceranın paylaşmak ve iyi kalpli olmak olduğunu anlamış.`
+            `Bir varmış bir yokmuş, ${character} her gece ${place} boyunca yürüyüp ertesi gün için küçük hazırlıklar yaparmış.`,
+            `${character}, gökyüzündeki yıldızlara bakarken bu gece hangi işi önce tamamlaması gerektiğini düşünmüş.`,
+            `Yolda karşılaştığı küçük dostları, eksik kalan bir feneri ve bulunması gereken bir yolu anlatmış.`,
+            `Bunun üzerine ${character}, işi adım adım çözmek için önce kimin yardıma ihtiyacı olduğunu anlamaya çalışmış.`,
+            `${character}, ay ışığında parlayan taşların yanında titreyen küçük bir ışık kelebeği görmüş.`,
+            `Kelebek, yolunu karıştıran minik bir kirpi için doğru patikayı aradığını söylemiş.`,
+            `${character}, önce işaretleri toplamaya sonra kirpiyi güvenli yola çıkarmaya karar vermiş.`,
+            `Gecenin sonunda ${character}, iyi bir maceranın yalnızca sıcak değil aynı zamanda düzenli ve anlamlı seçimlerle ilerlediğini anlamış.`
         ]
         : [
             `Once upon a time, ${character} walked softly along the ${place} each evening.`,
@@ -1357,9 +1357,9 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                 {
                     id: 'ending_friendship',
                     paragraphs: [
-                        'Şarkı göl üzerinde yankılanmış ve kurbağa yuvasını kolayca bulmuş.',
-                        'Göl kıyısındaki nilüferler de bu neşeli anı kutlamak için hafifçe sallanmış.',
-                        `${character}, dostlukla atılan küçük adımların büyük mutluluk getirdiğini görmüş.`
+                        'Kurbağa sesi izleyip sazlıkların arasındaki doğru çıkışı hemen fark etmiş.',
+                        'Fener de aynı anda kuru bir taşın üstüne yerleştirilince dönüş yolu ikisi için de netleşmiş.',
+                        `${character}, birlikte hareket edince hem dost kazanıldığını hem de işlerin daha hızlı çözüldüğünü görmüş.`
                     ],
                     isEnding: true,
                     endingType: 'happy',
@@ -1368,9 +1368,9 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                 {
                     id: 'ending_lesson',
                     paragraphs: [
-                        'Fenerin yumuşak ışığı yolu aydınlatmış ve herkes güvenle evine dönmüş.',
-                        'Kurbağa teşekkür ederken gece daha da huzurlu bir sessizliğe bürünmüş.',
-                        `${character}, cesaretin en güzel halinin başkalarına ışık olmak olduğunu öğrenmiş.`
+                        'Fenerin ışığı köprünün başından sazlıklara kadar uzanan yolu net biçimde göstermiş.',
+                        'Kurbağa hangi taşı izlemesi gerektiğini anlayınca duraksamadan yuvasına ulaşmış.',
+                        `${character}, bazen en doğru yardımın önce yolu görünür kılmak olduğunu öğrenmiş.`
                     ],
                     isEnding: true,
                     endingType: 'lesson',
@@ -1379,9 +1379,9 @@ function buildInteractiveFallbackStory(options: StoryPrompt): GeneratedStory {
                 {
                     id: 'ending_happy',
                     paragraphs: [
-                        'Paylaşılan tohumlar bir anda göğe yükselip yıldız yağmuruna dönüşmüş.',
-                        'Parlayan tohumlar, tüm dostların üzerine umut dolu bir ışık serpmiş.',
-                        `${character}, paylaşmanın her dileği daha parlak yaptığını fark ederek huzurla eve dönmüş.`
+                        'Tohumlar dikkatlice paylaştırılınca masanın etrafındaki küçük lambalar birer birer yanmış.',
+                        'Utangaç kirpi de doğru yere vardığını görünce bekleyen misafirleri tek tek karşılamış.',
+                        `${character}, iyi bir geceyi başlatanın bazen sadece doğru kişiyi doğru yere ulaştırmak olduğunu fark etmiş.`
                     ],
                     isEnding: true,
                     endingType: 'adventure',
@@ -1763,9 +1763,9 @@ function buildSyntheticEndingBranch(
 ): StoryBranchType {
     const paragraphs = options.language === 'tr'
         ? [
-            `${character}, gecenin sonunda içini ısıtan bir gülümsemeyle durup etrafına bakmış.`,
-            'Yıldızlar usulca parlamış ve tüm yolculuk tatlı bir huzura dönüşmüş.',
-            'Herkes güvenle evine dönerken gece, sakin bir masal ninnisi gibi kapanmış.'
+            `${character}, gecenin sonunda durup tamamlanan işleri tek tek gözden geçirmiş.`,
+            'Yol boyunca yakılan ışıklar ve toplanan işaretler artık her şeyi daha anlaşılır hale getirmiş.',
+            'Herkes güvenle evine dönerken gece, tamamlanmış bir görevin rahatlığıyla kapanmış.'
         ]
         : [
             `${character} paused at the end of the journey with a warm smile.`,
