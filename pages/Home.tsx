@@ -85,8 +85,12 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
           onClick={onProfileClick}
           className="flex min-w-0 flex-1 items-center gap-3 hover:opacity-80 transition-opacity"
         >
-          <div className="size-11 rounded-full border-2 border-primary/30 overflow-hidden shadow-lg bg-bg-card flex items-center justify-center text-2xl">
-            {activeProfile?.avatar || '🧒'}
+          <div className="size-11 rounded-full border-2 border-primary/30 overflow-hidden shadow-lg bg-bg-card flex items-center justify-center text-white/80">
+            {activeProfile?.avatar ? (
+              <span className="text-2xl">{activeProfile.avatar}</span>
+            ) : (
+              <span className="material-symbols-outlined text-[22px]">face</span>
+            )}
           </div>
           <div className="min-w-0">
             <h2 className="text-white text-xl font-bold leading-tight truncate">{getGreeting()},</h2>
