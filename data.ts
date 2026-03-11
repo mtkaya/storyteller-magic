@@ -386,10 +386,10 @@ function buildVaultInteractiveStory(seed: VaultSeed, index: number): Story {
 
   return {
     id: storyId,
-    title: `${seed.characterEn} and the ${pickVaultValue(VAULT_TITLE_SUFFIX_EN, index + 5)} Choice`,
-    titleTr: `${seed.characterTr} ve ${pickVaultValue(VAULT_TITLE_SUFFIX_TR, index + 5)} Seçimi`,
-    subtitle: 'Interactive Story • Branching',
-    subtitleTr: 'Seçimli Hikaye • Dallanmalı',
+    title: `${seed.characterEn} and the ${pickVaultValue(VAULT_TITLE_SUFFIX_EN, index + 5)}`,
+    titleTr: `${seed.characterTr} ve ${pickVaultValue(VAULT_TITLE_SUFFIX_TR, index + 5)}`,
+    subtitle: `Interactive Story • ${seed.theme}`,
+    subtitleTr: `Seçimli Hikaye • ${themeTr}`,
     duration: `${minutes}+ min`,
     theme: seed.theme,
     coverUrl: seed.coverUrl,
