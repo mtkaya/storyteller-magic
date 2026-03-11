@@ -225,10 +225,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
 
       <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 pb-6 gap-4">
         {curatedShelves.featured.map((story) => (
-          <div key={story.id} className="snap-start min-w-[160px] flex flex-col gap-3 group cursor-pointer relative">
-            <div className="w-full aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg border border-white/5" onClick={() => onStorySelect(story)}>
-              <img src={getStoryCoverUrl(story)} alt={getStoryTitle(story)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-              {/* Favorite button */}
+          <div key={story.id} className="snap-start min-w-[168px] flex flex-col gap-3 group cursor-pointer relative">
+            <div className="w-full aspect-[3/4] rounded-[22px] overflow-hidden relative shadow-[0_18px_40px_rgba(0,0,0,0.28)] border border-white/8" onClick={() => onStorySelect(story)}>
+              <img src={getStoryCoverUrl(story)} alt={getStoryTitle(story)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -240,20 +240,19 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
                   {isFavorite(story.id) ? 'favorite' : 'favorite_border'}
                 </span>
               </button>
-              {/* Interactive badge */}
               {story.isInteractive && (
-                <div className="absolute top-2 left-2 rounded-full border border-white/10 bg-black/45 px-2 py-0.5 backdrop-blur-sm">
+                <div className="absolute top-2 left-2 rounded-full border border-white/10 bg-black/45 px-2.5 py-1 backdrop-blur-sm">
                   <span className="text-[10px] font-bold text-white">{language === 'tr' ? 'Seçimli' : 'Interactive'}</span>
                 </div>
               )}
-            </div>
-            <div onClick={() => onStorySelect(story)}>
-              <p className="text-white text-base font-bold truncate">{getStoryTitle(story)}</p>
-              <p className="text-white/50 text-xs mt-0.5 line-clamp-2 min-h-[30px]">{getStorySubtitle(story)}</p>
-              <div className="mt-2 flex items-center gap-2 text-[10px] text-white/42">
-                <span className="rounded-full border border-white/8 bg-white/5 px-2 py-1">{story.duration}</span>
-                <span className="rounded-full border border-white/8 bg-white/5 px-2 py-1">{story.theme}</span>
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 text-[10px] text-white/85">
+                <span className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 backdrop-blur-sm">{story.duration}</span>
+                <span className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 backdrop-blur-sm truncate max-w-[84px]">{story.theme}</span>
               </div>
+            </div>
+            <div onClick={() => onStorySelect(story)} className="px-0.5">
+              <p className="text-white text-[15px] font-bold truncate">{getStoryTitle(story)}</p>
+              <p className="text-white/50 text-xs mt-1 line-clamp-2 min-h-[32px] leading-relaxed">{getStorySubtitle(story)}</p>
             </div>
           </div>
         ))}

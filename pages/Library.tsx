@@ -198,14 +198,14 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
       {filteredStories.length > 0 ? (
         <div className="grid grid-cols-2 gap-4 p-4">
           {filteredStories.map(story => (
-            <div key={story.id} className="flex flex-col gap-2 group cursor-pointer">
+            <div key={story.id} className="flex flex-col gap-2.5 group cursor-pointer">
               <div
-                className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-white/5 ring-1 ring-white/10"
+                className="relative w-full aspect-[4/5] rounded-[22px] overflow-hidden bg-white/5 ring-1 ring-white/10 shadow-[0_18px_40px_rgba(0,0,0,0.24)]"
                 onClick={() => onStorySelect(story)}
               >
-                <img src={getStoryCoverUrl(story)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" />
+                <img src={getStoryCoverUrl(story)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
 
-                {/* Favorite button */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -219,12 +219,6 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
                   </span>
                 </button>
 
-                {/* Duration badge */}
-                <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
-                  <span className="text-[10px] font-bold text-white">{story.duration}</span>
-                </div>
-
-                {/* Type badge */}
                 {story.isInteractive ? (
                   <div className="absolute top-2 left-2 rounded-full border border-white/10 bg-black/45 px-2.5 py-1 backdrop-blur-md">
                     <span className="text-[10px] font-bold text-white">
@@ -238,10 +232,15 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
                     </span>
                   </div>
                 )}
+
+                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 text-[10px] text-white/85">
+                  <span className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 backdrop-blur-sm">{story.duration}</span>
+                  <span className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 backdrop-blur-sm truncate max-w-[72px]">{story.theme}</span>
+                </div>
               </div>
               <div className="px-1" onClick={() => onStorySelect(story)}>
                 <h3 className="text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-1">{getStoryTitle(story)}</h3>
-                <p className="text-[10px] text-white/50">{getStorySubtitle(story)}</p>
+                <p className="text-[10px] text-white/50 mt-1 line-clamp-2 min-h-[28px] leading-relaxed">{getStorySubtitle(story)}</p>
               </div>
             </div>
           ))}
