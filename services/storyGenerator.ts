@@ -340,6 +340,12 @@ type EndingType = NonNullable<StoryBranchType['endingType']>;
 
 const ENDING_TYPES: EndingType[] = ['happy', 'adventure', 'lesson', 'neutral'];
 const DEFAULT_CHOICE_EMOJIS = ['🌟', '✨', '🧭', '🎈', '🌈'];
+const ENDING_TITLE_BY_TYPE: Record<EndingType, { en: string; tr: string }> = {
+    happy: { en: 'A Happy Ending', tr: 'Mutlu Son' },
+    adventure: { en: 'A Brave Ending', tr: 'Cesur Son' },
+    lesson: { en: 'A Lesson Learned', tr: 'Öğrenilen Ders' },
+    neutral: { en: 'A Gentle Ending', tr: 'Nazik Bir Son' }
+};
 
 const THEME_FALLBACK_LABELS: Record<string, { en: string; tr: string }> = {
     adventure: { en: 'adventure trail', tr: 'macera yolu' },
@@ -1573,8 +1579,9 @@ function normalizeInteractiveStory(
 
     branches.forEach((branch, index) => {
         if (branch.choices?.length) {
+            const seenChoiceKeys = new Set<string>();
             branch.choices = branch.choices
-                .map((choice) => {
+                .map((choice, choiceIndex) => {
                     const resolvedNextBranchId = resolveBranchReference(
                         choice.nextBranchId,
                         branchIds,
@@ -1582,9 +1589,15 @@ function normalizeInteractiveStory(
                     );
                     if (!resolvedNextBranchId || resolvedNextBranchId === branch.id) return null;
 
+                    const normalizedText = choice.text.trim().toLowerCase();
+                    const dedupeKey = `${resolvedNextBranchId}|${normalizedText}`;
+                    if (seenChoiceKeys.has(dedupeKey)) return null;
+                    seenChoiceKeys.add(dedupeKey);
+
                     return {
                         ...choice,
-                        nextBranchId: resolvedNextBranchId
+                        nextBranchId: resolvedNextBranchId,
+                        emoji: choice.emoji || DEFAULT_CHOICE_EMOJIS[choiceIndex % DEFAULT_CHOICE_EMOJIS.length]
                     };
                 })
                 .filter((choice): choice is StoryChoiceType => Boolean(choice));
@@ -1609,7 +1622,7 @@ function normalizeInteractiveStory(
                 branch.endingType = index % 2 === 0 ? 'happy' : 'lesson';
             }
             if (!branch.endingTitle) {
-                branch.endingTitle = options.language === 'tr' ? 'Nazik Bir Son' : 'A Gentle Ending';
+                branch.endingTitle = ENDING_TITLE_BY_TYPE[branch.endingType]?.[options.language] || (options.language === 'tr' ? 'Nazik Bir Son' : 'A Gentle Ending');
             }
         } else {
             hasChoices = true;
@@ -1639,7 +1652,7 @@ function normalizeInteractiveStory(
         const finalBranch = branches[branches.length - 1];
         finalBranch.isEnding = true;
         finalBranch.endingType = finalBranch.endingType || 'neutral';
-        finalBranch.endingTitle = finalBranch.endingTitle || (options.language === 'tr' ? 'Rüya Sonu' : 'Dream Ending');
+        finalBranch.endingTitle = finalBranch.endingTitle || ENDING_TITLE_BY_TYPE[finalBranch.endingType]?.[options.language] || (options.language === 'tr' ? 'Rüya Sonu' : 'Dream Ending');
     }
 
     return {
@@ -1833,13 +1846,20 @@ function expandInteractiveBranching(
     for (const branch of branches) {
         if (branch.isEnding) continue;
 
+        const seenBranchChoiceKeys = new Set<string>();
         const branchChoices = (branch.choices || [])
             .filter((choice) => Boolean(choice.text && choice.nextBranchId))
             .map((choice, index) => ({
                 ...choice,
                 id: choice.id || `${branch.id}_choice_${index + 1}`,
                 emoji: choice.emoji || DEFAULT_CHOICE_EMOJIS[index % DEFAULT_CHOICE_EMOJIS.length]
-            }));
+            }))
+            .filter((choice) => {
+                const dedupeKey = `${choice.nextBranchId}|${choice.text.trim().toLowerCase()}`;
+                if (seenBranchChoiceKeys.has(dedupeKey)) return false;
+                seenBranchChoiceKeys.add(dedupeKey);
+                return true;
+            });
 
         while (branchChoices.length < desiredChoices && detourCount < maxNewDetours) {
             const idea = ideas[(variantIndex + detourCount) % ideas.length];
