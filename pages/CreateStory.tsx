@@ -39,6 +39,32 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
   const generationMode = React.useMemo(() => getStoryGenerationMode(), []);
   const isLocalMode = generationMode === 'local';
 
+  const generationModeMeta = React.useMemo(() => {
+    switch (generationMode) {
+      case 'hybrid':
+        return {
+          label: language === 'tr' ? 'Mod: Hibrit' : 'Mode: Hybrid',
+          description: language === 'tr'
+            ? 'Önce AI dener, gerekirse yerel hikaye havuzuna döner.'
+            : 'Tries AI first, then falls back to the local story pool when needed.'
+        };
+      case 'remote':
+        return {
+          label: language === 'tr' ? 'Mod: Remote AI' : 'Mode: Remote AI',
+          description: language === 'tr'
+            ? 'Hikaye üretimi için uzak AI servisi kullanılır.'
+            : 'Uses the remote AI service for story generation.'
+        };
+      default:
+        return {
+          label: language === 'tr' ? 'Mod: Yerel' : 'Mode: Local',
+          description: language === 'tr'
+            ? 'Yerleşik hikaye havuzundan maliyet dostu üretim yapar.'
+            : 'Uses the built-in story pool for cost-friendly generation.'
+        };
+    }
+  }, [generationMode, language]);
+
   const looksLikeTurkishText = (text: string): boolean => {
     const clean = text.trim();
     if (!clean) return false;
@@ -235,11 +261,17 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             </div>
           </div>
 
+          <div className="mb-4 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/85">
+            {generationModeMeta.label}
+          </div>
           <h2 className="text-3xl font-bold text-white text-center mb-2">{t.create_generating}</h2>
-          <p className="text-primary/80 italic mb-8">
+          <p className="text-primary/80 italic mb-3">
             {isLocalMode
               ? (language === 'tr' ? 'Hikaye havuzundan sana uygun masal seçiliyor...' : 'Selecting the best match from the story pool...')
               : (language === 'tr' ? 'Sihir başladı...' : 'The magic is at work...')}
+          </p>
+          <p className="text-white/55 text-xs text-center mb-8 max-w-xs">
+            {generationModeMeta.description}
           </p>
 
           <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden border border-white/5">
@@ -315,11 +347,16 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             />
           </div>
 
-          {generatedStory.isInteractive && (
-            <div className="bg-gradient-to-r from-secondary to-purple-500 px-4 py-1 rounded-full mb-4">
-              <span className="text-white text-sm font-bold">🎮 {language === 'tr' ? 'İnteraktif Hikaye' : 'Interactive Story'}</span>
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+            <div className="rounded-full border border-white/15 bg-white/10 px-4 py-1">
+              <span className="text-white text-sm font-bold">{generationModeMeta.label}</span>
             </div>
-          )}
+            {generatedStory.isInteractive && (
+              <div className="bg-gradient-to-r from-secondary to-purple-500 px-4 py-1 rounded-full">
+                <span className="text-white text-sm font-bold">{language === 'tr' ? 'İnteraktif Hikaye' : 'Interactive Story'}</span>
+              </div>
+            )}
+          </div>
 
           <h1 className="text-3xl font-bold text-white mb-2">{generatedStory.title}</h1>
           <p className="text-white/70 mb-2">{generatedStory.subtitle}</p>
@@ -401,6 +438,13 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       </div>
 
       <div className="flex-1 px-6 py-4 overflow-y-auto pb-32">
+        <div className="mb-5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-white/90">{generationModeMeta.label}</p>
+            <span className="text-[11px] text-white/45">{isLocalMode ? 'No API cost' : 'AI enabled'}</span>
+          </div>
+          <p className="mt-2 text-xs text-white/60">{generationModeMeta.description}</p>
+        </div>
         {/* Child Name (Optional) */}
         <div className="mb-6">
           <h3 className="text-lg font-bold mb-3">
@@ -521,9 +565,13 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             ? (language === 'tr'
               ? 'Yüzlerce hikayelik yerel havuzdan kişiselleştirilmiş masal hazırlıyoruz.'
               : 'Preparing a personalized tale from the local story library.')
-            : (language === 'tr'
-              ? 'Gemini AI ile sihirli hikayeni yazıyoruz...'
-              : 'Using Gemini AI to weave your magical tale...')}
+            : generationMode === 'hybrid'
+              ? (language === 'tr'
+                ? 'Önce AI ile deniyoruz; gerekirse yerel havuza dönüyoruz.'
+                : 'Trying AI first, with local fallback when needed.')
+              : (language === 'tr'
+                ? 'AI ile yeni hikaye üretiliyor.'
+                : 'Generating a new story with AI.')}
         </p>
         <p className="text-center text-white/40 text-[11px] mt-2">
           {remainingGeneratedStories === Infinity
