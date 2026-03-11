@@ -310,6 +310,51 @@ const VAULT_SEEDS: VaultSeed[] = [
     moralTr: 'İyi seçimler, hızlı ödüllerden daha uzun parlar.',
     coverUrl: IMAGES.MAGICAL_DANDELION_WISH,
   },
+  {
+    key: 'berry-bridge',
+    theme: 'Friendship',
+    characterEn: 'Kira',
+    characterTr: 'Kira',
+    companionEn: 'squirrel Mops',
+    companionTr: 'sincap Mops',
+    placeEn: 'the berry bridge market',
+    placeTr: 'meyveli köprü pazarı',
+    questEn: 'deliver the birthday basket before the market closes',
+    questTr: 'pazar kapanmadan doğum günü sepetini teslim etmek',
+    moralEn: 'Small errands done with care become big gifts.',
+    moralTr: 'Özenle yapılan küçük işler, büyük hediyeye dönüşür.',
+    coverUrl: IMAGES.TURTLE_RABBIT,
+  },
+  {
+    key: 'sage-cave',
+    theme: 'Mystery',
+    characterEn: 'Finn',
+    characterTr: 'Finn',
+    companionEn: 'wren Maya',
+    companionTr: 'çalıkuşu Maya',
+    placeEn: 'the echo cave',
+    placeTr: 'yankı mağarası',
+    questEn: 'return the missing sound stone to the cave guardian',
+    questTr: 'kayıp ses taşını mağara bekçisine iade etmek',
+    moralEn: 'Every lost thing waits quietly for the right finder.',
+    moralTr: 'Her kayıp şey, doğru bulucu için sessizce bekler.',
+    coverUrl: IMAGES.ENCHANTED_OLD_TREE,
+  },
+  {
+    key: 'moon-dock',
+    theme: 'Wonder',
+    characterEn: 'Reef',
+    characterTr: 'Reef',
+    companionEn: 'dolphin Bly',
+    companionTr: 'yunus Bly',
+    placeEn: 'the moon dock',
+    placeTr: 'ay iskelesi',
+    questEn: 'light the welcome lanterns before the tide turns',
+    questTr: 'gelgit dönmeden karşılama fenerlerini yakmak',
+    moralEn: 'A small light in the right place can guide many.',
+    moralTr: 'Doğru yerdeki küçük bir ışık, pek çoğuna rehberlik eder.',
+    coverUrl: IMAGES.GENTLE_WHALE_NIGHTSKY,
+  },
 ];
 
 const VAULT_TITLE_PREFIX_EN = ['Moonlit', 'Gentle', 'Quiet', 'Golden', 'Twinkling', 'Brave', 'Kind', 'Cozy'];
@@ -602,8 +647,8 @@ const VAULT_LINEAR_STORIES: Story[] = Array.from({ length: 96 }, (_, index) =>
   buildVaultLinearStory(pickVaultValue(VAULT_SEEDS, index), index)
 );
 
-const VAULT_INTERACTIVE_STORIES: Story[] = Array.from({ length: 24 }, (_, index) =>
-  buildVaultInteractiveStory(pickVaultValue(VAULT_SEEDS, index + 4), index)
+const VAULT_INTERACTIVE_STORIES: Story[] = VAULT_SEEDS.map((seed, index) =>
+  buildVaultInteractiveStory(seed, index)
 );
 
 export const RECENT_STORIES: Story[] = [
