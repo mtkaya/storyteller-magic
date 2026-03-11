@@ -110,8 +110,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
           >
             <span className="material-symbols-outlined text-white">bar_chart</span>
             {stats.currentStreak > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-bg-dark text-[10px] font-bold rounded-full size-5 flex items-center justify-center">
-                🔥
+              <span className="absolute -top-1 -right-1 bg-primary text-bg-dark text-[10px] font-bold rounded-full min-w-5 h-5 px-1 flex items-center justify-center">
+                {stats.currentStreak}
               </span>
             )}
           </button>
@@ -144,7 +144,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             </div>
             <div className="w-px h-8 bg-white/10" />
             <div className="text-center">
-              <p className="text-xl font-bold text-secondary">{stats.currentStreak}🔥</p>
+              <p className="text-xl font-bold text-secondary">{stats.currentStreak}</p>
               <p className="text-white/50 text-[10px]">{language === 'tr' ? 'Seri' : 'Streak'}</p>
             </div>
             <div className="w-px h-8 bg-white/10" />
@@ -174,8 +174,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             <div className="absolute inset-0 bg-gradient-to-t from-[#1e1f44] via-[#1e1f44]/40 to-transparent"></div>
           </div>
           <div className="relative z-10 p-6 pt-32 flex flex-col items-start gap-3">
-            <div className="size-12 rounded-full bg-accent-peach flex items-center justify-center text-bg-dark shadow-lg shadow-accent-peach/20 mb-2">
-              <span className="material-symbols-outlined text-3xl font-bold">auto_fix_high</span>
+            <div className="inline-flex items-center rounded-full border border-white/15 bg-black/25 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur-sm">
+              {language === 'tr' ? 'Kişisel Hikaye' : 'Personalized Story'}
             </div>
             <div>
               <h3 className="text-white text-2xl font-bold leading-tight">{t.home_create_magic}</h3>

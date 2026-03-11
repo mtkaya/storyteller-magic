@@ -353,7 +353,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             </div>
             {generatedStory.isInteractive && (
               <div className="bg-gradient-to-r from-secondary to-purple-500 px-4 py-1 rounded-full">
-                <span className="text-white text-sm font-bold">{language === 'tr' ? 'İnteraktif Hikaye' : 'Interactive Story'}</span>
+                <span className="text-white text-sm font-bold">{language === 'tr' ? 'Etkileşimli Hikaye' : 'Interactive Story'}</span>
               </div>
             )}
           </div>
@@ -529,10 +529,10 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             <span className="text-2xl">🎮</span>
             <div>
               <p className="font-bold text-sm">
-                {language === 'tr' ? 'İnteraktif Hikaye' : 'Interactive Story'}
+                {language === 'tr' ? 'Etkileşimli Hikaye' : 'Interactive Story'}
               </p>
               <p className="text-white/50 text-xs">
-                {language === 'tr' ? 'Kendi maceranı seç!' : 'Choose your own adventure!'}
+                {language === 'tr' ? 'Seçimlerle akışı yönlendir' : 'Guide the flow with simple choices'}
               </p>
             </div>
           </div>
