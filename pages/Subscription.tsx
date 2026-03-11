@@ -36,7 +36,7 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
         price: '₺0',
         period: '/Ay',
         savingsBadge: 'Temel kullanım',
-        description: 'Maliyet odaklı başlangıç paketi. Günlük sınırlı hikaye üretimi ile çekirdek deneyim.',
+        description: 'Başlangıç için yeterli temel plan. Günlük sınırlı üretim ve çekirdek okuma deneyimi sunar.',
         cta: 'Serbest Planı Kullan',
         features: [
           'Günlük 3 yeni hikaye üretimi',
@@ -55,7 +55,7 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
         price: '₺299,99',
         period: '/Ay',
         savingsBadge: 'En popüler plan',
-        description: 'Daha yoğun kullanım için. Tekrarı azaltılmış geniş seçki ve yüksek günlük üretim kotası.',
+        description: 'Düzenli kullanım için dengeli plan. Daha geniş hikaye seçkisi, daha iyi rotasyon ve daha yüksek günlük kota sunar.',
         cta: "Pro'yu Aç",
         badge: 'Önerilen Plan',
         features: [
@@ -76,7 +76,7 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
         price: '₺2.499,99',
         period: '/Yıl',
         savingsBadge: 'Aile paketi',
-        description: 'Çoklu profil ve yüksek kapasite için. Her çocuk için ayrı tekrar engelleme ve izleme.',
+        description: 'Birden fazla çocuk için tasarlandı. Profil bazlı takip, daha yüksek kapasite ve aile kullanımına uygun akış sağlar.',
         cta: 'Aile Planını Aç',
         features: [
           'Günlük 60 yeni hikaye üretimi',
@@ -97,7 +97,7 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
         price: '$0',
         period: '/Month',
         savingsBadge: 'Starter access',
-        description: 'Cost-friendly starter tier with limited daily generation and local story pool.',
+        description: 'A simple starter plan with limited daily generation and the core reading experience.',
         cta: 'Use Free Plan',
         features: [
           '3 new stories per day',
@@ -116,7 +116,7 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
         price: '$11.99',
         period: '/Month',
         savingsBadge: 'Most popular',
-        description: 'For heavier use with larger variety, reduced repetition, and richer branching.',
+        description: 'A balanced plan for regular use with more variety, better rotation, and richer branching.',
         cta: 'Activate Pro',
         badge: 'Recommended',
         features: [
@@ -137,7 +137,7 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
         price: '$79.99',
         period: '/Year',
         savingsBadge: 'Family tier',
-        description: 'High-capacity tier with per-profile no-repeat flow and complete tracking.',
+        description: 'Built for families with multiple profiles, higher capacity, and fuller tracking.',
         cta: 'Unlock Family',
         features: [
           '60 new stories per day',
@@ -183,12 +183,12 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
       <div className="relative z-10 flex-1 overflow-y-auto pb-7">
         <div className="px-5 pb-2">
           <h1 className="text-center text-[27px] font-bold tracking-tight leading-tight">
-            {isTr ? 'Pro Masal Planları' : 'Pro Story Plans'}
+            {isTr ? 'Storyteller Planları' : 'Storyteller Plans'}
           </h1>
           <p className="mt-1.5 text-center text-[13px] text-white/58 leading-relaxed">
             {isTr
-              ? 'Aşağıdaki planlardan birini seç, masal dünyasının kilidini aç.'
-              : 'Choose a plan below and unlock your full story world.'}
+              ? 'Ailen için doğru kapasiteyi seç: daha fazla hikaye, daha fazla profil, daha az tekrar.'
+              : 'Choose the right capacity for your family: more stories, more profiles, less repetition.'}
           </p>
         </div>
 

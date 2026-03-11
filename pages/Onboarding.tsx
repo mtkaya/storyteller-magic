@@ -14,35 +14,35 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     const slides = [
         {
             image: IMAGES.MAGIC_QUILL,
-            icon: '✨',
-            title: language === 'tr' ? 'Sihirli Hikayeler' : 'Magical Stories',
+            icon: '✦',
+            title: language === 'tr' ? 'Kişisel Uyku Hikayeleri' : 'Personalized Bedtime Stories',
             description: language === 'tr'
-                ? 'Yapay zeka ile kişiselleştirilmiş uyku hikayeleri'
-                : 'AI-powered personalized bedtime stories',
+                ? 'Tema, ton ve süre seçerek her geceye uygun hikaye oluştur.'
+                : 'Create stories that match the theme, tone, and length you want for the night.',
         },
         {
             image: IMAGES.FLYING_CARPET,
-            icon: '🎮',
-            title: language === 'tr' ? 'İnteraktif Maceralar' : 'Interactive Adventures',
+            icon: '➜',
+            title: language === 'tr' ? 'İnteraktif Akış' : 'Interactive Story Flow',
             description: language === 'tr'
-                ? 'Hikayenin gidişatını sen belirle'
-                : 'Choose your own path through the story',
+                ? 'Çocuk hikayenin yönünü seçimleriyle belirlesin.'
+                : 'Let the child shape the story with simple choices.',
         },
         {
             image: IMAGES.SLEEPING_CLOUD,
-            icon: '🌙',
-            title: language === 'tr' ? 'Tatlı Rüyalar' : 'Sweet Dreams',
+            icon: '☾',
+            title: language === 'tr' ? 'Sakin Gece Deneyimi' : 'A Calmer Night Routine',
             description: language === 'tr'
-                ? 'Uyku zamanlayıcı ve sakinleştirici sesler'
-                : 'Sleep timer and calming sounds',
+                ? 'Okuma hızı, sesler ve uyku algılama tek akışta çalışsın.'
+                : 'Keep reading speed, sounds, and sleep flow in one simple experience.',
         },
         {
             image: IMAGES.ENCHANTED_CHEST,
-            icon: '🏆',
-            title: language === 'tr' ? 'Rozetler Kazan' : 'Earn Badges',
+            icon: '✓',
+            title: language === 'tr' ? 'Takip ve İlerleme' : 'Progress That Feels Real',
             description: language === 'tr'
-                ? 'Hikaye okuyarak başarılar aç'
-                : 'Unlock achievements by reading stories',
+                ? 'Profiller, rozetler ve okuma geçmişiyle düzenli kullanım oluştur.'
+                : 'Use profiles, badges, and reading history to build a repeat habit.',
         },
     ];
 
