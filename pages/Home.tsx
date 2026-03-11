@@ -172,6 +172,11 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-[#151632] via-[#151632]/55 to-transparent"></div>
+            <div className="absolute -left-10 top-10 h-24 w-40 rounded-full bg-white/12 blur-2xl opacity-80"></div>
+            <div className="absolute left-16 top-16 h-16 w-28 rounded-full bg-white/10 blur-xl opacity-70"></div>
+            <div className="absolute right-6 top-12 h-20 w-36 rounded-full bg-white/10 blur-2xl opacity-70"></div>
+            <div className="absolute right-20 top-20 h-14 w-24 rounded-full bg-white/8 blur-xl opacity-60"></div>
+            <div className="absolute inset-x-10 bottom-16 h-20 rounded-full bg-[#a9b8ff]/10 blur-3xl opacity-60"></div>
           </div>
           <div className="relative z-10 p-6 pt-28 flex flex-col items-start gap-3">
             <div className="inline-flex items-center rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur-sm">
