@@ -3,6 +3,7 @@ import { Story, StoryBranch } from '../types';
 import { normalizeStoryTheme } from './storyCuration';
 import { getLocalizedThemeName } from './storyLocalization';
 import { GENERATED_SCENE_IMAGE_POOLS } from '../data/generatedSceneImages';
+import { deriveStoryVisualIdentity } from './storyVisualIdentity';
 
 export type StoryScenePhase = 'opening' | 'journey' | 'choice' | 'climax' | 'resolution';
 
@@ -332,6 +333,11 @@ const buildScenePrompt = (
   const character = input.story.character || (language === 'tr' ? 'sevimli kahraman' : 'friendly hero');
   const normalizedTheme = normalizeStoryTheme(input.story.theme);
   const themeStarter = THEME_PROMPT_STARTERS[normalizedTheme];
+  const visualIdentity = deriveStoryVisualIdentity({
+    theme: input.story.theme,
+    title: input.story.title,
+    character: input.story.character,
+  });
   const branchHint = normalizeBranchToken(input.branchId).replace(/_/g, ' ');
   const branchText = branchHint ? (language === 'tr' ? `Dal ipucu: ${branchHint}` : `Branch cue: ${branchHint}`) : '';
   const phaseHint = PHASE_HINTS[phase][language];
@@ -344,6 +350,9 @@ const buildScenePrompt = (
       `Sahne fazi: ${PHASE_LABELS[phase].tr}`,
       `Sahne niyeti: ${phaseHint}`,
       themeStarter ? `Tema baslangici: ${themeStarter.tr}` : '',
+      `Gorsel kimlik: ana karakter ${visualIdentity.mainCharacter}, yardimci unsur ${visualIdentity.companionCue}, imza obje ${visualIdentity.signatureProp}`,
+      `Dunya ipucu: ${visualIdentity.worldCue}`,
+      `Palet ipucu: ${visualIdentity.paletteHint}`,
       branchText,
       `Varyant: ${variantIndex + 1}`,
       'Renk butunlugu: mevcut uygulamadaki gece-masal paletine uyumlu kal.',
@@ -361,6 +370,9 @@ const buildScenePrompt = (
     `Scene phase: ${PHASE_LABELS[phase].en}`,
     `Scene intent: ${phaseHint}`,
     themeStarter ? `Theme starter: ${themeStarter.en}` : '',
+    `Visual identity: main character ${visualIdentity.mainCharacter}, companion cue ${visualIdentity.companionCue}, signature prop ${visualIdentity.signatureProp}`,
+    `World cue: ${visualIdentity.worldCue}`,
+    `Palette hint: ${visualIdentity.paletteHint}`,
     branchText,
     `Variant: ${variantIndex + 1}`,
     'Color continuity: stay consistent with the app bedtime palette.',

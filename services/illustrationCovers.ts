@@ -6,6 +6,7 @@ import {
   resolveIllustrationTechnique,
   resolveIllustrationAgeProfile
 } from './illustrationStyle';
+import { deriveStoryVisualIdentity } from './storyVisualIdentity';
 
 type Palette = {
   start: string;
@@ -244,8 +245,13 @@ function buildIllustrationDataUri(input: IllustrationCoverInput): string {
   const titleLines = compactTitle(input.title || input.theme || 'Story', layout.maxLineLength, 2);
   const subtitle = (input.subtitle || normalizedTheme || 'Illustrated bedtime story').trim();
   const showSubtitle = Boolean(layout.subtitleSize) && subtitle.length <= 84;
+  const visualIdentity = deriveStoryVisualIdentity({
+    theme: input.theme || normalizedTheme,
+    title: input.title,
+    character: input.title,
+  });
   const icon = input.icon?.trim() || palette.emoji;
-  const decorationSeed = `${input.title || ''}|${input.theme || ''}|${input.subtitle || ''}`;
+  const decorationSeed = `${input.title || ''}|${input.theme || ''}|${input.subtitle || ''}|${visualIdentity.signatureProp}|${visualIdentity.worldCue}`;
   const { circles, stars, layers } = buildDecorations(decorationSeed, palette, layout, technique);
   const panelStroke = technique === 'cut-paper' ? 'rgba(255,255,255,0.26)' : 'rgba(255,255,255,0.14)';
   const panelFillOpacity = technique === 'gouache' ? '0.24' : technique === 'flat-storybook' ? '0.16' : '0.20';
