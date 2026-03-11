@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:api": "node server/story-api.mjs",
+    "dev:all": "node scripts/dev-all.mjs",
     "typecheck": "tsc --noEmit",
     "build": "vite build",
     "preview": "vite preview",

@@ -72,6 +72,18 @@ Install dependencies:
 npm install
 ```
 
+Single-command dev workflow:
+
+```bash
+npm run dev:all
+```
+
+This starts both:
+- the API proxy at `http://localhost:8787`
+- the frontend at `http://localhost:3000`
+
+If you prefer separate terminals:
+
 Terminal 1 (API proxy):
 
 ```bash
@@ -84,7 +96,7 @@ Terminal 2 (frontend):
 npm run dev
 ```
 
-Default dev server: `http://localhost:3000`
+Default frontend dev server: `http://localhost:3000`
 
 ## Build
 
@@ -125,6 +137,7 @@ npm run cap:run:android
 
 - `npm run dev`: start Vite dev server
 - `npm run dev:api`: run Node backend proxy at `http://localhost:8787`
+- `npm run dev:all`: start both frontend + API in one terminal
 - `npm run typecheck`: run TypeScript checks
 - `npm run build`: build web app into `dist/`
 - `npm run preview`: serve production build locally
