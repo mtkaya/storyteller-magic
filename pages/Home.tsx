@@ -196,8 +196,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
       {curatedShelves.favoriteStories.length > 0 && (
         <>
           <div className="flex items-center justify-between px-6 pb-4">
-            <h3 className="text-white text-lg font-bold flex items-center gap-2">
-              <span className="text-red-400">❤️</span>
+            <h3 className="text-white text-lg font-bold">
               {language === 'tr' ? 'Favorilerim' : 'My Favorites'}
             </h3>
           </div>
@@ -317,7 +316,9 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
           className="w-full bg-gradient-to-r from-purple-600/30 to-blue-600/30 border border-white/10 rounded-2xl p-4 flex items-center justify-between hover:from-purple-600/40 hover:to-blue-600/40 transition-all"
         >
           <div className="flex items-center gap-3">
-            <span className="text-3xl">📚</span>
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/8 text-white/80">
+              <span className="material-symbols-outlined">collections_bookmark</span>
+            </div>
             <div className="text-left">
               <p className="text-white font-bold">{language === 'tr' ? 'Hikaye Koleksiyonları' : 'Story Collections'}</p>
               <p className="text-white/50 text-xs">{language === 'tr' ? '8 özel paket keşfet' : 'Explore 8 curated packs'}</p>

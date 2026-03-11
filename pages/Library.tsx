@@ -63,9 +63,8 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
 
   const dynamicThemeFilters = useMemo(
     () =>
-      getTopThemeFilters(rankedStories, 6).map((theme, index) => ({
+      getTopThemeFilters(rankedStories, 6).map((theme) => ({
         id: theme.id,
-        emoji: ['🌙', '✨', '🧭', '🌿', '🦁', '📚'][index % 6],
         name: themeLabelMap[theme.id] || theme.label,
       })),
     [rankedStories, themeLabelMap]
@@ -73,10 +72,10 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
 
   const filters = useMemo(
     () => [
-      { id: 'favorites', emoji: '❤️', name: language === 'tr' ? 'Favoriler' : 'Favorites' },
-      { id: 'interactive', emoji: '🎮', name: language === 'tr' ? 'İnteraktif' : 'Interactive' },
-      { id: 'short', emoji: '⚡', name: language === 'tr' ? 'Kısa' : 'Short' },
-      { id: 'long', emoji: '📚', name: language === 'tr' ? 'Uzun' : 'Long' },
+      { id: 'favorites', name: language === 'tr' ? 'Favoriler' : 'Favorites' },
+      { id: 'interactive', name: language === 'tr' ? 'Seçimli' : 'Interactive' },
+      { id: 'short', name: language === 'tr' ? 'Kısa' : 'Short' },
+      { id: 'long', name: language === 'tr' ? 'Uzun' : 'Long' },
       ...dynamicThemeFilters,
     ],
     [language, dynamicThemeFilters]
@@ -177,7 +176,6 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
                   : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
                 }`}
             >
-              <span>{filter.emoji}</span>
               <span className="text-sm font-medium">{filter.name}</span>
               {filter.id === 'favorites' && favorites.length > 0 && (
                 <span className="ml-1 bg-red-400 text-white text-[10px] px-1.5 rounded-full">
@@ -228,15 +226,15 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
 
                 {/* Type badge */}
                 {story.isInteractive ? (
-                  <div className="absolute top-2 left-2 bg-gradient-to-r from-secondary to-purple-500 backdrop-blur-md px-2 py-1 rounded-lg animate-pulse">
+                  <div className="absolute top-2 left-2 rounded-full border border-white/10 bg-black/45 px-2.5 py-1 backdrop-blur-md">
                     <span className="text-[10px] font-bold text-white">
-                      🎮 {language === 'tr' ? 'İnteraktif' : 'Interactive'}
+                      {language === 'tr' ? 'Seçimli Hikaye' : 'Interactive Story'}
                     </span>
                   </div>
                 ) : story.content && (
-                  <div className="absolute top-2 left-2 bg-primary/90 backdrop-blur-md px-2 py-1 rounded-lg">
-                    <span className="text-[10px] font-bold text-bg-dark">
-                      📖 {language === 'tr' ? 'Tam Hikaye' : 'Full Story'}
+                  <div className="absolute top-2 left-2 rounded-full border border-white/10 bg-black/45 px-2.5 py-1 backdrop-blur-md">
+                    <span className="text-[10px] font-bold text-white">
+                      {language === 'tr' ? 'Tam Hikaye' : 'Full Story'}
                     </span>
                   </div>
                 )}

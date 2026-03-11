@@ -123,17 +123,12 @@ const translateSubtitleToken = (token: string): string => {
   const clean = token.trim();
   if (!clean) return clean;
 
-  const hasInteractiveBadge = clean.startsWith('🎮');
-  const normalizedToken = hasInteractiveBadge
-    ? clean.replace(/^🎮\s*/, '')
-    : clean;
+  const normalizedToken = clean.replace(/^🎮\s*/, '');
 
   const translated = SUBTITLE_TERM_TR[normalizedToken]
     || SUBTITLE_TERM_TR_NORMALIZED[normalizedToken.toLowerCase()];
 
-  if (!translated) return clean;
-  if (hasInteractiveBadge) return `🎮 ${translated}`;
-  return translated;
+  return translated || normalizedToken;
 };
 
 const normalizeThemeKey = (value: string | undefined): string => {
@@ -157,7 +152,7 @@ const translateSubtitleFallback = (subtitle: string | undefined): string | undef
   }
 
   if (subtitle.startsWith('🎮')) {
-    return subtitle.replace(/Interactive/gi, 'İnteraktif');
+    return subtitle.replace(/^🎮\s*/,'').replace(/Interactive/gi, 'İnteraktif');
   }
 
   return translateSubtitleToken(subtitle);
@@ -178,8 +173,8 @@ const buildTurkishSubtitleFallback = (
   const minutes = parseDurationMinutes(story.duration);
 
   if (story.isInteractive) {
-    if (minutes) return `🎮 İnteraktif • ${themeLabel} • ${minutes} dk`;
-    return `🎮 İnteraktif • ${themeLabel}`;
+    if (minutes) return `Seçimli Hikaye • ${themeLabel} • ${minutes} dk`;
+    return `Seçimli Hikaye • ${themeLabel}`;
   }
 
   if (minutes) return `${themeLabel} • ${minutes} dk masal`;
