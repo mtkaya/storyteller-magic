@@ -302,12 +302,14 @@ const sanitizeTurkishParagraphs = (paragraphs: string[], character?: string): st
 };
 
 const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicChange, onMusicClick }) => {
-  const { recordStoryRead, recordChoice, recordEnding, settings } = useAppState();
+  const { recordStoryRead, recordChoice, recordEnding, settings, activeProfile, updateProfile } = useAppState();
   const { language, t } = useLanguage();
+
+  const persistedReadingSpeed = activeProfile?.preferences.readingSpeed ?? 0.9;
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState(0);
-  const [speechRate, setSpeechRate] = useState(0.9);
+  const [speechRate, setSpeechRate] = useState(persistedReadingSpeed);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
@@ -501,6 +503,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     setTranslatedChoiceConsequences({});
     setIsTranslatingCurrentContent(false);
   }, [activeStory.id, language]);
+
+  useEffect(() => {
+    setSpeechRate(persistedReadingSpeed);
+  }, [persistedReadingSpeed, activeProfile?.id]);
 
   useEffect(() => {
     if (language !== 'tr') return;
@@ -1144,6 +1150,16 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const changeSpeed = (rate: number) => {
     setSpeechRate(rate);
     setShowSpeedMenu(false);
+
+    if (activeProfile) {
+      updateProfile(activeProfile.id, {
+        preferences: {
+          ...activeProfile.preferences,
+          readingSpeed: rate,
+        },
+      });
+    }
+
     if (isPlaying && hasContent && content[currentParagraph]) {
       cancelSpeech();
       setTimeout(() => {
