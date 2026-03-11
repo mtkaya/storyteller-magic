@@ -14,6 +14,11 @@ Storyteller Magic is a React + TypeScript app for creating bedtime stories with 
 - Daily reading limits and parental gate flow
 - Mobile-ready setup with Capacitor (iOS + Android folders included)
 
+## Trust & Operations
+
+- [Privacy](./PRIVACY.md)
+- [Security](./SECURITY.md)
+
 ## Tech Stack
 
 - React 19
@@ -55,6 +60,7 @@ VITE_STORY_API_URL=
 - `OPENAI_API_KEY` enables premium TTS (`/api/tts`). If missing, app uses browser voices automatically.
 - `TRUST_PROXY` controls whether `x-forwarded-for`/`x-real-ip` headers are trusted for rate limiting. Keep `false` unless you are behind a trusted reverse proxy.
 - `CORS_ALLOWED_ORIGINS` is a comma-separated allowlist for browser origins. Set this explicitly in production.
+- See [PRIVACY.md](./PRIVACY.md) and [SECURITY.md](./SECURITY.md) before public deployment.
 - `VITE_STORY_API_URL` is optional. Leave empty if frontend and backend share the same domain.
 - `VITE_STORY_GENERATION_MODE` controls generation path:
   - `local` (default): uses built-in story pool and local composition only
