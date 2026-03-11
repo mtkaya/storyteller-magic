@@ -1187,6 +1187,72 @@ function fallbackThemeLabel(options: StoryPrompt): string {
         || (options.language === 'tr' ? 'huzurlu bir hayal diyarı' : 'a peaceful dreamland');
 }
 
+function fallbackTitle(options: StoryPrompt): string {
+    const titles = options.language === 'tr'
+        ? {
+            adventure: ['Küçük Yıldızın Yolculuğu', 'Ay Işığındaki Yol Arkadaşı', 'Parıltılı Patika'],
+            friendship: ['Dostluk Bahçesi', 'Minik Dostların Gecesi', 'Sıcacık Bir Merhaba'],
+            magic: ['Küçük Yıldızın Yolculuğu', 'Sihirli Fener', 'Parlayan Düşler'],
+            nature: ['Ormandaki Sessiz Şarkı', 'Ay Işığında Yapraklar', 'Nazik Rüzgarın İzinde'],
+            space: ['Yıldızlara Açılan Yol', 'Ay Tozu Yolculuğu', 'Sessiz Gezegen Bahçesi'],
+            underwater: ['Denizin Altındaki Ninni', 'Mercan Yolculuğu', 'Sessiz Dalgalar Ülkesi']
+        }
+        : {
+            adventure: ['The Little Star Journey', 'The Moonlit Path', 'The Gentle Trail'],
+            friendship: ['The Garden of Friends', 'A Warm Little Hello', 'The Night of Kind Friends'],
+            magic: ['The Little Star Journey', 'The Magic Lantern', 'The Shimmering Dream'],
+            nature: ['The Quiet Forest Song', 'Leaves Under Moonlight', 'The Gentle Wind Path'],
+            space: ['The Path to the Stars', 'Moon Dust Journey', 'The Quiet Planet Garden'],
+            underwater: ['The Undersea Lullaby', 'The Coral Journey', 'The Land of Quiet Waves']
+        };
+
+    const bucket = titles[options.theme as keyof typeof titles] || (options.language === 'tr'
+        ? ['Küçük Yıldızın Yolculuğu', 'Sessiz Bir Gece Masalı', 'Ay Işığında Bir Yolculuk']
+        : ['The Little Star Journey', 'A Quiet Night Tale', 'A Moonlit Journey']);
+
+    const variantSeed = (options.profileId || '') + (options.childName || '') + options.duration + options.tone;
+    const index = Math.abs(hashStringToInt(variantSeed)) % bucket.length;
+    return bucket[index];
+}
+
+function fallbackSubtitle(options: StoryPrompt): string {
+    const themeLabel = THEME_DISPLAY_LABELS[options.theme]?.[options.language]
+        || (options.language === 'tr' ? 'Masal' : 'Story');
+    const toneLabel = TONE_DISPLAY_LABELS[options.tone]?.[options.language]
+        || (options.language === 'tr' ? 'Sakin' : 'Calm');
+
+    return options.language === 'tr'
+        ? `${themeLabel} • ${toneLabel}`
+        : `${themeLabel} • ${toneLabel}`;
+}
+
+function fallbackMoral(options: StoryPrompt): string {
+    const morals = options.language === 'tr'
+        ? {
+            calm: 'Sakin kalmak, en karanlık gecede bile yolu aydınlatır.',
+            exciting: 'Cesaret ve nezaket birlikte olunca maceralar güvenli olur.',
+            funny: 'Bir gülümseme, yolculuğu herkes için daha güzel yapar.',
+            mysterious: 'Merak güzel, ama en iyi rehber her zaman iyiliktir.'
+        }
+        : {
+            calm: 'A calm heart can light the way even in the quietest night.',
+            exciting: 'When courage and kindness travel together, adventures stay safe.',
+            funny: 'A small smile can make every journey brighter.',
+            mysterious: 'Curiosity is lovely, but kindness is always the best guide.'
+        };
+
+    return morals[options.tone] || morals.calm;
+}
+
+function hashStringToInt(value: string): number {
+    let hash = 0;
+    for (let index = 0; index < value.length; index += 1) {
+        hash = ((hash << 5) - hash) + value.charCodeAt(index);
+        hash |= 0;
+    }
+    return hash;
+}
+
 function buildLinearFallbackParagraphs(options: StoryPrompt): string[] {
     const durationConfig = DURATION_CONFIG[options.duration];
     const targetCount = durationConfig.paragraphs;
@@ -2107,11 +2173,9 @@ export function getFallbackStory(optionsOrLanguage: StoryPrompt | StoryPrompt['l
     }
 
     const character = fallbackCharacter(options);
-    const title = options.language === 'tr' ? 'Küçük Yıldızın Yolculuğu' : 'The Little Star Journey';
-    const subtitle = options.language === 'tr' ? 'Uyku Hikayesi • Nezaket' : 'Bedtime Story • Kindness';
-    const moral = options.language === 'tr'
-        ? 'Küçük bir iyilik bile geceyi aydınlatır.'
-        : 'Even a small act of kindness can light up the night.';
+    const title = fallbackTitle(options);
+    const subtitle = fallbackSubtitle(options);
+    const moral = fallbackMoral(options);
 
     return {
         title,
