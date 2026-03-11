@@ -304,6 +304,8 @@ interface AppStateContextType {
     settings: {
         dailyLimit: number; // minutes, 0 = unlimited
         dailyReminderTime: string | null; // "20:00" format
+        sleepDetectionSeconds: number;
+        notificationsEnabled: boolean;
         backgroundMusic: string | null;
         soundEffects: boolean;
         musicVolume: number; // 0..1
@@ -336,6 +338,8 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
     const defaultSettings = {
         dailyLimit: 0,
         dailyReminderTime: null,
+        sleepDetectionSeconds: 30,
+        notificationsEnabled: false,
         backgroundMusic: null,
         soundEffects: true,
         musicVolume: 0.35,

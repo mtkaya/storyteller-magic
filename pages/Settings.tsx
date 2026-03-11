@@ -18,11 +18,12 @@ interface SettingsProps {
 
 const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport }) => {
     const { language, setLanguage, t } = useLanguage();
-    const { settings, updateSettings, planRule, remainingGeneratedStories, customStories } = useAppState();
-    const [sleepTimer, setSleepTimer] = useState(30); // seconds
-    const [notifications, setNotifications] = useState(false);
-    const [readingSpeed, setReadingSpeed] = useState(0.9);
+    const { settings, updateSettings, planRule, remainingGeneratedStories, customStories, activeProfile, updateProfile } = useAppState();
     const [isExportingCanva, setIsExportingCanva] = useState(false);
+
+    const readingSpeed = activeProfile?.preferences.readingSpeed ?? 0.9;
+    const sleepTimer = settings.sleepDetectionSeconds;
+    const notifications = settings.notificationsEnabled;
 
     const canvaStoryPool = useMemo(
         () => buildStoryPool(RECENT_STORIES, LIBRARY_STORIES, customStories),
@@ -163,7 +164,7 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                                 {[15, 30, 45, 60].map(time => (
                                     <button
                                         key={time}
-                                        onClick={() => setSleepTimer(time)}
+                                        onClick={() => updateSettings({ sleepDetectionSeconds: time })}
                                         className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all ${sleepTimer === time
                                             ? 'bg-primary text-bg-dark'
                                             : 'bg-white/10 text-white/70 hover:bg-white/20'
@@ -191,7 +192,15 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                             {[0.5, 0.75, 0.9, 1.0, 1.25].map(speed => (
                                 <button
                                     key={speed}
-                                    onClick={() => setReadingSpeed(speed)}
+                                    onClick={() => {
+                                        if (!activeProfile) return;
+                                        updateProfile(activeProfile.id, {
+                                            preferences: {
+                                                ...activeProfile.preferences,
+                                                readingSpeed: speed,
+                                            },
+                                        });
+                                    }}
                                     className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${readingSpeed === speed
                                         ? 'bg-secondary text-bg-dark'
                                         : 'bg-white/10 text-white/70 hover:bg-white/20'
@@ -279,7 +288,7 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                                 <span>{language === 'tr' ? 'Bildirimler' : 'Notifications'}</span>
                             </div>
                             <button
-                                onClick={() => setNotifications(!notifications)}
+                                onClick={() => updateSettings({ notificationsEnabled: !notifications })}
                                 className={`w-12 h-7 rounded-full relative transition-colors ${notifications ? 'bg-primary' : 'bg-white/10'}`}
                             >
                                 <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${notifications ? 'right-1' : 'left-1'}`}></div>
