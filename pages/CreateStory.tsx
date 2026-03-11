@@ -6,6 +6,7 @@ import { useAppState } from '../context/AppStateContext';
 import { generateStory, getStoryGenerationMode, getFallbackStory, StoryPrompt, GeneratedStory } from '../services/storyGenerator';
 import { getIllustratedImageUrl } from '../services/illustrationCovers';
 import { buildIllustrationCoverPrompt } from '../services/coverPrompt';
+import { deriveStoryVisualIdentity } from '../services/storyVisualIdentity';
 
 interface CreateStoryProps {
   onBack: () => void;
@@ -299,6 +300,11 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       tone: selectedTone,
       language
     });
+    const visualIdentity = deriveStoryVisualIdentity({
+      theme: generatedStory.theme,
+      title: generatedStory.title,
+      character: generatedStory.character,
+    });
 
     const copyCoverPrompt = async () => {
       try {
@@ -365,7 +371,18 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
 
             <h1 className="text-[30px] font-bold text-white leading-tight mb-2">{generatedStory.title}</h1>
             <p className="text-white/68 text-sm mb-2">{generatedStory.subtitle}</p>
-            <p className="text-primary/80 text-sm italic mb-6">"{generatedStory.moral}"</p>
+            <p className="text-primary/80 text-sm italic mb-4">"{generatedStory.moral}"</p>
+
+            <div className="mb-6 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-left">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-2">
+                {language === 'tr' ? 'Gorsel Kimlik' : 'Visual Identity'}
+              </p>
+              <div className="space-y-1.5 text-xs text-white/72 leading-relaxed">
+                <p><span className="text-white/45">{language === 'tr' ? 'Ana karakter:' : 'Main character:'}</span> {visualIdentity.mainCharacter}</p>
+                <p><span className="text-white/45">{language === 'tr' ? 'Imza obje:' : 'Signature prop:'}</span> {visualIdentity.signatureProp}</p>
+                <p><span className="text-white/45">{language === 'tr' ? 'Palet:' : 'Palette:'}</span> {visualIdentity.paletteHint}</p>
+              </div>
+            </div>
           {error && (
             <div className="w-full mb-4 rounded-xl border border-amber-300/30 bg-amber-200/10 px-4 py-3 text-left">
               <p className="text-xs font-semibold text-amber-200">

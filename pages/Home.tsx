@@ -249,7 +249,11 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             </div>
             <div onClick={() => onStorySelect(story)}>
               <p className="text-white text-base font-bold truncate">{getStoryTitle(story)}</p>
-              <p className="text-white/50 text-xs mt-0.5">{getStorySubtitle(story)}</p>
+              <p className="text-white/50 text-xs mt-0.5 line-clamp-2 min-h-[30px]">{getStorySubtitle(story)}</p>
+              <div className="mt-2 flex items-center gap-2 text-[10px] text-white/42">
+                <span className="rounded-full border border-white/8 bg-white/5 px-2 py-1">{story.duration}</span>
+                <span className="rounded-full border border-white/8 bg-white/5 px-2 py-1">{story.theme}</span>
+              </div>
             </div>
           </div>
         ))}
@@ -274,7 +278,11 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
                 </div>
                 <div onClick={() => onStorySelect(story)}>
                   <p className="text-white text-base font-bold truncate">{getStoryTitle(story)}</p>
-                  <p className="text-white/50 text-xs mt-0.5">{getStorySubtitle(story)}</p>
+                  <p className="text-white/50 text-xs mt-0.5 line-clamp-2 min-h-[30px]">{getStorySubtitle(story)}</p>
+                  <div className="mt-2 flex items-center gap-2 text-[10px] text-white/42">
+                    <span className="rounded-full border border-white/8 bg-white/5 px-2 py-1">{story.duration}</span>
+                    <span className="rounded-full border border-white/8 bg-white/5 px-2 py-1">{language === 'tr' ? 'Uyku' : 'Bedtime'}</span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -301,7 +309,11 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
                 </div>
                 <div onClick={() => onStorySelect(story)}>
                   <p className="text-white text-base font-bold truncate">{getStoryTitle(story)}</p>
-                  <p className="text-white/50 text-xs mt-0.5">{getStorySubtitle(story)}</p>
+                  <p className="text-white/50 text-xs mt-0.5 line-clamp-2 min-h-[30px]">{getStorySubtitle(story)}</p>
+                  <div className="mt-2 flex items-center gap-2 text-[10px] text-white/42">
+                    <span className="rounded-full border border-white/8 bg-white/5 px-2 py-1">{story.duration}</span>
+                    <span className="rounded-full border border-white/8 bg-white/5 px-2 py-1">{language === 'tr' ? 'Seçimli' : 'Interactive'}</span>
+                  </div>
                 </div>
               </div>
             ))}
