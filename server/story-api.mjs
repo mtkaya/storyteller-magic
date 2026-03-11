@@ -14,10 +14,13 @@ const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 20;
 const CACHE_TTL_MS = 10 * 60_000;
 const CACHE_MAX_ENTRIES = 200;
+const TTS_CACHE_TTL_MS = 60 * 60_000;
+const TTS_CACHE_MAX_ENTRIES = 80;
 const MAX_TTS_TEXT_LENGTH = 4000;
 
 const requestRateLimitStore = new Map();
 const responseCache = new Map();
+const ttsResponseCache = new Map();
 
 loadEnvFiles();
 
@@ -222,6 +225,22 @@ async function handleTtsRequest(req, res, body) {
     requestPayload.speed = speed;
   }
 
+  const ttsCacheKey = buildTtsCacheKey({
+    model: OPENAI_TTS_MODEL,
+    voice,
+    format: OPENAI_TTS_FORMAT,
+    text,
+    speed,
+  });
+  const cachedTtsResponse = getCachedTtsResponse(ttsCacheKey);
+  if (cachedTtsResponse) {
+    sendBinary(req, res, 200, cachedTtsResponse.audioBuffer, cachedTtsResponse.contentType, {
+      'Cache-Control': 'private, max-age=3600',
+      'X-TTS-Cache': 'HIT'
+    });
+    return;
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TTS_REQUEST_TIMEOUT_MS);
 
@@ -250,8 +269,13 @@ async function handleTtsRequest(req, res, body) {
     }
 
     const contentType = ttsResponse.headers.get('content-type') || 'audio/mpeg';
+    setCachedTtsResponse(ttsCacheKey, {
+      audioBuffer,
+      contentType,
+    });
     sendBinary(req, res, 200, audioBuffer, contentType, {
-      'Cache-Control': 'no-store'
+      'Cache-Control': 'private, max-age=3600',
+      'X-TTS-Cache': 'MISS'
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
@@ -483,6 +507,13 @@ function hashPrompt(prompt) {
   return crypto.createHash('sha256').update(prompt).digest('hex');
 }
 
+function buildTtsCacheKey({ model, voice, format, text, speed }) {
+  return crypto
+    .createHash('sha256')
+    .update(JSON.stringify({ model, voice, format, text, speed: speed ?? null }))
+    .digest('hex');
+}
+
 function getCachedResponse(cacheKey) {
   const entry = responseCache.get(cacheKey);
   if (!entry) return null;
@@ -493,6 +524,18 @@ function getCachedResponse(cacheKey) {
   }
 
   return entry.generatedText;
+}
+
+function getCachedTtsResponse(cacheKey) {
+  const entry = ttsResponseCache.get(cacheKey);
+  if (!entry) return null;
+
+  if (entry.expiresAt <= Date.now()) {
+    ttsResponseCache.delete(cacheKey);
+    return null;
+  }
+
+  return entry;
 }
 
 function setCachedResponse(cacheKey, generatedText) {
@@ -515,10 +558,36 @@ function setCachedResponse(cacheKey, generatedText) {
   }
 }
 
+function setCachedTtsResponse(cacheKey, value) {
+  const now = Date.now();
+  pruneExpiredCache(now);
+
+  if (ttsResponseCache.has(cacheKey)) {
+    ttsResponseCache.delete(cacheKey);
+  }
+
+  ttsResponseCache.set(cacheKey, {
+    ...value,
+    expiresAt: now + TTS_CACHE_TTL_MS,
+  });
+
+  while (ttsResponseCache.size > TTS_CACHE_MAX_ENTRIES) {
+    const oldestKey = ttsResponseCache.keys().next().value;
+    if (!oldestKey) break;
+    ttsResponseCache.delete(oldestKey);
+  }
+}
+
 function pruneExpiredCache(now) {
   for (const [cacheKey, entry] of responseCache.entries()) {
     if (entry.expiresAt <= now) {
       responseCache.delete(cacheKey);
+    }
+  }
+
+  for (const [cacheKey, entry] of ttsResponseCache.entries()) {
+    if (entry.expiresAt <= now) {
+      ttsResponseCache.delete(cacheKey);
     }
   }
 }
