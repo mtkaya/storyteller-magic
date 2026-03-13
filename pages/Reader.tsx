@@ -1130,8 +1130,35 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       cancelSpeech();
     } else {
       setIsPlaying(true);
+      // Auto-start music if selected and not already playing
+      if (currentMusic && currentMusic !== 'none') {
+        backgroundMusic.play(currentMusic);
+      }
     }
   };
+
+  // Auto-start music when story loads if music is selected
+  useEffect(() => {
+    if (currentMusic && currentMusic !== 'none' && !backgroundMusic.isPlaying()) {
+      backgroundMusic.play(currentMusic);
+    }
+
+    // Stop music when leaving reader
+    return () => {
+      if (currentMusic && currentMusic !== 'none') {
+        backgroundMusic.stop();
+      }
+    };
+  }, []);
+
+  // Update music when selection changes
+  useEffect(() => {
+    if (currentMusic && currentMusic !== 'none' && isPlaying) {
+      backgroundMusic.play(currentMusic);
+    } else if (!currentMusic || currentMusic === 'none') {
+      backgroundMusic.stop();
+    }
+  }, [currentMusic]);
 
   const handleNextParagraph = () => {
     if (hasContent && currentParagraph < content.length - 1) {
@@ -1444,11 +1471,11 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
           {/* Ending Screen */}
           {isEnding && (
-            <div className="mt-8 text-center animate-fade-in p-6 bg-gradient-to-b from-primary/10 to-transparent rounded-3xl border border-primary/20">
-              <div className="text-6xl mb-4 animate-bounce-slow">
-                {getEndingEmoji(currentBranch?.endingType)}
+            <div className="mt-8 text-center p-6 bg-gradient-to-b from-primary/10 to-transparent rounded-3xl border border-primary/20 animate-fade-in-scale">
+              <div className="text-7xl mb-4 animate-float-sparkle">
+                ✨ {getEndingEmoji(currentBranch?.endingType)} ✨
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2 font-serif">
+              <h2 className="text-3xl font-bold text-white mb-3 font-serif animate-glow">
                 {getLocalizedEndingTitle(currentBranch)}
               </h2>
               <p className="text-white/60 text-sm mb-6">
@@ -1509,6 +1536,44 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
         onSleepDetected={handleSleepDetected}
         onUserAwake={handleUserAwake}
       />
+
+      <style>{`
+        @keyframes fade-in-scale {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        @keyframes float-sparkle {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+        @keyframes glow {
+          0%, 100% {
+            text-shadow: 0 0 10px rgba(238, 140, 43, 0.3);
+          }
+          50% {
+            text-shadow: 0 0 20px rgba(238, 140, 43, 0.6);
+          }
+        }
+        .animate-fade-in-scale {
+          animation: fade-in-scale 0.6s ease-out;
+        }
+        .animate-float-sparkle {
+          animation: float-sparkle 2s ease-in-out infinite;
+        }
+        .animate-glow {
+          animation: glow 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };

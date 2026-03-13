@@ -219,6 +219,25 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                         {language === 'tr' ? 'Uygulama Ayarları' : 'App Settings'}
                     </h3>
                     <div className="bg-white/5 rounded-2xl overflow-hidden border border-white/5 space-y-[1px]">
+                        <div className="flex items-center justify-between p-4 bg-bg-card">
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-white/60">
+                                    {settings.theme === 'dark' ? 'dark_mode' : 'light_mode'}
+                                </span>
+                                <span>{language === 'tr' ? 'Tema' : 'Theme'}</span>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    const newTheme = settings.theme === 'dark' ? 'light' : 'dark';
+                                    updateSettings({ theme: newTheme });
+                                    document.documentElement.classList.remove('dark', 'light');
+                                    document.documentElement.classList.add(newTheme);
+                                }}
+                                className={`w-12 h-7 rounded-full relative transition-colors ${settings.theme === 'dark' ? 'bg-primary' : 'bg-white/10'}`}
+                            >
+                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${settings.theme === 'dark' ? 'right-1' : 'left-1'}`}></div>
+                            </button>
+                        </div>
                         <div className="p-4 bg-bg-card">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">

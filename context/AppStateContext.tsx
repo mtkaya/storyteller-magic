@@ -314,6 +314,7 @@ interface AppStateContextType {
         nightModeAuto: boolean;
         nightModeStart: string;
         nightModeEnd: string;
+        theme: 'dark' | 'light'; // UI theme
     };
     updateSettings: (updates: Partial<AppStateContextType['settings']>) => void;
 
@@ -348,6 +349,7 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
         nightModeAuto: false,
         nightModeStart: '20:00',
         nightModeEnd: '07:00',
+        theme: 'dark' as const,
     };
 
     // Load from localStorage

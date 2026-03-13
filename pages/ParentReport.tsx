@@ -64,8 +64,21 @@ const ParentReport: React.FC<ParentReportProps> = ({ onBack }) => {
             </div>
 
             <div className="p-4 space-y-6">
+                {/* No Data Placeholder */}
+                {stats.totalStoriesRead === 0 ? (
+                    <div className="bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl p-6 border border-white/10 text-center">
+                        <div className="text-6xl mb-4">📖</div>
+                        <h3 className="text-xl font-bold text-white mb-2">
+                            {language === 'tr' ? 'Henüz hikaye okunmadı' : 'No stories read yet'}
+                        </h3>
+                        <p className="text-white/60 text-sm">
+                            {language === 'tr' ? 'İlk masalını oku!' : 'Read your first story!'}
+                        </p>
+                    </div>
+                ) : null}
+
                 {/* Child Summary */}
-                {activeProfile && (
+                {activeProfile && stats.totalStoriesRead > 0 && (
                     <div className="bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl p-4 border border-white/10">
                         <div className="flex items-center gap-4">
                             <div className="text-5xl">{activeProfile.avatar}</div>
@@ -116,18 +129,29 @@ const ParentReport: React.FC<ParentReportProps> = ({ onBack }) => {
                     {/* Weekly Chart (simplified bar chart) */}
                     <div className="flex items-end justify-between h-24 gap-1 mb-4">
                         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => {
-                            // Simulate data (in real app, would be actual daily stats)
-                            const height = Math.random() * 80 + 20;
-                            const isToday = index === new Date().getDay() - 1;
+                            // Simulate based on actual total stories read
+                            const todayIndex = new Date().getDay();
+                            const isToday = index === (todayIndex === 0 ? 6 : todayIndex - 1);
+
+                            // Create a distribution pattern based on total stories
+                            const seed = stats.totalStoriesRead + index;
+                            const distribution = [0.3, 0.5, 0.7, 0.9, 0.8, 0.6, 0.4];
+                            const baseHeight = distribution[index] * 100;
+                            const variance = ((seed * 17) % 30) - 15;
+                            const height = Math.max(10, Math.min(95, baseHeight + variance));
+                            const hasStories = stats.totalStoriesRead > 0 && height > 20;
 
                             return (
                                 <div key={day} className="flex-1 flex flex-col items-center gap-1">
                                     <div
-                                        className={`w-full rounded-t transition-all ${isToday
+                                        className={`w-full rounded-t transition-all ${
+                                            hasStories && isToday
                                                 ? 'bg-gradient-to-t from-primary to-secondary'
-                                                : 'bg-white/20'
-                                            }`}
-                                        style={{ height: `${height}%` }}
+                                                : hasStories
+                                                    ? 'bg-white/20'
+                                                    : 'bg-white/10'
+                                        }`}
+                                        style={{ height: hasStories ? `${height}%` : '10%' }}
                                     />
                                     <span className={`text-[10px] ${isToday ? 'text-primary' : 'text-white/40'}`}>
                                         {language === 'tr'

@@ -162,9 +162,9 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
 
       {/* Hero CTA */}
       <div className="p-6 pt-2">
-        <div className="relative w-full rounded-[28px] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.35)] border border-white/10 group cursor-pointer" onClick={() => onNavigate('create_story')}>
+        <div className="relative w-full rounded-[28px] overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.5)] border border-white/10 group cursor-pointer hover:shadow-[0_40px_100px_rgba(238,140,43,0.3)] transition-shadow duration-500" onClick={() => onNavigate('create_story')}>
           <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.03]"
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.05]"
             style={{
               backgroundImage: `url("${getIllustratedImageUrl({
                 title: language === 'tr' ? 'Geceye Uygun Hikaye' : 'A Story for Tonight',
@@ -175,7 +175,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
               })}")`
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-[#151632] via-[#151632]/55 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#151632] via-[#151632]/60 to-transparent"></div>
             <div className="absolute -left-20 top-6 h-28 w-56 rounded-[999px] bg-white/10 blur-3xl opacity-85"></div>
             <div className="absolute -left-6 top-14 h-20 w-36 rounded-[999px] bg-white/12 blur-2xl opacity-75"></div>
             <div className="absolute left-20 top-10 h-14 w-24 rounded-[999px] bg-white/8 blur-xl opacity-60"></div>
@@ -186,20 +186,20 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             <div className="absolute -left-10 bottom-10 h-16 w-40 rounded-[999px] bg-[#d7deff]/8 blur-2xl opacity-45"></div>
             <div className="absolute -right-10 bottom-12 h-16 w-40 rounded-[999px] bg-[#d7deff]/8 blur-2xl opacity-45"></div>
           </div>
-          <div className="relative z-10 p-6 pt-28 flex flex-col items-start gap-3">
-            <div className="inline-flex items-center rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur-sm">
-              {language === 'tr' ? 'Local Story Engine' : 'Local Story Engine'}
+          <div className="relative z-10 p-6 pt-32 flex flex-col items-start gap-3">
+            <div className="inline-flex items-center rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-md">
+              ✨ {language === 'tr' ? 'Local Story Engine' : 'Local Story Engine'}
             </div>
-            <div className="max-w-[260px]">
-              <h3 className="text-white text-[28px] font-bold leading-[1.05]">{t.home_create_magic}</h3>
-              <p className="text-white/78 text-sm mt-2 leading-relaxed">{t.home_create_subtitle}</p>
+            <div className="max-w-[280px]">
+              <h3 className="text-white text-[32px] font-bold leading-[1.05] mb-3">{t.home_create_magic}</h3>
+              <p className="text-white/85 text-base mt-2 leading-relaxed">{t.home_create_subtitle}</p>
             </div>
-            <div className="mt-1 flex items-center gap-2 text-[11px] text-white/60">
-              <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1">{language === 'tr' ? 'Yerel Kütüphane' : 'Curated Library'}</span>
-              <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1">{language === 'tr' ? 'Etkilesimli' : 'Interactive'}</span>
+            <div className="mt-2 flex items-center gap-2 text-[11px] text-white/70">
+              <span className="rounded-full border border-white/15 bg-white/15 px-3 py-1.5 backdrop-blur-sm">{language === 'tr' ? 'Yerel Kütüphane' : 'Curated Library'}</span>
+              <span className="rounded-full border border-white/15 bg-white/15 px-3 py-1.5 backdrop-blur-sm">{language === 'tr' ? 'Etkilesimli' : 'Interactive'}</span>
             </div>
-            <button className="mt-3 px-6 py-2.5 bg-white text-bg-dark font-bold rounded-full text-sm hover:scale-105 transition-transform shadow-lg">
-              {language === 'tr' ? 'Başla' : 'Start Now'}
+            <button className="mt-4 px-7 py-3 bg-white text-bg-dark font-bold rounded-full text-base hover:scale-105 active:scale-95 transition-transform shadow-2xl hover:shadow-white/30">
+              {language === 'tr' ? 'Başla' : 'Start Now'} →
             </button>
           </div>
         </div>

@@ -68,6 +68,35 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
         return Math.min(100, (seenCount / themeStories.length) * 100);
     };
 
+    // Check if theme is unlocked
+    const isThemeUnlocked = (index: number): boolean => {
+        // First theme is always unlocked
+        if (index === 0) return true;
+
+        // Check previous theme: needs at least 2 stories seen
+        const previousTheme = themeBuckets[index - 1];
+        if (!previousTheme) return true;
+
+        const seenInPrevious = previousTheme.stories.filter((story) =>
+            seenStoryIds.includes(story.id)
+        ).length;
+
+        return seenInPrevious >= 2;
+    };
+
+    // Get stories needed to unlock
+    const getStoriesNeeded = (index: number): number => {
+        if (index === 0) return 0;
+        const previousTheme = themeBuckets[index - 1];
+        if (!previousTheme) return 0;
+
+        const seenInPrevious = previousTheme.stories.filter((story) =>
+            seenStoryIds.includes(story.id)
+        ).length;
+
+        return Math.max(0, 2 - seenInPrevious);
+    };
+
     return (
         <div
             className="fixed inset-0 z-[100] bg-bg-dark overflow-y-auto overscroll-y-contain"
@@ -142,14 +171,36 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                             const localizedTheme = getLocalizedThemeName(bucket.sourceTheme, language);
                             const progress = getThemeProgress(bucket.stories);
                             const isLeft = index % 2 === 0;
+                            const unlocked = isThemeUnlocked(index);
+                            const storiesNeeded = getStoriesNeeded(index);
+                            const isCompleted = progress === 100;
 
                             return (
                                 <div
                                     key={bucket.key}
                                     className={`flex ${isLeft ? 'justify-start' : 'justify-end'}`}
                                 >
-                                    <div className={`w-[85%] bg-gradient-to-br ${config.color} rounded-2xl p-1 shadow-xl`}>
-                                        <div className="bg-bg-dark rounded-xl p-4">
+                                    <div className={`w-[85%] bg-gradient-to-br ${config.color} rounded-2xl p-1 shadow-xl relative ${!unlocked ? 'opacity-60' : ''}`}>
+                                        <div className="bg-bg-dark rounded-xl p-4 relative">
+                                            {/* Lock Overlay for Locked Themes */}
+                                            {!unlocked && (
+                                                <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center z-20 gap-3">
+                                                    <span className="material-symbols-outlined text-5xl text-white/70">lock</span>
+                                                    <p className="text-white text-sm font-bold text-center px-4">
+                                                        {language === 'tr'
+                                                            ? `Önceki temadan ${storiesNeeded} hikaye oku`
+                                                            : `Read ${storiesNeeded} stories from previous theme`}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Completed Badge */}
+                                            {isCompleted && unlocked && (
+                                                <div className="absolute -top-2 -right-2 size-10 rounded-full bg-green-500 flex items-center justify-center z-10 border-2 border-bg-dark shadow-lg">
+                                                    <span className="material-symbols-outlined text-white text-xl">check</span>
+                                                </div>
+                                            )}
+
                                             {/* Theme Header */}
                                             <div className="flex items-center gap-3 mb-3">
                                                 <div className="size-12 rounded-full bg-white/10 flex items-center justify-center text-2xl">
@@ -170,17 +221,33 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                                                 </div>
                                             </div>
 
+                                            {/* Progress Bar */}
+                                            {unlocked && (
+                                                <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-3">
+                                                    <div
+                                                        className={`h-full bg-gradient-to-r ${config.color} rounded-full transition-all duration-500`}
+                                                        style={{ width: `${progress}%` }}
+                                                    />
+                                                </div>
+                                            )}
+
                                             {/* Stories in theme */}
                                             <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
                                                 {bucket.stories.slice(0, 4).map((story) => (
                                                     <button
                                                         key={story.id}
-                                                        onClick={() => onStorySelect(story)}
-                                                        className="flex-shrink-0 w-16 touch-manipulation"
+                                                        onClick={() => unlocked && onStorySelect(story)}
+                                                        disabled={!unlocked}
+                                                        className="flex-shrink-0 w-16 touch-manipulation disabled:opacity-50"
                                                         style={{ touchAction: 'manipulation' }}
                                                     >
-                                                        <div className={`w-16 h-20 rounded-lg overflow-hidden border-2 ${isFavorite(story.id) ? 'border-red-400' : 'border-white/20'
-                                                            }`}>
+                                                        <div className={`w-16 h-20 rounded-lg overflow-hidden border-2 ${
+                                                            seenStoryIds.includes(story.id)
+                                                                ? 'border-green-400'
+                                                                : isFavorite(story.id)
+                                                                    ? 'border-red-400'
+                                                                    : 'border-white/20'
+                                                        }`}>
                                                             <img
                                                                 src={getStoryCoverUrl(story)}
                                                                 alt={getStoryTitle(story)}
@@ -198,6 +265,15 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
                                                     </div>
                                                 )}
                                             </div>
+
+                                            {/* Remaining stories indicator */}
+                                            {unlocked && progress < 100 && (
+                                                <p className="text-white/40 text-[10px] mt-2">
+                                                    {language === 'tr'
+                                                        ? `${bucket.stories.filter(s => !seenStoryIds.includes(s.id)).length} hikaye kaldı`
+                                                        : `${bucket.stories.filter(s => !seenStoryIds.includes(s.id)).length} stories left`}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
