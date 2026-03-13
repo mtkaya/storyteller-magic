@@ -230,6 +230,216 @@ export const STORY_SEEDS: StorySeed[] = [
       }
     ],
     ending: "As the sun rose fully, painting the sky in shades of pink and gold, Echo closed her eyes and let the mountain's song fill her completely. Whether from the cave's echoes or the summit's wind, the music was real. It had always been there, waiting for someone to listen. Echo opened her eyes, gazing at the vast world below, and felt a profound sense of peace. The mountain had shared its secret: wonder is everywhere, for those who take the time to notice."
+  },
+
+  // ── Seed 8 ────────────────────────────────────────────────
+  {
+    id: "seed_008",
+    title: "The Dragon Who Hated Fire",
+    subtitle: "A hilarious tale of mixed-up magic",
+    theme: "Courage",
+    tone: "Funny",
+    duration: "Medium",
+    character: "Ember the Sneezing Dragon",
+    setting: "The Upside-Down Volcano",
+    coverImage: IMAGES.MAGIC_FOREST,
+    opening: "Ember was the only dragon in the whole kingdom who sneezed every time he tried to breathe fire. Instead of flames, out came butterflies — hundreds of them, fluttering in all directions. The other dragons could light candles and roast marshmallows. Ember could only make the meadow look very, very pretty.",
+    midpoint: "On the night of the Grand Dragon Challenge, every dragon had to light the Festival Lantern. Ember's turn came. He felt the familiar tickle in his nose. Then he noticed two things: a small child in the crowd clutching a broken toy, and the judges watching with clipboards. Should he try to sneeze fire anyway — or let his butterflies fly free for the child?",
+    branches: [
+      {
+        id: "A",
+        choiceText: "Try really hard to breathe fire this time",
+        sceneText: "Ember squeezed his eyes shut and concentrated with every scale on his body. He breathed in deep... and out came the most spectacular sneeze in dragon history: golden butterflies, tiny rainbows, AND a single perfect flame — just enough to light the lantern.",
+        outcomeText: "The crowd went wild. The judges dropped their clipboards. Turns out, Ember's sneeze had always contained a little fire — it just needed butterflies to show the way. He learned that his weird gift was actually two gifts in one."
+      },
+      {
+        id: "B",
+        choiceText: "Let the butterflies fly free for the child",
+        sceneText: "Ember sneezed with full butterfly power. The child's face lit up like the lantern itself as hundreds of glowing butterflies swirled around her, landing on her broken toy and somehow — magically — fixing every crack.",
+        outcomeText: "The lantern could wait. The judges put down their clipboards and started clapping. The head judge said, 'We came to see fire. We saw something far better.' Ember learned that the bravest thing wasn't doing what was expected — it was doing what was right."
+      }
+    ],
+    ending: "Ember flew home that night with a bronze medal (for 'Most Unexpected Dragon') and something far better: a new friend who carried a jar of his butterflies everywhere she went. The other dragons still called him 'the sneezing one,' but now they said it while smiling. Ember didn't mind at all. He sneezed a happy little sneeze, watched the butterflies spiral into the moonlit sky, and decided that being exactly himself was, in fact, quite wonderful."
+  },
+
+  // ── Seed 9 ────────────────────────────────────────────────
+  {
+    id: "seed_009",
+    title: "The Invisible Rainbow",
+    subtitle: "A story of seeing with your heart",
+    theme: "Wonder",
+    tone: "Calm",
+    duration: "Short",
+    character: "Mila the Cloud Painter",
+    setting: "The Valley of Mists",
+    coverImage: IMAGES.SLEEPING_CLOUD,
+    opening: "Mila painted clouds for a living. Not with brushes — with her fingers, tracing shapes in the morning mist before the sun burned it away. Nobody else could see what she saw in the fog: horses, castles, sleeping giants. They thought the valley's mist was just grey and cold. Mila knew it was a canvas.",
+    midpoint: "One foggy morning, Mila found a blind hedgehog sitting in the mist, his tiny nose pointing upward. 'I can smell colours,' he told her, 'but I've never seen a rainbow.' Mila had two choices: she could describe the rainbow she was painting in the clouds above, or she could try something completely different and help him feel one instead.",
+    branches: [
+      {
+        id: "A",
+        choiceText: "Describe the rainbow in words, colour by colour",
+        sceneText: "Mila sat beside him and spoke slowly. 'Red smells like warm bread from the bakery. Orange is the feeling just before you sneeze. Yellow is the hum of the bee you didn't swat.' The hedgehog's nose twitched faster and faster.",
+        outcomeText: "By the time she reached violet, the hedgehog was smiling so wide his eyes disappeared. 'I can see it,' he whispered. 'I really can.' Mila understood that wonder is not in the seeing — it is in the sharing."
+      },
+      {
+        id: "B",
+        choiceText: "Help him touch the mist she has painted",
+        sceneText: "Mila guided the hedgehog's tiny paw into the stripe of warm mist she had shaped. 'This is red — feel how it's slightly warmer?' She moved his paw through each colour. He quivered with delight at every temperature shift.",
+        outcomeText: "When they reached the end, the hedgehog said, 'A rainbow is warmth in stripes.' Mila wrote that down. It was the best description of a rainbow she had ever heard. She had tried to give him wonder — and he had given her more back."
+      }
+    ],
+    ending: "The morning mist lifted, and the real rainbow appeared above the valley. Mila and the hedgehog sat side by side watching it — one with open eyes, one with an open nose. They didn't say anything for a long time. Some things are too beautiful for words, and too big for just one pair of eyes. That evening, Mila painted a new cloud shape: two small figures sitting together, looking up."
+  },
+
+  // ── Seed 10 ────────────────────────────────────────────────
+  {
+    id: "seed_010",
+    title: "Two Stars, One Wish",
+    subtitle: "A friendship forged above the clouds",
+    theme: "Friendship",
+    tone: "Calm",
+    duration: "Long",
+    character: "Orion and Lyra the Twin Stars",
+    setting: "The Night Sky",
+    coverImage: IMAGES.FLYING_CARPET,
+    opening: "Orion and Lyra had been neighbours in the night sky for a thousand years. Orion was bold and bright; Lyra was small but steady. Every night, children looked up and made wishes — and every night, the two stars watched them float upward like tiny bubbles. But one night, a wish got stuck. It hovered between them, too heavy to rise and too precious to fall.",
+    midpoint: "The stuck wish belonged to a girl named Daria, who had wished to find her missing cat. The wish had been travelling for three nights and was losing its shimmer fast. Orion wanted to send it back to Daria with a shooting-star sign. Lyra wanted to help the wish find the cat's location by reading the patterns of light below. Which way would save Daria's wish in time?",
+    branches: [
+      {
+        id: "A",
+        choiceText: "Send a shooting star to Daria as a sign",
+        sceneText: "Orion gathered his light into a streak and blazed across the sky — the brightest shooting star in years. Daria was still awake, nose pressed to her window. She gasped, then stood up. 'It's a sign,' she whispered. She followed her instincts to the garden shed.",
+        outcomeText: "The cat was curled behind the old watering can, asleep and perfectly safe. Daria's wish unravelled in a warm spiral above the sky. Orion glowed with pride. He'd learned that sometimes the most helpful thing is not to solve the problem — but to light the way."
+      },
+      {
+        id: "B",
+        choiceText: "Read the patterns of light below to find the cat",
+        sceneText: "Lyra focused her steady light on the streets below. She traced the shadows, the warm windows, the single lit lamp in a garden shed. She held her light there until it cast a faint glow through Daria's curtains.",
+        outcomeText: "Daria noticed the unusual glow on her wall, followed it to the window, and spotted the shimmer on the shed door. She found her cat instantly. Lyra's wish unravelled in a quiet silver arc. She had learned that sometimes courage is in the patience to look carefully."
+      }
+    ],
+    ending: "The stuck wish dissolved into a thousand tiny sparks that floated back down as fireflies into Daria's garden. She named one Orion, and one Lyra — though she didn't know why. The two stars saw this from above and felt something they had no name for, but which humans call being loved. They shone a little brighter that night. And every night after, when children looked up to make wishes, Orion and Lyra made sure to listen extra carefully."
+  },
+
+  // ── Seed 11 ────────────────────────────────────────────────
+  {
+    id: "seed_011",
+    title: "Don't Wake the Giant",
+    subtitle: "The quietest adventure ever",
+    theme: "Courage",
+    tone: "Funny",
+    duration: "Short",
+    character: "Teo the Terrified Mouse",
+    setting: "The Sleeping Giant's Pocket",
+    coverImage: IMAGES.MOUNTAIN,
+    opening: "Teo the mouse had made a terrible mistake: he had fallen asleep inside a giant's coat pocket. Now the giant was sleeping too — and snoring so loudly that the trees outside swayed back and forth. Teo needed to escape before the giant woke up, scratched his pocket, and found a small, very embarrassed mouse inside.",
+    midpoint: "Teo tiptoed to the pocket's edge and looked down. It was a long way to the giant's knee, and further still to the floor. But inside the pocket, he also spotted a button — slightly loose — that might unravel a thread long enough to climb down safely. Both options were terrifying. Which should he try?",
+    branches: [
+      {
+        id: "A",
+        choiceText: "Leap and roll down the giant's coat",
+        sceneText: "Teo took the deepest mouse-breath he could manage and jumped. He tumbled down the velvet coat, bouncing off buttons and bumping past a forgotten receipt. At one point, he accidentally tickled the giant's chin. The giant swatted at the air without waking — but it sent Teo flying perfectly onto the floor.",
+        outcomeText: "Teo landed in a pile of dust near the door. He looked back at the giant — still snoring, smile on his enormous face. Teo had the distinct impression the giant had known he was there the whole time and simply didn't mind. He tiptoed out, his tail held high."
+      },
+      {
+        id: "B",
+        choiceText: "Unravel the loose button thread and climb down",
+        sceneText: "Teo tugged the button carefully. The thread unspooled in a long, perfect line. He grabbed it and began to climb down, hand over paw, paw over hand. Halfway down, the giant shifted in his sleep and let out a snore so powerful it rattled Teo like a leaf in a storm.",
+        outcomeText: "Teo held on with every toe he had. When the snore passed, he slid the rest of the way, landed on the giant's boot, and skidded to the floor. He stood up, straightened his ears, and walked out the door with complete dignity. Nobody needed to know how much he had trembled."
+      }
+    ],
+    ending: "Teo ran all the way home, his heart still beating like a tiny drum. He crawled into his own small bed, pulled his tiny blanket over his nose, and lay in the dark for a moment. Outside, in the distance, he could still hear the giant snoring. It sounded almost like a lullaby now. Teo closed his eyes and smiled. He had been terrified the whole time — and he had done it anyway. That, he decided, was what bravery actually felt like."
+  },
+
+  // ── Seed 12 ────────────────────────────────────────────────
+  {
+    id: "seed_012",
+    title: "The Forest Doctor",
+    subtitle: "Healing the woods, one leaf at a time",
+    theme: "Nature",
+    tone: "Calm",
+    duration: "Medium",
+    character: "Flora the Gentle Deer",
+    setting: "The Ailing Forest",
+    coverImage: IMAGES.MAGIC_FOREST,
+    opening: "Flora the deer had always known which plants could heal. Her grandmother had taught her: this root for a fever, these leaves for a cough, this bark steeped in moonlight for a heavy heart. The forest creatures came to her the way people go to doctors. But this autumn, something was wrong — the trees themselves were falling ill, their leaves yellowing in July, their bark crumbling like old paper.",
+    midpoint: "Flora found the sick patch at the heart of the forest. The soil there smelled of something sharp and wrong. Two paths of healing opened before her: she could brew a slow remedy from the healing roots nearby, which would work gently but take three nights, or she could call the rain by dancing the old rain-dance her grandmother had shown her, which she had never tried alone.",
+    branches: [
+      {
+        id: "A",
+        choiceText: "Brew the healing remedy, root by root",
+        sceneText: "Flora gathered the roots by moonlight and set them to steep in the hollow of a fallen oak. For three nights, she sat beside the brew, humming to keep it warm. By the third night, the liquid glowed faintly gold. She poured it in a circle around the sick trees.",
+        outcomeText: "By dawn of the fourth day, green crept back up the bark. A single new leaf unfurled in the morning light. The forest let out a long, relieved sigh that rustled through every branch. Flora had learned that the most powerful medicine was also the most patient."
+      },
+      {
+        id: "B",
+        choiceText: "Dance the rain-dance alone for the first time",
+        sceneText: "Flora closed her eyes and let her hooves remember what they had been taught. She began slowly, then faster, turning and stamping. At first, nothing happened. Then the sky darkened. Then, with a single clap of thunder, warm rain fell — the kind that smells like earth waking up.",
+        outcomeText: "The rain soaked deep into the sick soil, washing away whatever had soured it. Flora stood in the downpour, soaked and trembling, and laughed for the first time in weeks. She had trusted something she had never done alone. The forest began to mend."
+      }
+    ],
+    ending: "Seasons turned, and the forest recovered fully. The sick patch became the most lush corner of the woods — as if the illness had left behind a gift of extra life. Animals came to see it on quiet afternoons. Flora would visit and press her nose to the bark of the tallest tree, listening. She was sure it whispered back. She never told anyone what it said. Some things between a healer and a forest are private."
+  },
+
+  // ── Seed 13 ────────────────────────────────────────────────
+  {
+    id: "seed_013",
+    title: "The Painting That Remembered",
+    subtitle: "Into the canvas and back again",
+    theme: "Wonder",
+    tone: "Adventure",
+    duration: "Long",
+    character: "Sketch the Art Rabbit",
+    setting: "The Museum at Midnight",
+    coverImage: IMAGES.MAGIC_CHEST,
+    opening: "Sketch the rabbit lived inside a painting in the museum. During the day, he held perfectly still — a rabbit in a meadow, ears up, watching visitors. At night, when the museum went dark and quiet, he stepped out of the frame and explored. He had visited every painting in the building, from the stormy sea on the east wall to the cathedral bathed in gold on the west.",
+    midpoint: "Tonight, Sketch found a new painting — one that hadn't been there yesterday. It showed a dark forest and, at its centre, a door with a warm light behind it. When he pressed his paw to it, the canvas rippled like water. He could go in. But the museum's night-watchman was walking the west corridor with his torch. Should Sketch enter the mysterious painting now — or wait and watch, risking it disappearing by morning?",
+    branches: [
+      {
+        id: "A",
+        choiceText: "Step into the mysterious painting immediately",
+        sceneText: "Sketch pressed through the canvas and landed in a painted forest that smelled — impossibly — of pine and rain. The door at the centre glowed warmly. Inside, he found an entire library of unfinished stories, each one waiting for a character to live it.",
+        outcomeText: "Sketch spent the whole night choosing one story, racing through its pages, and arriving back at his own canvas just before dawn. He slipped into his meadow pose, heart pounding, carrying the memory of a hundred new worlds. He had learned that courage is stepping through the unfamiliar door."
+      },
+      {
+        id: "B",
+        choiceText: "Watch and wait until the watchman passes",
+        sceneText: "Sketch pressed himself against the wall as the watchman's torch swept past. When the footsteps faded, he approached the painting again — and found it had grown. The forest was deeper now, the door more visible, the warm light brighter. It had been waiting for him.",
+        outcomeText: "He stepped through and found not a library, but a single room with a fireplace, a chair, and a story already open on the table — written in a handwriting that looked exactly like his own. He sat down and read until the sky outside the painted windows began to lighten."
+      }
+    ],
+    ending: "When morning came and the museum opened, the mysterious painting was gone — as if it had never been there. Only Sketch knew where it had gone: it had folded itself into his memory, becoming part of his own picture. Sometimes, when visitors stopped in front of his painting and really looked, they thought they could see it — a faint suggestion of a door behind the rabbit in the meadow, glowing warmly. They always smiled, though they couldn't say exactly why."
+  },
+
+  // ── Seed 14 ────────────────────────────────────────────────
+  {
+    id: "seed_014",
+    title: "Bedtime for Boo",
+    subtitle: "Even monsters need sleep",
+    theme: "Courage",
+    tone: "Funny",
+    duration: "Short",
+    character: "Boo the Grumpy Goblin",
+    setting: "The Cozy Monster Cave",
+    coverImage: IMAGES.MAGIC_CHEST,
+    opening: "Boo the goblin was very grumpy. He was grumpy in the morning, grumpy in the afternoon, and especially grumpy at bedtime. Every night, the other goblins tucked themselves in with their rock pillows and snored happily by moonrise. But Boo lay awake, staring at the cave ceiling, thinking about things that had gone wrong that day. Tonight, he had stepped on a pinecone AND spilled his mushroom soup.",
+    midpoint: "Boo tried everything: counting boulders, pulling his blanket over his ears, growling at the shadows. Nothing worked. Then his little sister Bip appeared at his bedside holding two things: a jar of fireflies for a nightlight, and a crumpled piece of paper with a grumpy-goblin joke written on it. She offered him both at once. Which one would help Boo finally fall asleep?",
+    branches: [
+      {
+        id: "A",
+        choiceText: "Use the firefly jar as a nightlight",
+        sceneText: "Boo took the jar and set it by his rock pillow. The fireflies pulsed gently — on, off, on, off. Each tiny light was like a little heartbeat. Boo found himself watching them instead of thinking about the pinecone or the soup.",
+        outcomeText: "His eyes grew heavy. His frown softened. By the fifteenth pulse, he was asleep, his grumpy face slowly arranging itself into something almost peaceful. The fireflies watched over him all night and did not mind at all."
+      },
+      {
+        id: "B",
+        choiceText: "Read the goblin joke to cheer himself up",
+        sceneText: "Boo uncrumpled the paper. It said: 'Why don't goblins trust stairs? Because they're always up to something.' It was the worst joke he had ever heard. He tried to stay grumpy. He failed completely.",
+        outcomeText: "A laugh burst out of Boo — a big, ugly, wonderful goblin laugh that echoed off the cave walls and woke up three bats. He laughed until his tummy hurt. And when the laughing stopped, all the grumpy thoughts had gone with it. He was asleep before he could think of another one."
+      }
+    ],
+    ending: "Boo slept deeply and well that night, and in the morning he was only slightly grumpy — which, for a goblin, is practically cheerful. At breakfast, he gave Bip an extra mushroom from his bowl without being asked. She said nothing. He said nothing. But when she smiled at him over her soup, Boo felt a small, unfamiliar warmth in his chest. He thought he might have an allergy. He did not. It was just happiness, trying out a new home."
   }
 ];
 

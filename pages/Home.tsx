@@ -1,18 +1,23 @@
 import React from 'react';
 import { ScreenName } from '../types';
 import { RECENT_STORIES, IMAGES } from '../data';
+import { GameState } from '../useGameState';
 
 interface HomeProps {
   onNavigate: (screen: ScreenName) => void;
+  gameState: GameState;
 }
 
-const Home: React.FC<HomeProps> = ({ onNavigate }) => {
+const Home: React.FC<HomeProps> = ({ onNavigate, gameState }) => {
   const themes = [
     { name: 'Bedtime', image: IMAGES.SLEEPING_CLOUD, icon: 'bedtime' },
     { name: 'Adventure', image: IMAGES.FLYING_CARPET, icon: 'explore' },
     { name: 'Nature', image: IMAGES.TURTLE_RABBIT, icon: 'forest' },
     { name: 'Magic', image: IMAGES.WAND_UI, icon: 'auto_fix' }
   ];
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning," : hour < 17 ? "Good afternoon," : "Good evening,";
 
   return (
     <div className="flex flex-col min-h-screen pb-24">
@@ -23,8 +28,14 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             <img src={IMAGES.PROFILE} alt="Profile" className="w-full h-full object-cover" />
           </div>
           <div>
-            <h2 className="text-white text-xl font-bold leading-tight">Good evening,</h2>
+            <h2 className="text-white text-xl font-bold leading-tight">{greeting}</h2>
             <p className="text-accent-peach text-sm font-semibold">Little Explorer</p>
+            {gameState.readingStreak > 0 && (
+              <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 border border-primary/30">
+                <span className="text-xs">🔥</span>
+                <span className="text-xs font-bold text-primary">{gameState.readingStreak} night streak</span>
+              </div>
+            )}
           </div>
         </div>
         <button className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
@@ -58,7 +69,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         <h3 className="text-white text-lg font-bold">Recently Read</h3>
         <button className="text-accent-peach text-sm font-semibold" onClick={() => onNavigate('library')}>View All</button>
       </div>
-      
+
       <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 pb-6 gap-4">
         {RECENT_STORIES.map((story) => (
           <div key={story.id} className="snap-start min-w-[160px] flex flex-col gap-3 group cursor-pointer" onClick={() => onNavigate('reader')}>

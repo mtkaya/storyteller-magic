@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ScreenName } from './types';
 import { StorySeed } from './storyGenerator';
+import { useGameState } from './useGameState';
 import Home from './pages/Home';
 import CreateStory from './pages/CreateStory';
 import Reader from './pages/Reader';
@@ -16,6 +17,8 @@ const App: React.FC = () => {
   const [showParentalGate, setShowParentalGate] = useState(false);
   const [targetRestrictedScreen, setTargetRestrictedScreen] = useState<ScreenName | null>(null);
   const [activeStory, setActiveStory] = useState<StorySeed | null>(null);
+
+  const { state: gameState, completeStory, toggleFavorite } = useGameState();
 
   const handleNavigate = (screen: ScreenName) => {
     if (screen === 'parental_settings') {
@@ -41,21 +44,21 @@ const App: React.FC = () => {
   const renderScreen = () => {
     switch (currentScreen) {
       case 'home':
-        return <Home onNavigate={handleNavigate} />;
+        return <Home onNavigate={handleNavigate} gameState={gameState} />;
       case 'create_story':
         return <CreateStory onBack={() => setCurrentScreen('home')} onComplete={(story) => { setActiveStory(story); setCurrentScreen('reader'); }} />;
       case 'reader':
-        return <Reader onBack={() => setCurrentScreen('home')} story={activeStory} />;
+        return <Reader onBack={() => setCurrentScreen('home')} story={activeStory || undefined} onComplete={completeStory} />;
       case 'library':
-        return <Library onNavigate={handleNavigate} />;
+        return <Library onNavigate={handleNavigate} gameState={gameState} onToggleFavorite={toggleFavorite} />;
       case 'achievements':
-        return <Achievements />;
+        return <Achievements gameState={gameState} />;
       case 'settings':
         return <Settings onNavigate={handleNavigate} onBack={() => setCurrentScreen('home')} />;
       case 'subscription':
         return <Subscription onBack={() => setCurrentScreen('settings')} />;
       default:
-        return <Home onNavigate={handleNavigate} />;
+        return <Home onNavigate={handleNavigate} gameState={gameState} />;
     }
   };
 
@@ -65,15 +68,15 @@ const App: React.FC = () => {
   return (
     <div className="max-w-[430px] mx-auto bg-bg-dark min-h-screen relative shadow-2xl overflow-hidden">
       {renderScreen()}
-      
+
       {showNav && (
         <BottomNav activeScreen={currentScreen} onNavigate={handleNavigate} />
       )}
 
       {showParentalGate && (
-        <ParentalGate 
-          onUnlock={handleParentalUnlock} 
-          onClose={() => setShowParentalGate(false)} 
+        <ParentalGate
+          onUnlock={handleParentalUnlock}
+          onClose={() => setShowParentalGate(false)}
         />
       )}
     </div>
