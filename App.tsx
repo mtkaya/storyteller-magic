@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ScreenName } from './types';
+import { StorySeed } from './storyGenerator';
 import Home from './pages/Home';
 import CreateStory from './pages/CreateStory';
 import Reader from './pages/Reader';
@@ -14,6 +15,7 @@ const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenName>('home');
   const [showParentalGate, setShowParentalGate] = useState(false);
   const [targetRestrictedScreen, setTargetRestrictedScreen] = useState<ScreenName | null>(null);
+  const [activeStory, setActiveStory] = useState<StorySeed | null>(null);
 
   const handleNavigate = (screen: ScreenName) => {
     if (screen === 'parental_settings') {
@@ -41,9 +43,9 @@ const App: React.FC = () => {
       case 'home':
         return <Home onNavigate={handleNavigate} />;
       case 'create_story':
-        return <CreateStory onBack={() => setCurrentScreen('home')} onComplete={() => setCurrentScreen('reader')} />;
+        return <CreateStory onBack={() => setCurrentScreen('home')} onComplete={(story) => { setActiveStory(story); setCurrentScreen('reader'); }} />;
       case 'reader':
-        return <Reader onBack={() => setCurrentScreen('home')} />;
+        return <Reader onBack={() => setCurrentScreen('home')} story={activeStory} />;
       case 'library':
         return <Library onNavigate={handleNavigate} />;
       case 'achievements':
