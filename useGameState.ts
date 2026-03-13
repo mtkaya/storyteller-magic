@@ -7,6 +7,8 @@ export interface GameState {
   lastReadDate: string | null;
   totalStoriesRead: number;
   sleepScore: number;
+  childName: string;
+  isFirstLaunch: boolean;
 }
 
 const DEFAULT: GameState = {
@@ -16,6 +18,8 @@ const DEFAULT: GameState = {
   lastReadDate: null,
   totalStoriesRead: 0,
   sleepScore: 0,
+  childName: '',
+  isFirstLaunch: true,
 };
 
 const KEY = "storyteller_state";
@@ -57,5 +61,9 @@ export function useGameState() {
     });
   };
 
-  return { state, completeStory, toggleFavorite };
+  const setChildName = (name: string) => {
+    save({ ...state, childName: name, isFirstLaunch: false });
+  };
+
+  return { state, completeStory, toggleFavorite, setChildName };
 }

@@ -1,4 +1,5 @@
 import { Story, Badge, SubscriptionPlan, Language } from './types';
+import { STORY_SEEDS } from './storyGenerator';
 
 // Centralized Image Repository
 export const IMAGES = {
@@ -26,115 +27,25 @@ export const IMAGES = {
   HERO_BG: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0c5otyOclO2LzJXxKMk0tIek7Px8ZrlYOAkbxGQDnQLVFDWee7hftEYImBsD4yeHxUSGhZaH4PqM8MWvjJPWvDkgpm63uo_qRmHz-1sFjEXHJoQBqJHMeM4zDCerASp8SO8KxQF4j_C01jEhbpArcyFpx-zYtv8ir1RfdD87GRDWuSZ8RPmcBIxDfsAilGX_Dx3TexT-wpEFfz9YdnTikqvRTJH5SOmv0QTxRr9GQR5QXRznS6waVqtEbIUfzUOtZYTRVqqLdXes'
 };
 
-export const RECENT_STORIES: Story[] = [
-  {
-    id: '1',
-    title: 'The Brave Lion Cub',
-    subtitle: '10 min listen',
-    duration: '10 min',
-    theme: 'Courage',
-    coverUrl: IMAGES.LION_MOON
-  },
-  {
-    id: '2',
-    title: 'Space Voyager',
-    subtitle: '15 min listen',
-    duration: '15 min',
-    theme: 'Adventure',
-    coverUrl: IMAGES.FLYING_CARPET
-  },
-  {
-    id: '3',
-    title: 'The Magic Forest',
-    subtitle: '8 min listen',
-    duration: '8 min',
-    theme: 'Nature',
-    coverUrl: IMAGES.MAGIC_FOREST
-  }
-];
+// First 3 seeds as featured/recent stories
+export const RECENT_STORIES: Story[] = STORY_SEEDS.slice(0, 3).map(seed => ({
+  id: seed.id,
+  title: seed.title,
+  subtitle: seed.subtitle,
+  duration: seed.duration === 'Short' ? '5 min' : seed.duration === 'Medium' ? '10 min' : '15 min',
+  coverUrl: seed.coverImage,
+  theme: seed.theme,
+}));
 
-export const LIBRARY_STORIES: Story[] = [
-  {
-    id: '4',
-    title: 'The Cookie Mystery',
-    subtitle: 'Friendship • Funny',
-    duration: '7 min',
-    theme: 'Friendship',
-    coverUrl: IMAGES.BEAR_COOKIES
-  },
-  {
-    id: '5',
-    title: 'Deep Sea Dreams',
-    subtitle: 'Wonder • Ocean',
-    duration: '9 min',
-    theme: 'Nature',
-    coverUrl: IMAGES.DEEP_SEA
-  },
-  {
-    id: '6',
-    title: 'Cloud Castle',
-    subtitle: 'Sleep • Calm',
-    duration: '12 min',
-    theme: 'Calm',
-    coverUrl: IMAGES.SLEEPING_CLOUD
-  },
-  {
-    id: '7',
-    title: 'Lighthouse Keeper',
-    subtitle: 'Safety • Home',
-    duration: '11 min',
-    theme: 'Family',
-    coverUrl: IMAGES.LIGHTHOUSE
-  },
-  {
-    id: '8',
-    title: 'The Feather Storm',
-    subtitle: 'Fun • Play',
-    duration: '5 min',
-    theme: 'Friendship',
-    coverUrl: IMAGES.PILLOW_FIGHT
-  },
-  {
-    id: '9',
-    title: 'The Secret Attic',
-    subtitle: 'Mystery • Discovery',
-    duration: '14 min',
-    theme: 'Wonder',
-    coverUrl: IMAGES.MAGIC_CHEST
-  },
-  {
-    id: '10',
-    title: 'Slow & Steady',
-    subtitle: 'Wisdom • Patience',
-    duration: '8 min',
-    theme: 'Nature',
-    coverUrl: IMAGES.TURTLE_RABBIT
-  },
-  {
-    id: '11',
-    title: 'The Wizard\'s Quill',
-    subtitle: 'Magic • Creation',
-    duration: '10 min',
-    theme: 'Magic',
-    coverUrl: IMAGES.WAND_UI
-  },
-  {
-    id: '12',
-    title: 'Goodnight Moon',
-    subtitle: 'Sleep • Dreams',
-    duration: '6 min',
-    theme: 'Calm',
-    coverUrl: IMAGES.MOON_RESULT
-  },
-  {
-    id: '13',
-    title: 'The Autumn Fox',
-    subtitle: 'Seasons • Change',
-    duration: '9 min',
-    theme: 'Nature',
-    coverUrl: IMAGES.FOX
-  }
-];
+// Single source of truth: Library derives from STORY_SEEDS
+export const LIBRARY_STORIES: Story[] = STORY_SEEDS.map(seed => ({
+  id: seed.id,
+  title: seed.title,
+  subtitle: seed.subtitle,
+  duration: seed.duration === 'Short' ? '5 min' : seed.duration === 'Medium' ? '10 min' : '15 min',
+  coverUrl: seed.coverImage,
+  theme: seed.theme,
+}));
 
 export const BADGES: Badge[] = [
   {

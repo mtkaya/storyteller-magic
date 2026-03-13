@@ -1,23 +1,26 @@
 import React from 'react';
 import { ScreenName } from '../types';
 import { RECENT_STORIES, IMAGES } from '../data';
+import { STORY_SEEDS } from '../storyGenerator';
 import { GameState } from '../useGameState';
 
 interface HomeProps {
   onNavigate: (screen: ScreenName) => void;
+  onReadStory?: (id: string) => void;
   gameState: GameState;
 }
 
-const Home: React.FC<HomeProps> = ({ onNavigate, gameState }) => {
+const Home: React.FC<HomeProps> = ({ onNavigate, gameState, onReadStory }) => {
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning,' : hour < 17 ? 'Good afternoon,' : 'Good evening,';
+  const displayName = gameState.childName || 'Little Explorer';
+
   const themes = [
     { name: 'Bedtime', image: IMAGES.SLEEPING_CLOUD, icon: 'bedtime' },
     { name: 'Adventure', image: IMAGES.FLYING_CARPET, icon: 'explore' },
     { name: 'Nature', image: IMAGES.TURTLE_RABBIT, icon: 'forest' },
     { name: 'Magic', image: IMAGES.WAND_UI, icon: 'auto_fix' }
   ];
-
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning," : hour < 17 ? "Good afternoon," : "Good evening,";
 
   return (
     <div className="flex flex-col min-h-screen pb-24">
@@ -29,7 +32,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, gameState }) => {
           </div>
           <div>
             <h2 className="text-white text-xl font-bold leading-tight">{greeting}</h2>
-            <p className="text-accent-peach text-sm font-semibold">Little Explorer</p>
+            <p className="text-accent-peach text-sm font-semibold">{displayName}</p>
             {gameState.readingStreak > 0 && (
               <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 border border-primary/30">
                 <span className="text-xs">🔥</span>
@@ -72,7 +75,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, gameState }) => {
 
       <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 pb-6 gap-4">
         {RECENT_STORIES.map((story) => (
-          <div key={story.id} className="snap-start min-w-[160px] flex flex-col gap-3 group cursor-pointer" onClick={() => onNavigate('reader')}>
+          <div key={story.id} className="snap-start min-w-[160px] flex flex-col gap-3 group cursor-pointer" onClick={() => onReadStory ? onReadStory(story.id) : onNavigate('reader')}>
             <div className="w-full aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg border border-white/5">
               <img src={story.coverUrl} alt={story.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
             </div>

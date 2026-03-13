@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ScreenName } from './types';
-import { StorySeed } from './storyGenerator';
+import { StorySeed, STORY_SEEDS } from './storyGenerator';
 import { useGameState } from './useGameState';
 import Home from './pages/Home';
 import CreateStory from './pages/CreateStory';
@@ -9,6 +9,7 @@ import Library from './pages/Library';
 import Achievements from './pages/Achievements';
 import Settings from './pages/Settings';
 import Subscription from './pages/Subscription';
+import Onboarding from './pages/Onboarding';
 import BottomNav from './components/BottomNav';
 import ParentalGate from './components/ParentalGate';
 
@@ -18,7 +19,7 @@ const App: React.FC = () => {
   const [targetRestrictedScreen, setTargetRestrictedScreen] = useState<ScreenName | null>(null);
   const [activeStory, setActiveStory] = useState<StorySeed | null>(null);
 
-  const { state: gameState, completeStory, toggleFavorite } = useGameState();
+  const { state: gameState, completeStory, toggleFavorite, setChildName } = useGameState();
 
   const handleNavigate = (screen: ScreenName) => {
     if (screen === 'parental_settings') {
@@ -44,13 +45,13 @@ const App: React.FC = () => {
   const renderScreen = () => {
     switch (currentScreen) {
       case 'home':
-        return <Home onNavigate={handleNavigate} gameState={gameState} />;
+        return <Home onNavigate={handleNavigate} gameState={gameState} onReadStory={(id) => { setActiveStory(STORY_SEEDS.find(s => s.id === id) || null); setCurrentScreen('reader'); }} />;
       case 'create_story':
         return <CreateStory onBack={() => setCurrentScreen('home')} onComplete={(story) => { setActiveStory(story); setCurrentScreen('reader'); }} />;
       case 'reader':
         return <Reader onBack={() => setCurrentScreen('home')} story={activeStory || undefined} onComplete={completeStory} />;
       case 'library':
-        return <Library onNavigate={handleNavigate} gameState={gameState} onToggleFavorite={toggleFavorite} />;
+        return <Library onNavigate={handleNavigate} gameState={gameState} onToggleFavorite={toggleFavorite} onReadStory={(id) => { setActiveStory(STORY_SEEDS.find(s => s.id === id) || null); setCurrentScreen('reader'); }} />;
       case 'achievements':
         return <Achievements gameState={gameState} />;
       case 'settings':
@@ -64,6 +65,15 @@ const App: React.FC = () => {
 
   // Screens that should show the bottom navigation
   const showNav = ['home', 'library', 'achievements'].includes(currentScreen);
+
+  // First launch → show onboarding
+  if (gameState.isFirstLaunch) {
+    return (
+      <div className="max-w-[430px] mx-auto bg-bg-dark min-h-screen relative shadow-2xl overflow-hidden">
+        <Onboarding onComplete={(name) => setChildName(name)} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg-dark min-h-screen relative shadow-2xl overflow-hidden">

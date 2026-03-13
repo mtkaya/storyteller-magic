@@ -7,9 +7,10 @@ interface LibraryProps {
   onNavigate: (screen: ScreenName) => void;
   gameState: GameState;
   onToggleFavorite: (id: string) => void;
+  onReadStory: (id: string) => void;
 }
 
-const Library: React.FC<LibraryProps> = ({ onNavigate, gameState, onToggleFavorite }) => {
+const Library: React.FC<LibraryProps> = ({ onNavigate, gameState, onToggleFavorite, onReadStory }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
 
@@ -86,7 +87,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, gameState, onToggleFavori
          {filteredStories.map(story => {
            const isFavorite = gameState.favoriteStories.includes(story.id);
            return (
-             <div key={story.id} className="flex flex-col gap-2 group cursor-pointer" onClick={() => onNavigate('reader')}>
+             <div key={story.id} className="flex flex-col gap-2 group cursor-pointer" onClick={() => onReadStory(story.id)}>
                  <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-white/5 ring-1 ring-white/10">
                     <img src={story.coverUrl} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" alt={story.title} />
                     <div className="absolute top-2 right-2">
