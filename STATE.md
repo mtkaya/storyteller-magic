@@ -1,49 +1,57 @@
 # STATE.md
 
 Bu dosya, storyteller-magic icin calisma hafizasidir.
-Sohbet gecmisi yerine bu dosya esas alinmalidir.
-Sadece dogrulanmis bilgiler yazilmalidir.
 
 ## Current Goal
-- Storyteller Magic'i `library-first`, maliyet kontrollu ve urunlesebilir bir bedtime story uygulamasi haline getirmek.
-- Local story engine'i ana deneyim yapmak.
-
-## Product Strategy
-- Ana deneyim: curated / local story library
-- Opsiyonel katman: remote generation
-- Opsiyonel katman: premium narration / TTS
-- Kullaniciya canli AI varmis gibi yaniltici mesaj verilmemeli
+Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtime story uygulamasi haline getirmek.
 
 ## Verified Completed Changes
-- `feat(onboarding): add child name step before app entry`
-  - Onboarding akisina 5. adim olarak cocuk adi sorulmaktadir
-  - App.tsx handleOnboardingComplete: verilen isim default profile'a yaziliyor
-  - localStorage: onboarding_child_name key ile kaydediliyor
-- `refactor(data): derive RECENT_STORIES from VAULT_LINEAR_STORIES`
-  - RECENT_STORIES artik VAULT_LINEAR_STORIES.slice(0,3) ile turetiliyor
-  - 9 metadata-only shell card (ID 4-12) LIBRARY_STORIES'den kaldirildi
-  - Tek kaynak: VAULT_SEEDS → VAULT_LINEAR/INTERACTIVE_STORIES
-- Settings sayfasi tamamen fonksiyonel:
-  - Dil secimi (EN/TR), uyku timer, okuma hizi, ses seviyeleri, tema toggle, bildirimler
-  - Ebeveyn kontrolleri, parent report, Canva export
-- Local-only akista uygulama calisiyor
-- 96 linear + N interactive vault story, hepsi VAULT_SEEDS'den turetiliyor
+
+### Onboarding
+- 4 feature slide + dil secimi + cocuk adi adimi (5. adim)
+- Adi girince buton kisisellesir: "Zeynep'in Masallarına Başla ✨"
+- Tamamlaninca App.tsx default profile adi guncelleniyor
+
+### Data tekli kaynak
+- RECENT_STORIES artik VAULT_LINEAR_STORIES.slice(0,3) ile turetiliyor
+- 9 metadata-only shell card (ID 4-12) LIBRARY_STORIES'den kaldirildi
+
+### Settings
+- Dil, uyku timer, okuma hizi, volume slider'lari, tema toggle, bildirimler
+- Ebeveyn kontrolleri, parent report, Canva CSV export — tamamen calisir
+
+### Commercialization
+- MONETIZATION.md: Freemium model (Free / Pro ₺299,99/ay / Aile ₺2.499,99/yil)
+- LICENSE: Proprietary / All rights reserved
+- Odeme entegrasyonu yok — RevenueCat veya Stripe gerekir
+
+### Store Metadata
+- metadata/app-store-en.md, metadata/app-store-tr.md
+- metadata/play-store-en.md
+- Ekran goruntusu kilavuzu ve anahtar kelimeler hazir
+
+### Prompt Kutuphanesi
+- docs/illustration-prompts.md: tema kapak promptlari, teknik presetler, TR sablonlar, kontrol listesi
+- docs/seed-prompts.md: 21 seed × 12 prompt = 252 hazir gorsel promptu
+  (her seed icin cover + 8 sahne + 3 branch — EN)
 
 ## Important Commits
-- `70091e0` feat(onboarding): add child name step before app entry
-- `4ee629c` refactor(data): derive RECENT_STORIES from VAULT_LINEAR_STORIES
-- `9f4586f` feat: story map unlocks, 10 new seeds, UI polish, settings, parent report, audio
+- 930e971 feat(prompts): 252 per-seed prompt paketi
+- 9475fa9 feat(store): App Store + Play Store metadata
+- 67ac26f feat(biz): LICENSE + MONETIZATION.md
+- 70091e0 feat(onboarding): cocuk adi adimi
+- 4ee629c refactor(data): RECENT_STORIES tek kaynak
 
 ## Open Issues
-- Remote generation (Gemini) ve premium TTS API key olmadan calismiyor (kasitli, local-first)
-- Commercialization model karari alinmamis
-- Scene/cover visual continuity tam oturmamis
+- Visual continuity (4. madde): companion/place Story tipine eklenmedi — sonraki oturuma birakildi
+- Remote generation (Gemini) ve premium TTS API key olmadan calismiyor (kasitli)
+- App Store / Play Store gonderimi icin: gizlilik politikasi URL'i barindirmak gerekiyor
 
 ## Next Suggested Step
-- Smoke test: onboarding akisi → isim gir → hikaye sec → oku → secim yap → badge kazan
-- Commercialization model karari (A/B/C) ve LICENSE dosyasi guncellemesi
-- App Store / Play Store metadata hazirligi
+- Story type'a companion/place alanlari ekle, vault builder'lara gec, deriveStoryVisualIdentity'i guncelle
+- Smoke test: tum ekranlari telefonda dene
+- Screenshot'lar cek (store metadata icin)
+- RevenueCat veya Stripe entegrasyonu karari
 
 ## Update Rule
-Her anlamli teknik veya urunsel adimdan sonra su alanlar guncellenmeli:
-- ne degisti, hangi commit, acik sorunlar, siradaki somut adim
+Her anlamli adimdan sonra: ne degisti, hangi commit, acik sorunlar, siradaki adim.
