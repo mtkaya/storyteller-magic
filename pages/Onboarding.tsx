@@ -4,12 +4,13 @@ import { IMAGES } from '../data';
 import { getIllustratedImageUrl } from '../services/illustrationCovers';
 
 interface OnboardingProps {
-    onComplete: () => void;
+    onComplete: (childName?: string) => void;
 }
 
 const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     const { language, setLanguage } = useLanguage();
     const [currentStep, setCurrentStep] = useState(0);
+    const [childName, setChildName] = useState('');
 
     const slides = [
         {
@@ -46,12 +47,23 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         },
     ];
 
+    // Name step is the last step (after all slides)
+    const totalSteps = slides.length + 1;
+    const isNameStep = currentStep === slides.length;
+
     const handleNext = () => {
         if (currentStep < slides.length - 1) {
             setCurrentStep(prev => prev + 1);
+        } else if (currentStep === slides.length - 1) {
+            // Move to name step
+            setCurrentStep(slides.length);
         } else {
+            // Name step complete
             localStorage.setItem('onboarding_complete', 'true');
-            onComplete();
+            if (childName.trim()) {
+                localStorage.setItem('onboarding_child_name', childName.trim());
+            }
+            onComplete(childName.trim() || undefined);
         }
     };
 
@@ -106,47 +118,76 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 {language === 'tr' ? 'Atla' : 'Skip'}
             </button>
 
-            {/* Image Section */}
-            <div className="flex-1 relative overflow-hidden">
-                <div
-                    className="absolute inset-0 bg-cover bg-center transition-all duration-500"
-                    style={{
-                        backgroundImage: `url("${getIllustratedImageUrl({
-                            title: currentSlide.title,
-                            subtitle: currentSlide.description,
-                            theme: currentSlide.title,
-                            src: currentSlide.image,
-                            icon: currentSlide.icon
-                        })}")`
-                    }}
-                >
-                    <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/40 to-transparent" />
+            {/* Image / Name Step Section */}
+            {isNameStep ? (
+                <div className="flex-1 flex flex-col items-center justify-center px-8">
+                    <div className="text-7xl mb-6">🌙</div>
+                    <h1 className="text-2xl font-bold text-white mb-3 text-center">
+                        {language === 'tr' ? 'Çocuğunuzun adı ne?' : "What's your child's name?"}
+                    </h1>
+                    <p className="text-white/50 text-center mb-8">
+                        {language === 'tr'
+                            ? 'Kişisel bir uyku deneyimi için kullanacağız.'
+                            : "We'll use it to personalize their bedtime experience."}
+                    </p>
+                    <input
+                        type="text"
+                        value={childName}
+                        onChange={(e) => setChildName(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleNext()}
+                        placeholder={language === 'tr' ? 'Adı girin…' : 'Enter name…'}
+                        autoFocus
+                        maxLength={30}
+                        className="w-full max-w-xs text-center text-xl font-semibold bg-white/10 border border-white/20 rounded-2xl px-5 py-4 text-white placeholder-white/30 outline-none focus:border-primary transition-colors"
+                    />
                 </div>
-            </div>
+            ) : (
+                <div className="flex-1 relative overflow-hidden">
+                    <div
+                        className="absolute inset-0 bg-cover bg-center transition-all duration-500"
+                        style={{
+                            backgroundImage: `url("${getIllustratedImageUrl({
+                                title: currentSlide.title,
+                                subtitle: currentSlide.description,
+                                theme: currentSlide.title,
+                                src: currentSlide.image,
+                                icon: currentSlide.icon
+                            })}")`
+                        }}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/40 to-transparent" />
+                    </div>
+                </div>
+            )}
 
             {/* Content Section */}
             <div className="relative z-10 px-8 pb-12 pt-6 text-center">
-                {/* Icon */}
-                <div className="text-6xl mb-4 animate-bounce-slow">
-                    {currentSlide.icon}
-                </div>
+                {!isNameStep && (
+                    <>
+                        {/* Icon */}
+                        <div className="text-6xl mb-4 animate-bounce-slow">
+                            {currentSlide.icon}
+                        </div>
 
-                {/* Title */}
-                <h1 className="text-2xl font-bold text-white mb-3">
-                    {currentSlide.title}
-                </h1>
+                        {/* Title */}
+                        <h1 className="text-2xl font-bold text-white mb-3">
+                            {currentSlide.title}
+                        </h1>
 
-                {/* Description */}
-                <p className="text-white/60 mb-8">
-                    {currentSlide.description}
-                </p>
+                        {/* Description */}
+                        <p className="text-white/60 mb-8">
+                            {currentSlide.description}
+                        </p>
+                    </>
+                )}
+
+                {isNameStep && <div className="mb-8" />}
 
                 {/* Progress Dots */}
                 <div className="flex items-center justify-center gap-2 mb-8">
-                    {slides.map((_, index) => (
-                        <button
+                    {Array.from({ length: totalSteps }).map((_, index) => (
+                        <div
                             key={index}
-                            onClick={() => setCurrentStep(index)}
                             className={`h-2 rounded-full transition-all ${index === currentStep
                                     ? 'w-8 bg-primary'
                                     : 'w-2 bg-white/20'
@@ -160,9 +201,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     onClick={handleNext}
                     className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg shadow-primary/30"
                 >
-                    {currentStep === slides.length - 1
-                        ? (language === 'tr' ? 'Başla' : 'Get Started')
-                        : (language === 'tr' ? 'Devam' : 'Continue')}
+                    {isNameStep
+                        ? (language === 'tr'
+                            ? (childName.trim() ? `${childName.trim()}'in Masallarına Başla ✨` : 'Başla ✨')
+                            : (childName.trim() ? `Start ${childName.trim()}'s Stories ✨` : 'Get Started ✨'))
+                        : currentStep === slides.length - 1
+                            ? (language === 'tr' ? 'Devam' : 'Continue')
+                            : (language === 'tr' ? 'Devam' : 'Continue')}
                 </button>
             </div>
 

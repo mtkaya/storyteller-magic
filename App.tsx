@@ -43,7 +43,7 @@ const AppContent: React.FC = () => {
   const [showCloudIntro, setShowCloudIntro] = useState(true);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
 
-  const { isLimitReached, settings, updateSettings, saveCustomStory, customStories, markStorySeen } = useAppState();
+  const { isLimitReached, settings, updateSettings, saveCustomStory, customStories, markStorySeen, profiles, updateProfile } = useAppState();
   const { language } = useLanguage();
 
   useEffect(() => {
@@ -274,7 +274,11 @@ const AppContent: React.FC = () => {
     setCurrentScreen('reader');
   };
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = (childName?: string) => {
+    if (childName && profiles.length > 0) {
+      const defaultProfile = profiles[0];
+      updateProfile(defaultProfile.id, { name: childName });
+    }
     setShowOnboarding(false);
     soundEffects.play('success');
   };
