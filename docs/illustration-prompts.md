@@ -401,3 +401,154 @@ children's book scene, choice branch B, calm clever path, gentle mystery cues, {
 ```text
 children's book scene, choice branch C, kindness-first path, warm social interaction, {THEME_FLAVOR}, same main character design as previous scene, vertical 3:4
 ```
+
+---
+
+## Türkçe Prompt Şablonları
+
+### Global Stil Kilidi (TR)
+```text
+çocuk kitabı illüstrasyonu, el yapımı dijital sanat, yumuşak painterly şekiller, uyku dostu atmosfer, fantastik ama sakin, fotorealizm yok
+```
+
+### Negatif Prompt (TR)
+```text
+fotorealizm yok, gerçekçi kamera lensi yok, gerçek fotoğraf dokusu yok, sert gölge yok, korku yok, şiddet yok, metin filigranı yok, logo yok
+```
+
+### Tema Kapak Promptları (TR)
+
+#### Macera
+```text
+çocuk kitabı kapağı, nazik macera, kıvrımlı yol, parlayan ufuk, sıcak renk gradasyonu, ifadeli dost karakter, el yapımı dijital illüstrasyon, uyku dostu atmosfer
+```
+
+#### Dostluk
+```text
+çocuk kitabı kapağı, sıcak dostluk anı, yumuşak fener ışıkları, rahat çayır, davet edici yüz ifadeleri, pastel vurgular, el yapımı dijital illüstrasyon
+```
+
+#### Sihir
+```text
+çocuk kitabı kapağı, büyülü orman açıklığı, uçuşan kıvılcımlar, sihirli nesneler, rüyamsı atmosfer, neşeli merak, el yapımı dijital illüstrasyon
+```
+
+#### Doğa
+```text
+çocuk kitabı kapağı, sakin hayvanlı mehtaplı orman, yumuşak yapraklar, nazik gece gökyüzü, huzurlu uyku öncesi enerji, el yapımı dijital illüstrasyon
+```
+
+#### Cesaret
+```text
+çocuk kitabı kapağı, küçük ama cesur kahraman, nazik bir meydan okuma, umut veren ışık huzmesi, teselli edici kahramanca çerçeveleme, el yapımı dijital illüstrasyon
+```
+
+#### Huzur
+```text
+çocuk kitabı kapağı, sessiz gece odası, ay ışığı, uykulu bulutlar, yumuşak geçişler, sakinleştirici düşük uyarı paleti, el yapımı dijital illüstrasyon
+```
+
+#### Uyku
+```text
+çocuk kitabı kapağı, geceleri uyuyan köy, sıcak pencere ışıkları, hilal ay, rahat atmosfer, ninni havası, el yapımı dijital illüstrasyon
+```
+
+#### Aile
+```text
+çocuk kitabı kapağı, rahat aile anı, sıcak şömine ışığı, ilgili ifadeler, güvenli ev havası, uyku dostu kompozisyon, el yapımı dijital illüstrasyon
+```
+
+#### Gizem
+```text
+çocuk kitabı kapağı, nazik gizem sahnesi, gizli ipuçları, sihirli tavan arası köşesi, parlayan toz parçacıkları, meraklı ama güvenli atmosfer, el yapımı dijital illüstrasyon
+```
+
+#### İyilik
+```text
+çocuk kitabı kapağı, yürek ısıtan yardım anı, yumuşak parıltı, davet edici jestler, nazik pastel sıcaklık, el yapımı dijital illüstrasyon
+```
+
+#### Merak
+```text
+çocuk kitabı kapağı, yıldızlı gökyüzü keşfi, büyülü hayranlık, yumuşak radyan vurgular, meraklı neşeli atmosfer, el yapımı dijital illüstrasyon
+```
+
+#### Bilgelik
+```text
+çocuk kitabı kapağı, düşünceli kütüphane sahnesi, fenerle aydınlatılmış okuma köşesi, nazik mentor karakter, sakin entelektüel sıcaklık, el yapımı dijital illüstrasyon
+```
+
+### 8 Sahne Şablonu (TR)
+
+Değiştirilecekler: `{TEMA_AROMASI}`, `{ANA_KARAKTER}`, `{YARDIMCI_KARAKTER}`, `{KONUM}`
+
+#### Sahne 1 — Açılış (TR)
+```text
+çocuk kitabı sahnesi, açılış anı, {ANA_KARAKTER} {KONUM}'a ulaşıyor, nazik merak, okunabilir odak kompozisyonu, {TEMA_AROMASI}, el yapımı dijital illüstrasyon, yumuşak uyku paleti
+```
+
+#### Sahne 2 — Davet (TR)
+```text
+çocuk kitabı sahnesi, {YARDIMCI_KARAKTER} {ANA_KARAKTER}'a küçük bir görev sunuyor, sıcak ifadeler, hikaye kurulumu, {TEMA_AROMASI}, el yapımı dijital illüstrasyon, rahat gece aydınlatması
+```
+
+#### Sahne 3 — Yolculuk Başlar (TR)
+```text
+çocuk kitabı sahnesi, yolculuğa ilk adımlar, yol detayları ve küçük sihirli ipuçları, umutlu hareket, {TEMA_AROMASI}, el yapımı dijital illüstrasyon
+```
+
+#### Sahne 4 — Seçim Noktası (TR)
+```text
+çocuk kitabı sahnesi, iki veya üç güvenli yol seçeneğiyle net karar anı, görsel dallanma, meraklı duraklama, {TEMA_AROMASI}, el yapımı dijital illüstrasyon
+```
+
+#### Sahne 5 — Orta Macera (TR)
+```text
+çocuk kitabı sahnesi, keşif devam ediyor, küçük bir dostla yardımcı etkileşim, duygusal sıcaklık, {TEMA_AROMASI}, el yapımı dijital illüstrasyon
+```
+
+#### Sahne 6 — Doruk (TR)
+```text
+çocuk kitabı sahnesi, nazik duygusal zirve, iyilik ve cesaretle aşılan engel, odaklanmış aydınlatma, {TEMA_AROMASI}, el yapımı dijital illüstrasyon
+```
+
+#### Sahne 7 — Çözüm (TR)
+```text
+çocuk kitabı sahnesi, huzurlu dönüş, sakin gülümsemeler, dünya daha güvenli ve parlak hissettiriyor, {TEMA_AROMASI}, el yapımı dijital illüstrasyon, ninni havası
+```
+
+#### Sahne 8 — Uyku Kapanışı (TR)
+```text
+çocuk kitabı sahnesi, uyku kapanışı, yıldızlar ve ay, teselli edici son kare, uyuşuk sakin atmosfer, {TEMA_AROMASI}, el yapımı dijital illüstrasyon
+```
+
+### Tema Aroması Parçacıkları (TR)
+
+```text
+Macera: kıvrımlı yol, parlayan ufuk, nazik ama cesur ivme
+Dostluk: sıcak fener ışıkları, paylaşılan gülümsemeler, rahat çayır birlikteliği
+Sihir: büyülü açıklık, uçuşan kıvılcımlar, neşeli sihirli nesneler
+Doğa: mehtaplı orman, yumuşak yapraklar, sakin vahşi hayat varlığı
+Huzur: sessiz oda enerjisi, yumuşak geçişler, sakinleştirici düşük kontrast kompozisyon
+Uyku: mehtap ninni havası, uykulu bulutlar, sıcak gece konforu
+Cesaret: küçük kahraman, nazik meydan okuma, umutlu ışık huzmesi
+Gizem: güvenli gizli ipuçları, meraklı gözlem, sihirli tavan arası atmosferi
+Aile: ev sıcaklığı, koruyucu birliktelik, ilgili jestler
+İyilik: yardım eden eller, davet edici ifadeler, yumuşak parlayan empati
+Merak: yıldızlı keşif, hayranlık ve merak, radyan sihirli atmosfer
+Bilgelik: fenerle aydınlatılmış öğrenme, düşünceli huzur, nazik mentor varlığı
+```
+
+---
+
+## Üretim Kontrol Listesi
+
+Görsel üretmeden önce kontrol et:
+
+- [ ] Global stil kilidi prompt'a eklendi
+- [ ] Negatif prompt eklendi
+- [ ] Oran `3:4` (dikey) olarak ayarlandı
+- [ ] Aynı hikayenin sahneleri tek oturumda üretildi
+- [ ] Teknik preset tema ile eşleşiyor (Adventure/Courage → gouache, Friendship/Nature → watercolor, Magic/Mystery → cut-paper, Wonder/Wisdom → flat-storybook)
+- [ ] Continuity lock (aynı karakter tasarımı) sahneler için eklendi
+- [ ] Metin/logo/watermark kapatıldı
