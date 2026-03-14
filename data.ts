@@ -829,106 +829,10 @@ const VAULT_INTERACTIVE_STORIES: Story[] = VAULT_SEEDS.map((seed, index) =>
   buildVaultInteractiveStory(seed, index)
 );
 
-export const RECENT_STORIES: Story[] = [
-  {
-    id: '1',
-    title: 'The Brave Lion Cub',
-    subtitle: '10 min listen',
-    duration: '10 min',
-    theme: 'Courage',
-    coverUrl: IMAGES.LION_MOON
-  },
-  {
-    id: '2',
-    title: 'Space Voyager',
-    subtitle: '15 min listen',
-    duration: '15 min',
-    theme: 'Adventure',
-    coverUrl: IMAGES.FLYING_CARPET
-  },
-  {
-    id: '3',
-    title: 'The Magic Forest',
-    subtitle: '8 min listen',
-    duration: '8 min',
-    theme: 'Nature',
-    coverUrl: IMAGES.MAGIC_FOREST
-  }
-];
+// RECENT_STORIES: derived from VAULT_LINEAR_STORIES (single source of truth)
+export const RECENT_STORIES: Story[] = VAULT_LINEAR_STORIES.slice(0, 3);
 
 export const LIBRARY_STORIES: Story[] = [
-  {
-    id: '4',
-    title: 'The Cookie Mystery',
-    subtitle: 'Friendship • Funny',
-    duration: '7 min',
-    theme: 'Friendship',
-    coverUrl: IMAGES.BEAR_COOKIES
-  },
-  {
-    id: '5',
-    title: 'Deep Sea Dreams',
-    subtitle: 'Wonder • Ocean',
-    duration: '9 min',
-    theme: 'Nature',
-    coverUrl: IMAGES.DEEP_SEA
-  },
-  {
-    id: '6',
-    title: 'Cloud Castle',
-    subtitle: 'Sleep • Calm',
-    duration: '12 min',
-    theme: 'Calm',
-    coverUrl: IMAGES.SLEEPING_CLOUD
-  },
-  {
-    id: '7',
-    title: 'Lighthouse Keeper',
-    subtitle: 'Safety • Home',
-    duration: '11 min',
-    theme: 'Family',
-    coverUrl: IMAGES.LIGHTHOUSE
-  },
-  {
-    id: '8',
-    title: 'The Feather Storm',
-    subtitle: 'Fun • Play',
-    duration: '5 min',
-    theme: 'Friendship',
-    coverUrl: IMAGES.PILLOW_FIGHT
-  },
-  {
-    id: '9',
-    title: 'The Secret Attic',
-    subtitle: 'Mystery • Discovery',
-    duration: '14 min',
-    theme: 'Wonder',
-    coverUrl: IMAGES.MAGIC_CHEST
-  },
-  {
-    id: '10',
-    title: 'Slow & Steady',
-    subtitle: 'Wisdom • Patience',
-    duration: '8 min',
-    theme: 'Nature',
-    coverUrl: IMAGES.TURTLE_RABBIT
-  },
-  {
-    id: '11',
-    title: 'The Wizard\'s Quill',
-    subtitle: 'Magic • Creation',
-    duration: '10 min',
-    theme: 'Magic',
-    coverUrl: IMAGES.WAND_UI
-  },
-  {
-    id: '12',
-    title: 'Goodnight Moon',
-    subtitle: 'Sleep • Dreams',
-    duration: '6 min',
-    theme: 'Calm',
-    coverUrl: IMAGES.MOON_RESULT
-  },
   {
     id: '13',
     title: 'The Autumn Fox',
