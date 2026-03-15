@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { SubscriptionTier, useAppState } from '../context/AppStateContext';
+import { purchasePackage, restorePurchases, isConfigured, type PurchasePackage } from '../src/services/purchases';
 
 interface SubscriptionProps {
   onBack: () => void;
@@ -27,6 +28,8 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
   const isTr = language === 'tr';
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionTier>(subscription.tier);
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const isMockMode = !isConfigured();
 
   const plans: PremiumPlan[] = isTr
     ? [
@@ -154,6 +157,63 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
 
   const activePlan = plans.find((plan) => plan.id === selectedPlan) || plans[0];
 
+  const handlePurchase = async () => {
+    if (activePlan.id === 'free') {
+      setSubscriptionTier('free');
+      setSavedNotice(isTr ? 'Plan kaydedildi' : 'Plan saved');
+      setTimeout(() => setSavedNotice(null), 1800);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Map plan to purchase package
+      const packageId: 'monthly' | 'yearly' = activePlan.id === 'pro' ? 'monthly' : 'yearly';
+      const pkg: PurchasePackage = {
+        id: packageId,
+        price: activePlan.price,
+        priceTr: activePlan.price,
+        period: activePlan.id === 'pro' ? 'month' : 'year',
+        tier: activePlan.id as 'pro' | 'family'
+      };
+
+      const result = await purchasePackage(pkg);
+
+      if (result.success && result.tier) {
+        setSubscriptionTier(result.tier);
+        setSavedNotice(isTr ? '✨ Abonelik aktif!' : '✨ Subscription active!');
+        setTimeout(() => setSavedNotice(null), 2500);
+      } else {
+        setSavedNotice(result.error || (isTr ? '❌ Satın alma başarısız' : '❌ Purchase failed'));
+        setTimeout(() => setSavedNotice(null), 3000);
+      }
+    } catch (error) {
+      setSavedNotice(isTr ? '❌ Bir hata oluştu' : '❌ An error occurred');
+      setTimeout(() => setSavedNotice(null), 3000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    setIsLoading(true);
+    try {
+      const result = await restorePurchases();
+      if (result.isPro && result.tier) {
+        setSubscriptionTier(result.tier);
+        setSavedNotice(isTr ? '✨ Satın alımlar geri yüklendi!' : '✨ Purchases restored!');
+      } else {
+        setSavedNotice(isTr ? 'Satın alım bulunamadı' : 'No purchases found');
+      }
+      setTimeout(() => setSavedNotice(null), 2500);
+    } catch (error) {
+      setSavedNotice(isTr ? '❌ Geri yükleme başarısız' : '❌ Restore failed');
+      setTimeout(() => setSavedNotice(null), 3000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-bg-dark text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_8%,rgba(118,88,255,0.17),transparent_46%),radial-gradient(circle_at_84%_16%,rgba(238,140,43,0.05),transparent_50%)]" />
@@ -190,6 +250,14 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
               ? 'Ailen için doğru kapasiteyi seç: daha fazla hikaye, daha fazla profil, daha az tekrar.'
               : 'Choose the right capacity for your family: more stories, more profiles, less repetition.'}
           </p>
+
+          {isMockMode && (
+            <div className="mt-3 mx-4 rounded-xl border border-yellow-400/30 bg-yellow-400/10 px-3 py-2 text-center">
+              <p className="text-[11px] text-yellow-200/90 leading-relaxed">
+                🧪 {isTr ? 'Test modu — gerçek ödeme yok' : 'Test mode — no real payments'}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="px-4 pb-3">
@@ -239,14 +307,11 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
             </p>
 
             <button
-              onClick={() => {
-                setSubscriptionTier(activePlan.id);
-                setSavedNotice(isTr ? 'Plan kaydedildi' : 'Plan saved');
-                setTimeout(() => setSavedNotice(null), 1800);
-              }}
-              className={`mt-4 w-full rounded-full bg-gradient-to-r py-2.5 text-[15px] font-semibold text-white shadow-[0_8px_16px_rgba(92,64,255,0.22)] active:scale-[0.98] ${activePlan.buttonGradient}`}
+              onClick={handlePurchase}
+              disabled={isLoading}
+              className={`mt-4 w-full rounded-full bg-gradient-to-r py-2.5 text-[15px] font-semibold text-white shadow-[0_8px_16px_rgba(92,64,255,0.22)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${activePlan.buttonGradient}`}
             >
-              {activePlan.cta}
+              {isLoading ? (isTr ? 'İşleniyor...' : 'Processing...') : activePlan.cta}
             </button>
             {savedNotice && (
               <p className="mt-2 text-center text-xs text-green-200">{savedNotice}</p>
@@ -271,6 +336,16 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
           {isTr
             ? 'Ödeme App Store/Google Play üzerinden güvenli şekilde alınır. Fiyatlar bölgeye göre değişebilir.'
             : 'Payments are securely processed by App Store/Google Play. Prices may vary by region.'}
+        </div>
+
+        <div className="mt-4 px-4">
+          <button
+            onClick={handleRestore}
+            disabled={isLoading}
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-2.5 text-[13px] font-medium text-white/70 hover:bg-white/[0.06] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (isTr ? 'İşleniyor...' : 'Processing...') : (isTr ? 'Satın Alımları Geri Yükle' : 'Restore Purchases')}
+          </button>
         </div>
       </div>
     </div>
