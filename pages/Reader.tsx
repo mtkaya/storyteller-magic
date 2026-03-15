@@ -10,6 +10,7 @@ import { getStoryCoverUrl } from '../services/illustrationCovers';
 import { translateSegmentsToTurkish } from '../services/storyTranslation';
 import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/storyLocalization';
 import { resolveStorySceneVisual } from '../services/storySceneVisuals';
+import { deriveStoryVisualIdentity } from '../storyUtils';
 
 interface ReaderProps {
   story: Story | null;
@@ -430,6 +431,9 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
     return defaultStory;
   }, [story, defaultStory]);
+
+  // Derive visual identity for companion/place display and color palette
+  const visualIdentity = React.useMemo(() => deriveStoryVisualIdentity(activeStory), [activeStory]);
 
   // Check if this is an interactive story
   const isInteractiveStory = activeStory.isInteractive && activeStory.branches && activeStory.branches.length > 0;
@@ -1320,15 +1324,33 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
           </div>
 
           {/* Story Meta Overlay */}
-          <div className="absolute bottom-4 left-4 right-4">
+          <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
             {activeStory.character && (
-              <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full mb-2">
+              <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full">
                 <span className="material-symbols-outlined text-primary text-sm">person</span>
                 <span className="text-xs text-white/90 font-medium">{activeStory.character}</span>
               </div>
             )}
+            {visualIdentity.companionLabel && (
+              <div
+                className="inline-flex items-center gap-2 backdrop-blur-md px-3 py-1.5 rounded-full"
+                style={{ backgroundColor: `${visualIdentity.colorPalette[1]}20` }}
+              >
+                <span className="material-symbols-outlined text-sm" style={{ color: visualIdentity.colorPalette[0] }}>groups</span>
+                <span className="text-xs text-white/90 font-medium">{visualIdentity.companionLabel}</span>
+              </div>
+            )}
+            {visualIdentity.placeLabel && (
+              <div
+                className="inline-flex items-center gap-2 backdrop-blur-md px-3 py-1.5 rounded-full"
+                style={{ backgroundColor: `${visualIdentity.colorPalette[2]}20` }}
+              >
+                <span className="material-symbols-outlined text-sm" style={{ color: visualIdentity.colorPalette[1] }}>location_on</span>
+                <span className="text-xs text-white/90 font-medium">{visualIdentity.placeLabel}</span>
+              </div>
+            )}
             {activeStory.ageRange && (
-              <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full ml-2">
+              <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full">
                 <span className="material-symbols-outlined text-accent-peach text-sm">child_care</span>
                 <span className="text-xs text-white/90 font-medium">{language === 'tr' ? 'Yaş ' : 'Ages '}{activeStory.ageRange}</span>
               </div>
