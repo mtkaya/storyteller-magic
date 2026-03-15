@@ -56,7 +56,7 @@ const ParentalGate: React.FC<ParentalGateProps> = ({ onUnlock, onClose }) => {
           </button>
           
           <div className="mt-4">
-            <button className="text-primary text-sm font-semibold border-2 border-primary/20 px-6 py-2 rounded-full hover:bg-primary/10">
+            <button className="text-white text-sm font-semibold border-2 border-white/40 bg-white/5 px-6 py-2 rounded-full hover:bg-white/10">
               {language === 'tr' ? '3 saniye basılı tut' : 'Hold for 3 seconds'}
             </button>
           </div>
