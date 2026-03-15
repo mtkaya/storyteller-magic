@@ -317,13 +317,20 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
   // Word highlighting state
   const [wordHighlightEnabled, setWordHighlightEnabled] = useState(false);
+  const [autoWordSpeed, setAutoWordSpeed] = useState(300);
   const currentText = hasContent ? content[currentParagraph] : '';
   const words = currentText.split(/\s+/).filter(Boolean);
   const readingAssistant = useReadingAssistant({
     totalWords: words.length,
     isEnabled: wordHighlightEnabled,
-    autoSpeed: 300,
+    autoSpeed: autoWordSpeed,
   });
+
+  // Reading assistant drawer state
+  const [showAssistantDrawer, setShowAssistantDrawer] = useState(false);
+  const [readerFontSize, setReaderFontSize] = useState<'text-lg' | 'text-xl' | 'text-2xl'>('text-lg');
+  const [readerFontFamily, setReaderFontFamily] = useState<'font-serif' | 'font-sans'>('font-serif');
+  const [readerTheme, setReaderTheme] = useState<'dark' | 'light'>('dark');
 
   // Interactive story state
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
@@ -1273,7 +1280,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   };
 
   return (
-    <div className="flex flex-col h-screen bg-bg-dark overflow-hidden">
+    <div className={`flex flex-col h-screen overflow-hidden ${readerTheme === 'light' ? 'bg-gray-50' : 'bg-bg-dark'}`}>
       {/* Header */}
       <div
         className="shrink-0 flex items-center justify-between px-4 pb-3 bg-bg-dark/80 backdrop-blur-md border-b border-white/5"
@@ -1402,7 +1409,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             }}
           >
             {hasContent ? (
-              <p className="text-white text-lg leading-relaxed font-medium transition-all duration-500 ease-in-out font-serif">
+              <p className={`text-white ${readerFontSize} leading-relaxed font-medium transition-all duration-500 ease-in-out ${readerFontFamily}`}>
                 {wordHighlightEnabled ? (
                   words.map((word, index) => (
                     <span
@@ -1584,6 +1591,190 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
         </div>
       </div>
+
+      {/* Reading Assistant Toggle Button */}
+      {!showAssistantDrawer && (
+        <button
+          onClick={() => setShowAssistantDrawer(true)}
+          className="fixed bottom-6 right-6 size-14 rounded-full bg-primary text-bg-dark shadow-lg shadow-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-30"
+          style={{ bottom: 'max(env(safe-area-inset-bottom, 0px) + 24px, 24px)' }}
+        >
+          <span className="material-symbols-outlined text-2xl">auto_stories</span>
+        </button>
+      )}
+
+      {/* Reading Assistant Drawer */}
+      {showAssistantDrawer && (
+        <div
+          className="fixed inset-x-0 bottom-0 bg-bg-dark/95 backdrop-blur-xl border-t border-white/10 rounded-t-3xl shadow-2xl z-40 transform transition-transform duration-300"
+          style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
+        >
+          <div className="p-6 max-w-md mx-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">auto_stories</span>
+                {language === 'tr' ? 'Okuma Yardımcısı' : 'Reading Assistant'}
+              </h3>
+              <button
+                onClick={() => setShowAssistantDrawer(false)}
+                className="size-8 rounded-full hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* Word Highlight Toggle */}
+            <div className="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white text-sm font-medium">
+                  {language === 'tr' ? 'Kelime Vurgulama' : 'Word Highlight'}
+                </span>
+                <button
+                  onClick={() => {
+                    setWordHighlightEnabled(!wordHighlightEnabled);
+                    if (wordHighlightEnabled) {
+                      readingAssistant.reset();
+                    }
+                  }}
+                  className={`w-12 h-6 rounded-full transition-colors relative ${
+                    wordHighlightEnabled ? 'bg-primary' : 'bg-white/20'
+                  }`}
+                >
+                  <div
+                    className={`absolute top-1 size-4 bg-white rounded-full transition-transform ${
+                      wordHighlightEnabled ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+              {wordHighlightEnabled && (
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white/60 text-xs">
+                      {language === 'tr' ? 'Otomatik' : 'Auto'}
+                    </span>
+                    <button
+                      onClick={readingAssistant.toggleAuto}
+                      className={`w-10 h-5 rounded-full transition-colors relative ${
+                        readingAssistant.isAuto ? 'bg-primary/80' : 'bg-white/20'
+                      }`}
+                    >
+                      <div
+                        className={`absolute top-0.5 size-4 bg-white rounded-full transition-transform ${
+                          readingAssistant.isAuto ? 'translate-x-5' : 'translate-x-0.5'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  {readingAssistant.isAuto && (
+                    <div className="mt-3">
+                      <label className="text-white/60 text-xs block mb-2">
+                        {language === 'tr' ? 'Hız: ' : 'Speed: '}{autoWordSpeed}ms
+                      </label>
+                      <input
+                        type="range"
+                        min="100"
+                        max="800"
+                        step="50"
+                        value={autoWordSpeed}
+                        onChange={(e) => {
+                          const newSpeed = parseInt(e.target.value);
+                          setAutoWordSpeed(newSpeed);
+                          readingAssistant.setAutoSpeed(newSpeed);
+                        }}
+                        className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Font Size */}
+            <div className="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+              <label className="text-white text-sm font-medium block mb-3">
+                {language === 'tr' ? 'Yazı Boyutu' : 'Font Size'}
+              </label>
+              <div className="flex gap-2">
+                {(['text-lg', 'text-xl', 'text-2xl'] as const).map((size, index) => (
+                  <button
+                    key={size}
+                    onClick={() => setReaderFontSize(size)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
+                      readerFontSize === size
+                        ? 'bg-primary text-bg-dark'
+                        : 'bg-white/10 text-white/60 hover:bg-white/20'
+                    }`}
+                  >
+                    {['A', 'A+', 'A++'][index]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Font Family */}
+            <div className="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+              <label className="text-white text-sm font-medium block mb-3">
+                {language === 'tr' ? 'Yazı Tipi' : 'Font Style'}
+              </label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setReaderFontFamily('font-serif')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
+                    readerFontFamily === 'font-serif'
+                      ? 'bg-primary text-bg-dark'
+                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                  }`}
+                >
+                  Serif
+                </button>
+                <button
+                  onClick={() => setReaderFontFamily('font-sans')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
+                    readerFontFamily === 'font-sans'
+                      ? 'bg-primary text-bg-dark'
+                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                  }`}
+                >
+                  Sans
+                </button>
+              </div>
+            </div>
+
+            {/* Theme Toggle (Reader-specific) */}
+            <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+              <label className="text-white text-sm font-medium block mb-3">
+                {language === 'tr' ? 'Tema (Okuyucu)' : 'Theme (Reader)'}
+              </label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setReaderTheme('dark')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                    readerTheme === 'dark'
+                      ? 'bg-primary text-bg-dark'
+                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">dark_mode</span>
+                  {language === 'tr' ? 'Karanlık' : 'Dark'}
+                </button>
+                <button
+                  onClick={() => setReaderTheme('light')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                    readerTheme === 'light'
+                      ? 'bg-primary text-bg-dark'
+                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">light_mode</span>
+                  {language === 'tr' ? 'Aydınlık' : 'Light'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sleep Controller (Invisible but active) */}
       <SleepController
