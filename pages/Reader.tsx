@@ -1198,7 +1198,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
   // Auto-start music when story loads if music is selected
   useEffect(() => {
-    if (currentMusic && currentMusic !== 'none' && !backgroundMusic.isPlaying()) {
+    if (currentMusic && currentMusic !== 'none' && !backgroundMusic.getIsPlaying()) {
       backgroundMusic.play(currentMusic);
     }
 

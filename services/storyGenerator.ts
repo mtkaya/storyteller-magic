@@ -28,6 +28,7 @@ export interface StoryPrompt {
 }
 
 export interface GeneratedStory {
+    id?: string;
     title: string;
     subtitle: string;
     character: string;
@@ -35,6 +36,8 @@ export interface GeneratedStory {
     content: string[];
     ageRange: string;
     theme: string;
+    duration?: string;
+    coverUrl?: string;
     // For interactive stories
     isInteractive?: boolean;
     branches?: Array<{
