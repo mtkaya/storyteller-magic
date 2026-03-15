@@ -265,7 +265,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             </div>
           </div>
 
-          <div className="mb-4 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/85">
+          <div className="mb-4 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/85 cursor-default">
             {generationModeMeta.label}
           </div>
           <h2 className="text-3xl font-bold text-white text-center mb-2">{t.create_generating}</h2>
@@ -324,6 +324,14 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       }
     };
 
+    // Log debug info to console in development
+    React.useEffect(() => {
+      if (import.meta.env.DEV) {
+        console.log('Story Visual Identity:', visualIdentity);
+        console.log('Cover Illustration Prompt:', coverPrompt);
+      }
+    }, [visualIdentity, coverPrompt]);
+
     return (
       <div className="flex flex-col h-screen bg-bg-dark relative">
         <div
@@ -362,11 +370,11 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
-              <div className="rounded-full border border-white/15 bg-white/10 px-4 py-1">
+              <div className="rounded-full border border-white/15 bg-white/10 px-4 py-1 cursor-default">
                 <span className="text-white text-sm font-bold">{generationModeMeta.label}</span>
               </div>
               {generatedStory.isInteractive && (
-                <div className="rounded-full border border-white/15 bg-white/10 px-4 py-1">
+                <div className="rounded-full border border-white/15 bg-white/10 px-4 py-1 cursor-default">
                   <span className="text-white text-sm font-bold">{language === 'tr' ? 'Etkileşimli Hikaye' : 'Interactive Story'}</span>
                 </div>
               )}
@@ -376,16 +384,6 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             <p className="text-white/68 text-sm mb-2">{generatedStory.subtitle}</p>
             <p className="text-primary/80 text-sm italic mb-4">"{generatedStory.moral}"</p>
 
-            <div className="mb-6 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-left">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-2">
-                {language === 'tr' ? 'Gorsel Kimlik' : 'Visual Identity'}
-              </p>
-              <div className="space-y-1.5 text-xs text-white/72 leading-relaxed">
-                <p><span className="text-white/45">{language === 'tr' ? 'Ana karakter:' : 'Main character:'}</span> {visualIdentity.mainCharacter}</p>
-                <p><span className="text-white/45">{language === 'tr' ? 'Imza obje:' : 'Signature prop:'}</span> {visualIdentity.signatureProp}</p>
-                <p><span className="text-white/45">{language === 'tr' ? 'Palet:' : 'Palette:'}</span> {visualIdentity.paletteHint}</p>
-              </div>
-            </div>
           {error && (
             <div className="w-full mb-4 rounded-xl border border-amber-300/30 bg-amber-200/10 px-4 py-3 text-left">
               <p className="text-xs font-semibold text-amber-200">
@@ -395,24 +393,40 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
             </div>
           )}
 
-          <div className="w-full mb-5 rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-left">
-            <p className="text-xs font-semibold text-white/80 mb-2">
-              {language === 'tr' ? 'Illustrator Prompt (Kapak)' : 'Illustrator Prompt (Cover)'}
-            </p>
-            <pre className="max-h-40 overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-white/75 bg-black/20 rounded-lg p-3 border border-white/10">
-              {coverPrompt}
-            </pre>
-            <button
-              onClick={copyCoverPrompt}
-              className="mt-3 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 border border-white/20 text-xs font-semibold text-white transition-colors"
-            >
-              {copyPromptStatus === 'copied'
-                ? (language === 'tr' ? 'Kopyalandi' : 'Copied')
-                : copyPromptStatus === 'failed'
-                  ? (language === 'tr' ? 'Kopyalama Basarisiz' : 'Copy Failed')
-                  : (language === 'tr' ? 'Promptu Kopyala' : 'Copy Prompt')}
-            </button>
-          </div>
+          {/* Debug sections - only in development */}
+          {import.meta.env.DEV && (
+            <>
+              <div className="mb-6 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-left">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-2">
+                  {language === 'tr' ? 'Gorsel Kimlik' : 'Visual Identity'}
+                </p>
+                <div className="space-y-1.5 text-xs text-white/72 leading-relaxed">
+                  <p><span className="text-white/45">{language === 'tr' ? 'Ana karakter:' : 'Main character:'}</span> {visualIdentity.mainCharacter}</p>
+                  <p><span className="text-white/45">{language === 'tr' ? 'Imza obje:' : 'Signature prop:'}</span> {visualIdentity.signatureProp}</p>
+                  <p><span className="text-white/45">{language === 'tr' ? 'Palet:' : 'Palette:'}</span> {visualIdentity.paletteHint}</p>
+                </div>
+              </div>
+
+              <div className="w-full mb-5 rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-left">
+                <p className="text-xs font-semibold text-white/80 mb-2">
+                  {language === 'tr' ? 'Illustrator Prompt (Kapak)' : 'Illustrator Prompt (Cover)'}
+                </p>
+                <pre className="max-h-40 overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-white/75 bg-black/20 rounded-lg p-3 border border-white/10">
+                  {coverPrompt}
+                </pre>
+                <button
+                  onClick={copyCoverPrompt}
+                  className="mt-3 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 border border-white/20 text-xs font-semibold text-white transition-colors"
+                >
+                  {copyPromptStatus === 'copied'
+                    ? (language === 'tr' ? 'Kopyalandi' : 'Copied')
+                    : copyPromptStatus === 'failed'
+                      ? (language === 'tr' ? 'Kopyalama Basarisiz' : 'Copy Failed')
+                      : (language === 'tr' ? 'Promptu Kopyala' : 'Copy Prompt')}
+                </button>
+              </div>
+            </>
+          )}
 
           <button
             onClick={() => onComplete(storyForReader)}
