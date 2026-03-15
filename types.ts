@@ -2,6 +2,7 @@ export type ScreenName =
   | 'onboarding'
   | 'home'
   | 'create_story'
+  | 'story_craftsman'
   | 'reader'
   | 'library'
   | 'achievements'
