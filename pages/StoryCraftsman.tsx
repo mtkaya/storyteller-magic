@@ -72,11 +72,14 @@ const StoryCraftsman: React.FC<StoryCraftsmanProps> = ({ onBack, onComplete }) =
       setLoadingProgress(prev => (prev >= 90 ? prev : prev + Math.random() * 10));
     }, 300);
 
+    const heroName = heroes.find(h => h.id === selectedHero)?.name || selectedHero;
+    const placeName = places.find(p => p.id === selectedPlace)?.name || selectedPlace;
+
     const storyOptions: StoryPrompt = {
       theme: selectedEvent,
       tone: selectedEnding === 'happy' ? 'calm' : selectedEnding === 'lesson' ? 'mysterious' : 'exciting',
       duration: 'medium',
-      childName: selectedHero,
+      childName: heroName,
       language,
       isInteractive: false,
       profileId: activeProfile?.id,
@@ -100,8 +103,8 @@ const StoryCraftsman: React.FC<StoryCraftsmanProps> = ({ onBack, onComplete }) =
         coverUrl: story.coverUrl || '/images/magic_fairy_book.jpg',
         theme: story.theme || selectedEvent,
         content: story.content,
-        character: selectedHero,
-        place: selectedPlace,
+        character: heroName,
+        place: placeName,
         moral: story.moral,
         ageRange: story.ageRange,
         isInteractive: story.isInteractive,
