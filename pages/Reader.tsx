@@ -315,16 +315,9 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  // Word highlighting state
+  // Word highlighting state — currentText/words computed after content/hasContent below
   const [wordHighlightEnabled, setWordHighlightEnabled] = useState(false);
   const [autoWordSpeed, setAutoWordSpeed] = useState(300);
-  const currentText = hasContent ? content[currentParagraph] : '';
-  const words = currentText.split(/\s+/).filter(Boolean);
-  const readingAssistant = useReadingAssistant({
-    totalWords: words.length,
-    isEnabled: wordHighlightEnabled,
-    autoSpeed: autoWordSpeed,
-  });
 
   // Reading assistant drawer state
   const [showAssistantDrawer, setShowAssistantDrawer] = useState(false);
@@ -789,6 +782,16 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     translatedBranchParagraphs
   ]);
   const hasContent = content.length > 0;
+
+  // Word highlighting — depends on content/hasContent
+  const currentText = hasContent ? content[currentParagraph] : '';
+  const words = currentText.split(/\s+/).filter(Boolean);
+  const readingAssistant = useReadingAssistant({
+    totalWords: words.length,
+    isEnabled: wordHighlightEnabled,
+    autoSpeed: autoWordSpeed,
+  });
+
   const sceneVisual = React.useMemo(
     () =>
       resolveStorySceneVisual({
