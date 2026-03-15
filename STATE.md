@@ -174,17 +174,127 @@ Ekran görüntülerinden tespit edilen 5 kritik UI hatası düzeltildi:
    - App container: overflow-hidden → overflow-x-hidden (y-scroll'a izin veriyor)
    - İçerik artık nav bar'a taşmıyor, scroll davranışı düzgün
 
-## Open Issues
-- Remote generation (Gemini) ve premium TTS API key olmadan calismiyor (kasitli)
-- RevenueCat SDK (@revenuecat/purchases-js) henüz kurulmadı — purchases.ts TODO placeholders ile hazır
+## Production Readiness Milestones (2026-03-15) ✅
 
-## Next Suggested Step
-- Test reading assistant features: word highlighting, drawer controls, reflection cards
-- Test Story Craftsman flow: hero → place → event → ending → generate → read
-- Smoke test: Subscription ekranını test et (mock mode banner, satın alma butonu, restore butonu)
-- Screenshot'lar cek (store metadata icin, yeni özelliklerle)
-- RevenueCat SDK kurulumu ve gerçek API key entegrasyonu (optional)
-- Gizlilik politikasi URL'ini bir yerde host et (GitHub Pages veya domain)
+### MILESTONE 1: Bundle Code Splitting (✅ TAMAMLANDI)
+- **Commit:** dbd8a88 "perf(bundle): add manual chunks — vendor, pages, services split"
+- vite.config.ts'e rollupOptions.output.manualChunks eklendi
+- Chunk stratejisi:
+  - vendor-react: React & ReactDOM
+  - vendor-capacitor: Capacitor plugins
+  - vendor: diğer node_modules
+  - page-reader, page-library, page-create: sayfa chunk'ları
+  - services: tüm services/ klasörü
+- chunkSizeWarningLimit: 800 KB ayarlandı
+- Build başarılı: Tüm chunk'lar <203 KB, 500 KB uyarısı yok
+
+### MILESTONE 2: Reading Assistant Smoke Test (✅ TAMAMLANDI)
+- **Commit:** f3dde8c "fix(reading-assistant): verify and fix word highlight, drawer, reflection cards"
+- hooks/useReadingAssistant.ts: doğrulandı, çalışır durumda
+- Reader.tsx word highlight: kelime kelime vurgulama aktif
+- Reading assistant drawer: toggle buton, font/speed ayarları, auto mode
+- Reflection cards: hikaye sonu soru kartları render ediliyor
+- Type hataları düzeltildi:
+  - Reader.tsx: backgroundMusic.isPlaying() → getIsPlaying()
+  - services/storyGenerator.ts: GeneratedStory interface'ine id, duration, coverUrl eklendi
+- Build ve typecheck başarılı
+
+### MILESTONE 3: TTS Smoke Test (✅ TAMAMLANDI)
+- **Commit:** 286ea07 "fix(tts): verify TTS integration in Reader, fix imports if broken"
+- Reader.tsx: Web Speech API entegrasyonu doğrulandı
+- speechSynthesis support check: 'speechSynthesis' in window
+- speakParagraph fonksiyonu: multi-chunk, voice selection, pause/resume
+- togglePlayPause: play/pause kontrolü çalışıyor
+- Premium TTS API (ElevenLabs) fallback mantığı hazır
+- Build başarılı, değişiklik gerekmedi
+
+### MILESTONE 4: Privacy Policy Hosting Hazırlığı (✅ TAMAMLANDI)
+- **Commit:** a39eacf "docs(privacy): add privacy-policy.md and metadata privacyPolicyUrl"
+- docs/privacy-policy.md oluşturuldu: tam EN+TR içerik (Markdown format)
+- README.md'e "Privacy Policy" section eklendi
+- GitHub Pages URL formatı: https://mtkaya.github.io/storyteller-magic/docs/privacy-policy
+- metadata.json'a privacyPolicyUrl alanı eklendi
+- COPPA uyumlu, sıfır veri toplama, tam çevrimdışı vurgusu
+
+### MILESTONE 5: App Store Metadata Güncelleme (✅ TAMAMLANDI)
+- **Commit:** 4925718 "docs(metadata): update App Store copy with new features"
+- metadata.json güncellemesi:
+  - version: 1.0.0 eklendi
+  - description: TTS, reading assistant, 148+ hikaye vurgusu
+  - keywords array: 12 anahtar kelime (bedtime stories, TTS, offline, bilingual, etc.)
+- metadata/store-copy.md oluşturuldu:
+  - App Title (30 char max): EN + TR
+  - Subtitle (30 char max): EN + TR
+  - Description (4000 char): Tam EN + TR store açıklamaları
+  - Keywords (100 char): EN + TR
+  - What's New (500 char): v1.0.0 feature listesi
+- Hikaye sayısı doğrulandı: 96 linear + 49 interactive = 145 vault + 3 manuel = 148 toplam
+
+### MILESTONE 6: RevenueCat & ElevenLabs Dokümantasyonu (✅ TAMAMLANDI)
+- **Commit:** db1ced2 "docs(monetization): add RevenueCat and ElevenLabs setup guides"
+- MONETIZATION.md genişletildi:
+  - RevenueCat Dashboard kurulum adımları
+  - App Store Connect IAP setup (iOS)
+  - Google Play Console subscription setup (Android)
+  - RevenueCat Web SDK kurulumu (npm install @revenuecat/purchases-js)
+  - Capacitor iOS/Android native entegrasyon örnekleri
+  - Entitlement setup ve kod örnekleri
+  - ElevenLabs API key alma
+  - ElevenLabs pricing & cost optimization stratejileri
+- .env.example güncellendi:
+  - VITE_REVENUECAT_KEY (Web SDK)
+  - REVENUECAT_IOS_KEY (iOS native)
+  - REVENUECAT_ANDROID_KEY (Android native)
+  - ELEVENLABS_API_KEY
+  - ELEVENLABS_VOICE_EN / ELEVENLABS_VOICE_TR
+
+### MILESTONE 7: STATE.md Final Güncelleme (✅ TAMAMLANDI - ŞU AN)
+- **Commit:** (bu commit)
+- Tüm 7 milestone tamamlandı
+- Production readiness milestones section eklendi
+- Open Issues güncellendi
+- Next Steps production deployment'a yönelik
+
+## Open Issues
+- Remote generation (Gemini) API key olmadan çalışmıyor (kasıtlı, mock mode fallback var)
+- Premium TTS (ElevenLabs) API key olmadan çalışmıyor (kasıtlı, browser Speech Synthesis fallback var)
+- RevenueCat SDK (@revenuecat/purchases-js) npm install edilmedi — purchases.ts mock mode ile çalışıyor
+  - Production'da kurulum: npm install @revenuecat/purchases-js
+  - .env.local'a VITE_REVENUECAT_KEY eklenmeli
+- GitHub Pages henüz enable edilmedi — Privacy Policy URL aktif değil
+  - Repo Settings → Pages → Source: main branch / docs folder seçilmeli
+
+## Next Steps (Production Deployment)
+1. **GitHub Pages Setup:**
+   - Repo Settings → Pages → Enable
+   - Source: main branch / docs folder
+   - Privacy Policy URL live olacak: https://mtkaya.github.io/storyteller-magic/docs/privacy-policy
+
+2. **App Store Submission Hazırlığı:**
+   - Store screenshots çek (iPhone, iPad required sizes)
+   - metadata/store-copy.md içeriğini App Store Connect'e kopyala
+   - Privacy Policy URL'yi App Store Connect'e ekle
+   - TestFlight beta test (optional)
+
+3. **RevenueCat Production Setup:**
+   - RevenueCat hesabı oluştur
+   - iOS App Store Connect entegrasyonu (Bundle ID, Shared Secret)
+   - Android Google Play Console entegrasyonu (Package name, Service account JSON)
+   - npm install @revenuecat/purchases-js
+   - .env.local'a API keys ekle
+   - Test satın alma akışı (sandbox environment)
+
+4. **ElevenLabs TTS Setup (Optional Premium Feature):**
+   - ElevenLabs hesabı oluştur
+   - API key al
+   - .env.local'a ELEVENLABS_API_KEY ekle
+   - Voice ID'leri ayarla
+   - Cost optimization: cache + Pro/Family subscriber kontrolü
+
+5. **Mobile Build & Deploy:**
+   - npm run build:mobile
+   - iOS: Xcode'da Archive → Upload to App Store Connect
+   - Android: Android Studio'da Generate Signed APK/AAB → Upload to Play Console
 
 ## Update Rule
 Her anlamli adimdan sonra: ne degisti, hangi commit, acik sorunlar, siradaki adim.
