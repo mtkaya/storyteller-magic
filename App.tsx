@@ -271,11 +271,13 @@ const AppContent: React.FC = () => {
 
   const handleStoryComplete = (story?: Story) => {
     if (story) {
-      saveCustomStory(story);
-      markStorySeen(story.id);
-      setSelectedStory(story);
+      const resolved = hasPlayableStoryData(story) ? story : resolvePlayableStorySelection(story);
+      saveCustomStory(resolved);
+      markStorySeen(resolved.id);
+      warmTurkishStoryContent(resolved);
+      setSelectedStory(resolved);
+      setCurrentScreen('reader');
     }
-    setCurrentScreen('reader');
   };
 
   const handleOnboardingComplete = (childName?: string) => {

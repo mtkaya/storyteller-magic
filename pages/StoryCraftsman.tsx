@@ -42,11 +42,12 @@ const StoryCraftsman: React.FC<StoryCraftsmanProps> = ({ onBack, onComplete }) =
     { id: 'cloud_city', name: language === 'tr' ? 'Bulut Şehri' : 'Cloud City', emoji: '☁️' },
   ];
 
+  // event id'leri storyGenerator'ın tanıdığı tema adlarına eşleniyor
   const events = [
-    { id: 'find_treasure', name: language === 'tr' ? 'Kayıp Hazineyi Bul' : 'Find Lost Treasure', emoji: '💎' },
-    { id: 'new_friend', name: language === 'tr' ? 'Yeni Arkadaş Edin' : 'Make a New Friend', emoji: '🤝' },
-    { id: 'show_courage', name: language === 'tr' ? 'Cesaret Göster' : 'Show Courage', emoji: '💪' },
-    { id: 'solve_mystery', name: language === 'tr' ? 'Gizemi Çöz' : 'Solve a Mystery', emoji: '🔍' },
+    { id: 'adventure', name: language === 'tr' ? 'Kayıp Hazineyi Bul' : 'Find Lost Treasure', emoji: '💎' },
+    { id: 'friendship', name: language === 'tr' ? 'Yeni Arkadaş Edin' : 'Make a New Friend', emoji: '🤝' },
+    { id: 'courage', name: language === 'tr' ? 'Cesaret Göster' : 'Show Courage', emoji: '💪' },
+    { id: 'mystery', name: language === 'tr' ? 'Gizemi Çöz' : 'Solve a Mystery', emoji: '🔍' },
   ];
 
   const endings = [
