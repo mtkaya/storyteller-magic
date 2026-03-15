@@ -432,10 +432,10 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
 
   // Main creation screen
   return (
-    <div className="flex flex-col min-h-screen bg-bg-dark text-white">
+    <div className="flex flex-col h-screen bg-bg-dark text-white overflow-hidden">
       {/* Header */}
       <div
-        className="flex items-center px-6 pb-2"
+        className="flex items-center px-6 pb-2 shrink-0"
         style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
       >
         <button
@@ -449,7 +449,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       </div>
 
       {/* Progress */}
-      <div className="px-6 py-4">
+      <div className="px-6 py-4 shrink-0">
         <div className="flex justify-between items-end mb-2">
           <p className="text-white/90 text-base font-semibold">
             {language === 'tr' ? 'Maceranı şekillendir' : 'Crafting your adventure'}
@@ -463,7 +463,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
         </div>
       </div>
 
-      <div className="flex-1 px-6 py-4 overflow-y-auto pb-48">
+      <div className="flex-1 px-6 py-4 overflow-y-auto pb-4">
         <div className="mb-5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-white/90">{generationModeMeta.label}</p>
@@ -588,7 +588,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
       </div>
 
       {/* Footer */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-bg-dark border-t border-white/5 max-w-[430px] mx-auto">
+      <div className="shrink-0 p-6 bg-bg-dark border-t border-white/5">
         <button
           onClick={handleGenerateStory}
           disabled={isGenerationLimitReached}
