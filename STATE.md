@@ -50,8 +50,11 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 
 ### Prompt Kutuphanesi
 - docs/illustration-prompts.md: tema kapak promptlari, teknik presetler, TR sablonlar, kontrol listesi
-- docs/seed-prompts.md: 21 seed × 12 prompt = 252 hazir gorsel promptu
+  - **YENI:** Seasons (Sonbahar/Kış/Bahar/Yaz), Folklore tema prompt'ları eklendi
+- docs/seed-prompts.md: **46 seed × 12 prompt = 552 hazir gorsel promptu**
   (her seed icin cover + 8 sahne + 3 branch — EN)
+  - İlk 21 seed detaylı prompt'larla dökümante
+  - Yeni 25 seed tablo ve örnek formatlarla dökümante
 
 ## Important Commits
 - ea95ac1 feat(story): companion/place fields added to Story type
@@ -75,6 +78,51 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 - 291df05 fix(ui): fix long-press button text contrast
 - d9e093f fix(create-story): hide debug info in prod
 - 0fdecc7 fix(layout): global scroll and overflow cleanup
+
+## Recent Updates (2026-03-15)
+
+### Story Vault Expansion (✅ TAMAMLANDI - feature/more-seeds branch)
+**Total: 25 yeni hikaye seed'i (15 linear + 10 interactive)**
+
+**Data Layer (data.ts):**
+- VAULT_SEEDS: 23 → 48 seed (25 yeni eklendi)
+- VAULT_LINEAR_STORIES: 96 linear hikaye (15 yeni seed döngüsel olarak kullanılıyor)
+- VAULT_INTERACTIVE_STORIES: 48 interactive hikaye (her seed 1 interactive hikaye)
+
+**Yeni Temalar ve Karakterler:**
+1. **Seasons (5 seed):**
+   - Maple the Autumn Fox, Sage the Winter Owl, Clover the Spring Bunny
+   - Glow the Summer Firefly, Rustle the Autumn Hedgehog
+2. **Space (3 seed):**
+   - Cosmo the Star Bunny, Nova the Space Mouse, Jupiter the Stargazer Cat
+3. **Ocean (3 seed):**
+   - Pearl the Coral Fish, Anchor the Sea Turtle, Wave the Dolphin
+4. **Folklore (4 seed):**
+   - Ember the Folk Fox, Midnight the Folklore Raven
+   - Fawn the Folk Deer, Moon the Folklore Hare
+5. **Interactive Extensions (10 seed):**
+   - Frost castle, Spring bloom, Cosmic compass, Deep trench
+   - Shadow lantern, Tide song, Elder story, Harvest moon
+   - Mirror lake, Comet trail
+
+**UI Updates (pages/Library.tsx):**
+- 4 yeni kategori filtresi: Seasons, Space, Ocean, Folklore
+- Keyword-based filtreleme (karakter isimleri, başlıklar, yerler)
+- Türkçe/İngilizce etiket desteği
+- Kindness teması themeLabelMap'e eklendi
+
+**Dokümantasyon (docs/):**
+- illustration-prompts.md: Seasons ve Folklore prompt paketleri
+- seed-prompts.md: 46 seed × 12 prompt = 552 unique prompt
+  - 3 detaylı örnek (Maple, Sage, Cosmo)
+  - Tam seed tablosu ve format referansı
+
+**Commits:**
+- b28263e feat(seeds): add 15 new linear seeds — seasons, space, ocean themes
+- 6be833a feat(seeds): add 10 new interactive seeds with branching paths
+- 834074d docs(prompts): add season, folklore illustration prompts matching art style
+- b17f3d0 docs(prompts): add 25 new seed illustration prompts
+- 95e62e4 feat(library): add new theme filters for seasons, space, ocean, folklore
 
 ## Recent Fixes (2026-03-15)
 ### UI & UX Hardening Pass 1
