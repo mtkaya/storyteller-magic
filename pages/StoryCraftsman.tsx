@@ -186,8 +186,19 @@ const StoryCraftsman: React.FC<StoryCraftsmanProps> = ({ onBack, onComplete }) =
 
             <div className="flex flex-col gap-3">
               <button
-                onClick={() => onComplete(generatedStory)}
-                className="w-full bg-primary text-bg-dark font-bold py-4 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                onClick={() => {
+                  if (!generatedStory) return;
+                  // Ensure content exists before navigating
+                  const readyStory = {
+                    ...generatedStory,
+                    content: generatedStory.content && generatedStory.content.length > 0
+                      ? generatedStory.content
+                      : [language === 'tr' ? 'Hikaye hazırlanıyor...' : 'Story loading...'],
+                  };
+                  onComplete(readyStory);
+                }}
+                className="w-full font-bold py-4 rounded-xl hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 text-white"
+                style={{ backgroundColor: '#ee8c2b', touchAction: 'manipulation' }}
               >
                 <span className="material-symbols-outlined">play_circle</span>
                 {language === 'tr' ? 'Hikayeyi Oku' : 'Read Story'}
