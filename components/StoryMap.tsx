@@ -26,6 +26,15 @@ const StoryMap: React.FC<StoryMapProps> = ({ onStorySelect, onClose }) => {
         [localizedCustomStories]
     );
 
+    // Lock body scroll when overlay is open
+    React.useEffect(() => {
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = originalOverflow;
+        };
+    }, []);
+
     // Group stories by theme
     const themeBuckets: ThemeBucket[] = React.useMemo(() => {
         const grouped = new Map<string, ThemeBucket>();
