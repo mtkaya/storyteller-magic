@@ -92,9 +92,20 @@ const StoryCraftsman: React.FC<StoryCraftsmanProps> = ({ onBack, onComplete }) =
       }
 
       const craftsmanStory: Story = {
-        ...story,
+        id: story.id || `craftsman-${Date.now()}`,
+        title: story.title || (language === 'tr' ? 'Senin Hikayeniz' : 'Your Story'),
+        subtitle: story.subtitle,
+        duration: story.duration || '10 min',
+        coverUrl: story.coverUrl || '/images/magic_fairy_book.jpg',
+        theme: story.theme || selectedEvent,
+        content: story.content,
         character: selectedHero,
         place: selectedPlace,
+        moral: story.moral,
+        ageRange: story.ageRange,
+        isInteractive: story.isInteractive,
+        branches: story.branches,
+        startBranchId: story.startBranchId,
       };
 
       recordStoryGenerated(`craftsman:${craftsmanStory.id}`);
@@ -129,6 +140,17 @@ const StoryCraftsman: React.FC<StoryCraftsmanProps> = ({ onBack, onComplete }) =
             {language === 'tr'
               ? 'Kahramanın, yerin ve macerası birleştiriliyor...'
               : 'Combining your hero, place, and adventure...'}
+          </p>
+        </div>
+      );
+    }
+
+    if (step === 'result' && !generatedStory) {
+      return (
+        <div className="flex-1 flex flex-col items-center justify-center p-6">
+          <div className="text-6xl mb-4 animate-pulse">✨</div>
+          <p className="text-white/60 text-center">
+            {language === 'tr' ? 'Hikaye yükleniyor...' : 'Loading story...'}
           </p>
         </div>
       );
