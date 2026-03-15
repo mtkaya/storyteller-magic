@@ -12,6 +12,7 @@ import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/story
 import { resolveStorySceneVisual } from '../services/storySceneVisuals';
 import { deriveStoryVisualIdentity } from '../storyUtils';
 import { useReadingAssistant } from '../hooks/useReadingAssistant';
+import { isOpenAITTSAvailable, speakParagraph as speakParagraphOpenAI } from '../src/services/openaiTTS';
 
 interface ReaderProps {
   story: Story | null;
@@ -353,6 +354,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
   const preferredVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
+  const currentOpenAIAudioRef = useRef<HTMLAudioElement | null>(null);
   const premiumTtsAvailableRef = useRef(true);
   const isPlayingRef = useRef(false);
   const speechSessionRef = useRef(0);
@@ -378,6 +380,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     speechSessionRef.current += 1;
     if (synthRef.current) synthRef.current.cancel();
     stopPremiumAudio();
+    if (currentOpenAIAudioRef.current) {
+      currentOpenAIAudioRef.current.pause();
+      currentOpenAIAudioRef.current = null;
+    }
     setIsSpeaking(false);
   };
 
@@ -1102,6 +1108,42 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
   // Speak paragraph
   const speakParagraph = async (text: string) => {
+    // OpenAI TTS path
+    if (isOpenAITTSAvailable() && text) {
+      try {
+        setIsSpeaking(true);
+        const audio = await speakParagraphOpenAI(
+          text,
+          language as 'tr' | 'en',
+          undefined,
+          speechRate
+        );
+        currentOpenAIAudioRef.current?.pause();
+        currentOpenAIAudioRef.current = audio;
+        audio.onended = () => {
+          setIsSpeaking(false);
+          // Auto-advance logic
+          if (hasContent && currentParagraph < content.length - 1 && isPlayingRef.current) {
+            setTimeout(() => {
+              setCurrentParagraph(prev => prev + 1);
+            }, 800);
+          } else if (currentParagraph >= content.length - 1) {
+            setIsPlaying(false);
+          }
+        };
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          setIsPlaying(false);
+          console.warn('OpenAI TTS failed, falling back');
+        };
+        await audio.play();
+        return;
+      } catch (err) {
+        console.warn('OpenAI TTS error, falling back to WebSpeech:', err);
+        // fall through to WebSpeech
+      }
+    }
+
     const chunks = splitTextForSpeech(text, language);
     if (chunks.length === 0) return;
 
