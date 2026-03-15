@@ -332,6 +332,15 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [readerFontFamily, setReaderFontFamily] = useState<'font-serif' | 'font-sans'>('font-serif');
   const [readerTheme, setReaderTheme] = useState<'dark' | 'light'>('dark');
 
+  // Reflection card state
+  const [showReflectionCard, setShowReflectionCard] = useState(false);
+  const [reflectionQuestion, setReflectionQuestion] = useState<{
+    question: string;
+    questionTr: string;
+    options: string[];
+    optionsTr: string[];
+  } | null>(null);
+
   // Interactive story state
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
   const [storyPath, setStoryPath] = useState<Array<{ id: string; text: string; emoji?: string }>>([]); // Track choices made
@@ -930,6 +939,31 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     completionEventRef.current = completionKey;
     recordStoryRead(activeStory.id, activeStory.theme || 'general', getSessionDurationMinutes());
     soundEffects.play('story_complete');
+
+    // Show reflection card after linear story completion
+    const reflectionQuestions = [
+      {
+        question: 'Who was your favorite character in the story?',
+        questionTr: 'Hikayede en sevdiğin karakter hangisiydi?',
+        options: ['The hero', 'The companion', 'The magical creature'],
+        optionsTr: ['Kahraman', 'Arkadaş', 'Sihirli yaratık'],
+      },
+      {
+        question: 'What did you learn from this story?',
+        questionTr: 'Bu hikayeden ne öğrendin?',
+        options: ['Be brave', 'Help others', 'Never give up'],
+        optionsTr: ['Cesur ol', 'Başkalarına yardım et', 'Asla vazgeçme'],
+      },
+      {
+        question: 'How would you tell this story to a friend?',
+        questionTr: 'Bu hikayeyi bir arkadaşına nasıl anlatırdın?',
+        options: ['Exciting adventure!', 'Magical journey!', 'Heartwarming tale!'],
+        optionsTr: ['Heyecanlı macera!', 'Sihirli yolculuk!', 'İçten bir hikaye!'],
+      },
+    ];
+    const randomQuestion = reflectionQuestions[Math.floor(Math.random() * reflectionQuestions.length)];
+    setReflectionQuestion(randomQuestion);
+    setTimeout(() => setShowReflectionCard(true), 1000);
   }, [isInteractiveStory, hasContent, currentParagraph, content.length, activeStory.id, activeStory.theme, recordStoryRead]);
 
   // Initialize speech synthesis
@@ -1531,6 +1565,53 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             </div>
           )}
 
+          {/* Reflection Card */}
+          {showReflectionCard && !isEnding && reflectionQuestion && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+              <div className="bg-gradient-to-b from-bg-card to-bg-dark rounded-3xl p-8 max-w-md w-full border border-primary/20 shadow-2xl shadow-primary/10 animate-slide-up">
+                <div className="text-center mb-8">
+                  <div className="text-6xl mb-4">🌙</div>
+                  <h2 className="text-2xl font-bold text-white mb-2 font-serif">
+                    {language === 'tr' ? 'Hikaye Bitti!' : 'Story Complete!'}
+                  </h2>
+                  <p className="text-white/60 text-sm">
+                    {language === 'tr' ? reflectionQuestion.questionTr : reflectionQuestion.question}
+                  </p>
+                </div>
+
+                <div className="space-y-3 mb-6">
+                  {(language === 'tr' ? reflectionQuestion.optionsTr : reflectionQuestion.options).map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        soundEffects.play('choice_select');
+                        setTimeout(() => setShowReflectionCard(false), 300);
+                      }}
+                      className="w-full bg-white/5 hover:bg-primary/20 border border-white/10 hover:border-primary/50 rounded-xl p-4 text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                          {index + 1}
+                        </div>
+                        <span className="text-white font-medium">{option}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="border-t border-white/10 pt-4">
+                  <button
+                    onClick={() => setShowReflectionCard(false)}
+                    className="w-full bg-primary/10 hover:bg-primary/20 text-primary font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                    {language === 'tr' ? 'Devam' : 'Continue'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Ending Screen */}
           {isEnding && (
             <div className="mt-8 text-center p-6 bg-gradient-to-b from-primary/10 to-transparent rounded-3xl border border-primary/20 animate-fade-in-scale">
@@ -1784,6 +1865,14 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       />
 
       <style>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
         @keyframes fade-in-scale {
           from {
             opacity: 0;
@@ -1792,6 +1881,16 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
           to {
             opacity: 1;
             transform: scale(1);
+          }
+        }
+        @keyframes slide-up {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
           }
         }
         @keyframes float-sparkle {
@@ -1810,8 +1909,14 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             text-shadow: 0 0 20px rgba(238, 140, 43, 0.6);
           }
         }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
         .animate-fade-in-scale {
           animation: fade-in-scale 0.6s ease-out;
+        }
+        .animate-slide-up {
+          animation: slide-up 0.4s ease-out;
         }
         .animate-float-sparkle {
           animation: float-sparkle 2s ease-in-out infinite;
