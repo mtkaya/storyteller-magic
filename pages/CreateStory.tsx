@@ -460,7 +460,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
         </div>
       </div>
 
-      <div className="flex-1 px-6 py-4 overflow-y-auto pb-32">
+      <div className="flex-1 px-6 py-4 overflow-y-auto pb-48">
         <div className="mb-5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-white/90">{generationModeMeta.label}</p>
