@@ -9,7 +9,7 @@ Storyteller Magic is a React + TypeScript bedtime story app built around a curat
 - Expanded local story vault (~160 stories) with rotation to reduce repeats
 - Expanded interactive branching (detours + extra choices per node)
 - English and Turkish language support
-- Optional premium narration via OpenAI TTS (`/api/tts`) with browser Speech Synthesis fallback
+- Optional premium narration via OpenAI TTS (`VITE_OPENAI_TTS_KEY`) with browser Speech Synthesis fallback
 - Profiles, favorites, badges, streaks, and parent-oriented stats
 - Daily reading limits and parental gate flow
 - Mobile-ready setup with Capacitor (iOS + Android folders included)
@@ -18,7 +18,7 @@ Storyteller Magic is a React + TypeScript bedtime story app built around a curat
 
 - [Privacy](./PRIVACY.md)
 - [Security](./SECURITY.md)
-- [Privacy Policy](https://mtkaya.github.io/storyteller-magic/docs/privacy-policy) (App Store / Public)
+- [Privacy Policy](https://mtkaya.github.io/storyteller-magic/docs/privacy-policy/) (App Store / Public)
 
 ## Tech Stack
 
@@ -39,6 +39,9 @@ Copy `.env.example` to `.env.local` and set:
 ```bash
 GEMINI_API_KEY=your_gemini_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
+VITE_OPENAI_TTS_KEY=your_openai_tts_key_here
+# Optional: RevenueCat key placeholder (real SDK wiring still TODO)
+# VITE_REVENUECAT_KEY=
 # Optional security controls (recommended in production):
 # TRUST_PROXY=false
 # CORS_ALLOWED_ORIGINS=https://yourapp.com,https://www.yourapp.com
@@ -58,7 +61,9 @@ VITE_STORY_API_URL=
 ```
 
 - `GEMINI_API_KEY` is read only by the backend proxy (`server/story-api.mjs`).
-- `OPENAI_API_KEY` enables premium TTS (`/api/tts`). If missing, app uses browser voices automatically.
+- `OPENAI_API_KEY` is used by the optional backend proxy.
+- `VITE_OPENAI_TTS_KEY` enables direct OpenAI TTS from the app. If missing, the reader falls back to browser Speech Synthesis automatically.
+- `VITE_REVENUECAT_KEY` currently only signals planned billing setup; the app still runs in mock purchase mode until the real SDK is wired.
 - `TRUST_PROXY` controls whether `x-forwarded-for`/`x-real-ip` headers are trusted for rate limiting. Keep `false` unless you are behind a trusted reverse proxy.
 - `CORS_ALLOWED_ORIGINS` is a comma-separated allowlist for browser origins. Set this explicitly in production.
 - See [PRIVACY.md](./PRIVACY.md) and [SECURITY.md](./SECURITY.md) before public deployment.

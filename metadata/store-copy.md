@@ -104,7 +104,7 @@ Transform bedtime into a magical reading adventure with Storyteller Magic—the 
 
 Download Storyteller Magic today and turn bedtime into a cherished ritual filled with wonder, adventure, and learning—all without screens glowing past bedtime.
 
-**No subscription required. One-time download. Unlimited stories.**
+**Current repo state:** subscription copy exists in-product, but real store billing is not wired yet. Review pricing/subscription language before submission.
 
 ---
 
@@ -163,7 +163,8 @@ Storyteller Magic ile yatma vaktini büyülü bir okuma macerasına dönüştür
 • %100 çevrimdışı çalışma
 • İnternet bağlantısı gerekmez
 • Veri toplama veya analitik yok
-• Reklam veya uygulama içi satın alma yok (mevcut sürüm)
+• Reklam yok
+• Satın alma akışı repo içinde henüz production-ready değil; mağaza metnini gönderim öncesi yeniden doğrulayın
 • COPPA uyumlu
 • Tüm veriler cihazda yerel olarak saklanır
 

@@ -1,8 +1,12 @@
 /**
- * RevenueCat-ready purchase service
+ * Purchase service (mock-first)
  *
- * If VITE_REVENUECAT_KEY is set, this will use real RevenueCat SDK (not implemented yet)
- * If not set, operates in mock mode for development and testing
+ * Current status:
+ * - If VITE_REVENUECAT_KEY is NOT set, this runs in mock/test mode.
+ * - If VITE_REVENUECAT_KEY IS set, the real RevenueCat SDK is still not wired yet.
+ *
+ * This file intentionally does NOT pretend production billing is complete.
+ * Add the SDK integration before using it for real purchases.
  */
 
 export type PurchasePackageId = 'monthly' | 'yearly';
@@ -49,6 +53,10 @@ export const PACKAGES: PurchasePackage[] = [
  */
 export function isConfigured(): boolean {
   return !!import.meta.env.VITE_REVENUECAT_KEY;
+}
+
+export function isMockMode(): boolean {
+  return true;
 }
 
 /**

@@ -190,23 +190,51 @@ const ensurePlayableStory = (story: Story): Story => {
   };
 };
 
+function buildStoryIdentityKey(story: Story): string {
+  const title = stripDiacritics((story.titleTr || story.title || '').trim().toLowerCase());
+  const subtitle = stripDiacritics((story.subtitleTr || story.subtitle || '').trim().toLowerCase());
+  const character = stripDiacritics((story.character || '').trim().toLowerCase());
+  const theme = normalizeStoryTheme(story.theme);
+  const duration = parseDurationMinutes(story.duration);
+  const mode = story.isInteractive ? 'interactive' : 'linear';
+  return [title, subtitle, character, theme, duration, mode].join('|');
+}
+
+function scoreStoryCompleteness(story: Story): number {
+  let score = 0;
+  if (hasPlayableStoryData(story)) score += 20;
+  if (story.content && story.content.length > 0) score += 8;
+  if (story.contentTr && story.contentTr.length > 0) score += 8;
+  if (story.branches && story.branches.length > 0) score += 10;
+  if (story.moral || story.moralTr) score += 3;
+  if (story.coverUrl) score += 2;
+  return score;
+}
+
 export function buildStoryPool(...storyLists: Story[][]): Story[] {
   const byId = new Map<string, Story>();
+  const byIdentity = new Map<string, Story>();
+
   for (const list of storyLists) {
     for (const story of list) {
-      const existing = byId.get(story.id);
-      if (!existing) {
+      const existingById = byId.get(story.id);
+      if (!existingById) {
         byId.set(story.id, story);
-        continue;
+      } else if (scoreStoryCompleteness(story) > scoreStoryCompleteness(existingById)) {
+        byId.set(story.id, story);
       }
 
-      if (!hasPlayableStoryData(existing) && hasPlayableStoryData(story)) {
-        byId.set(story.id, story);
+      const identityKey = buildStoryIdentityKey(story);
+      const existingByIdentity = byIdentity.get(identityKey);
+      if (!existingByIdentity) {
+        byIdentity.set(identityKey, story);
+      } else if (scoreStoryCompleteness(story) > scoreStoryCompleteness(existingByIdentity)) {
+        byIdentity.set(identityKey, story);
       }
     }
   }
 
-  return Array.from(byId.values()).map(ensurePlayableStory);
+  return Array.from(byIdentity.values()).map(ensurePlayableStory);
 }
 
 function toSeededNumber(input: string): number {
