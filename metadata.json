@@ -1,5 +1,6 @@
 {
   "name": "Storyteller Magic",
   "description": "A personalized bedtime story app for children with interactive story paths, a curated library, and reading progress tracking.",
+  "privacyPolicyUrl": "https://mtkaya.github.io/storyteller-magic/docs/privacy-policy",
   "requestFramePermissions": []
 }

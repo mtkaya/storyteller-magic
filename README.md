@@ -18,6 +18,7 @@ Storyteller Magic is a React + TypeScript bedtime story app built around a curat
 
 - [Privacy](./PRIVACY.md)
 - [Security](./SECURITY.md)
+- [Privacy Policy](https://mtkaya.github.io/storyteller-magic/docs/privacy-policy) (App Store / Public)
 
 ## Tech Stack
 
