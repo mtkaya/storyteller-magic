@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { ScreenName } from '../types';
 import { RECENT_STORIES, LIBRARY_STORIES } from '../data';
 import { useLanguage, languageOptions } from '../context/LanguageContext';
@@ -9,6 +9,7 @@ import {
     buildCanvaPromptCsv,
     downloadCanvaPromptCsv
 } from '../services/canvaPromptExport';
+import { ttsService } from '../src/services/ttsService';
 
 interface SettingsProps {
     onNavigate: (screen: ScreenName) => void;
@@ -20,10 +21,33 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
     const { language, setLanguage, t } = useLanguage();
     const { settings, updateSettings, planRule, remainingGeneratedStories, customStories, activeProfile, updateProfile } = useAppState();
     const [isExportingCanva, setIsExportingCanva] = useState(false);
+    const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+    const [selectedVoice, setSelectedVoice] = useState<string>('');
 
     const readingSpeed = activeProfile?.preferences.readingSpeed ?? 0.9;
     const sleepTimer = settings.sleepDetectionSeconds;
     const notifications = settings.notificationsEnabled;
+    const ttsEnabled = settings.ttsEnabled ?? true;
+
+    // Load available voices
+    useEffect(() => {
+        if (ttsService.isSupported()) {
+            const loadVoices = () => {
+                const voices = ttsService.getVoices();
+                setAvailableVoices(voices);
+            };
+
+            loadVoices();
+
+            // Voices may load async
+            if (typeof window !== 'undefined' && window.speechSynthesis) {
+                window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+                return () => {
+                    window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+                };
+            }
+        }
+    }, []);
 
     const canvaStoryPool = useMemo(
         () => buildStoryPool(RECENT_STORIES, LIBRARY_STORIES, customStories),
@@ -175,6 +199,48 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                                 ))}
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                {/* TTS Settings */}
+                <section>
+                    <h3 className="text-sm font-bold text-white/50 uppercase tracking-wider mb-3 px-1">
+                        {language === 'tr' ? 'Sesli Okuma' : 'Text-to-Speech'}
+                    </h3>
+                    <div className="bg-white/5 rounded-2xl overflow-hidden border border-white/5">
+                        <div className="flex items-center justify-between p-4 border-b border-white/5">
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-primary">record_voice_over</span>
+                                <span>{language === 'tr' ? 'Sesli Okuma Aktif' : 'Enable TTS'}</span>
+                            </div>
+                            <button
+                                onClick={() => updateSettings({ ttsEnabled: !ttsEnabled })}
+                                className={`w-12 h-7 rounded-full relative transition-colors ${ttsEnabled ? 'bg-primary' : 'bg-white/10'}`}
+                            >
+                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${ttsEnabled ? 'right-1' : 'left-1'}`}></div>
+                            </button>
+                        </div>
+                        {ttsEnabled && availableVoices.length > 0 && (
+                            <div className="p-4">
+                                <p className="text-xs text-white/60 mb-3">
+                                    {language === 'tr' ? 'Ses Seçimi' : 'Voice Selection'}
+                                </p>
+                                <select
+                                    value={selectedVoice}
+                                    onChange={(e) => setSelectedVoice(e.target.value)}
+                                    className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white text-sm"
+                                >
+                                    <option value="">
+                                        {language === 'tr' ? 'Varsayılan Ses' : 'Default Voice'}
+                                    </option>
+                                    {availableVoices.map((voice, idx) => (
+                                        <option key={idx} value={voice.name}>
+                                            {voice.name} ({voice.lang})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                     </div>
                 </section>
 

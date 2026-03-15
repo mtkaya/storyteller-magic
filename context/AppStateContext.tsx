@@ -317,6 +317,7 @@ interface AppStateContextType {
         nightModeStart: string;
         nightModeEnd: string;
         theme: 'dark' | 'light'; // UI theme
+        ttsEnabled: boolean; // Text-to-speech enabled
     };
     updateSettings: (updates: Partial<AppStateContextType['settings']>) => void;
 
@@ -353,6 +354,7 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
         nightModeStart: '20:00',
         nightModeEnd: '07:00',
         theme: 'dark' as const,
+        ttsEnabled: true,
     };
 
     // Load from localStorage
