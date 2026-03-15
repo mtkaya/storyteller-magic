@@ -37,7 +37,11 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 ### Commercialization
 - MONETIZATION.md: Freemium model (Free / Pro ₺299,99/ay / Aile ₺2.499,99/yil)
 - LICENSE: Proprietary / All rights reserved
-- Odeme entegrasyonu yok — RevenueCat veya Stripe gerekir
+- **RevenueCat entegrasyonu:** Mock/stub layer hazir (src/services/purchases.ts)
+  - VITE_REVENUECAT_KEY yoksa mock mode (test satın alımları başarılı döner)
+  - purchasePackage(), restorePurchases(), getOfferings() API hazır
+  - Subscription.tsx tam entegre: satın alma butonu, loading state, toast bildirimler
+  - "🧪 Test modu" banner mock modda görünür
 
 ### Store Metadata
 - metadata/app-store-en.md, metadata/app-store-tr.md
@@ -59,15 +63,17 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 - 930e971 feat(prompts): 252 per-seed prompt paketi
 - 9475fa9 feat(store): App Store + Play Store metadata
 - 67ac26f feat(biz): LICENSE + MONETIZATION.md
+- e920dbb feat(purchases): RevenueCat-ready service with mock fallback
+- b6ea3a6 feat(subscription): integrate purchases service with full UI flow
 
 ## Open Issues
 - Remote generation (Gemini) ve premium TTS API key olmadan calismiyor (kasitli)
-- RevenueCat veya Stripe odeme entegrasyonu henuz entegre degil
+- RevenueCat SDK (@revenuecat/purchases-js) henüz kurulmadı — purchases.ts TODO placeholders ile hazır
 
 ## Next Suggested Step
-- Smoke test: tum ekranlari telefonda dene (ozellikle visual continuity — Reader ve Library)
+- Smoke test: Subscription ekranını test et (mock mode banner, satın alma butonu, restore butonu)
 - Screenshot'lar cek (store metadata icin)
-- RevenueCat veya Stripe entegrasyonu karari
+- RevenueCat SDK kurulumu ve gerçek API key entegrasyonu (optional)
 - Gizlilik politikasi URL'ini bir yerde host et (GitHub Pages veya domain)
 
 ## Update Rule
