@@ -11,6 +11,7 @@ import { translateSegmentsToTurkish } from '../services/storyTranslation';
 import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/storyLocalization';
 import { resolveStorySceneVisual } from '../services/storySceneVisuals';
 import { deriveStoryVisualIdentity } from '../storyUtils';
+import { useReadingAssistant } from '../hooks/useReadingAssistant';
 
 interface ReaderProps {
   story: Story | null;
@@ -313,6 +314,16 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [speechRate, setSpeechRate] = useState(persistedReadingSpeed);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // Word highlighting state
+  const [wordHighlightEnabled, setWordHighlightEnabled] = useState(false);
+  const currentText = hasContent ? content[currentParagraph] : '';
+  const words = currentText.split(/\s+/).filter(Boolean);
+  const readingAssistant = useReadingAssistant({
+    totalWords: words.length,
+    isEnabled: wordHighlightEnabled,
+    autoSpeed: 300,
+  });
 
   // Interactive story state
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
@@ -1382,10 +1393,32 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
         <div className="max-w-md mx-auto relative pt-4">
 
           {/* Text Content */}
-          <div className="bg-bg-card rounded-2xl p-6 shadow-xl border border-white/5 relative mb-4">
+          <div
+            className="bg-bg-card rounded-2xl p-6 shadow-xl border border-white/5 relative mb-4"
+            onClick={() => {
+              if (wordHighlightEnabled && !readingAssistant.isAuto) {
+                readingAssistant.nextWord();
+              }
+            }}
+          >
             {hasContent ? (
               <p className="text-white text-lg leading-relaxed font-medium transition-all duration-500 ease-in-out font-serif">
-                {content[currentParagraph]}
+                {wordHighlightEnabled ? (
+                  words.map((word, index) => (
+                    <span
+                      key={`${index}-${word}`}
+                      className={`transition-all duration-200 ${
+                        index === readingAssistant.activeWordIndex
+                          ? 'font-bold text-primary underline decoration-2 underline-offset-4'
+                          : ''
+                      }`}
+                    >
+                      {word}{index < words.length - 1 ? ' ' : ''}
+                    </span>
+                  ))
+                ) : (
+                  content[currentParagraph]
+                )}
               </p>
             ) : (
               <div className="text-center py-10">
