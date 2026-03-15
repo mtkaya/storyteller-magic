@@ -2095,6 +2095,7 @@ function buildLocalInteractiveStory(
 function generateStoryFromLocalPool(optionsInput: StoryPrompt): GeneratedStory {
     const options = resolveOptions(optionsInput);
     const bundle = pickLocalTemplateBundle(options);
+    console.warn('[StoryGen] template:', bundle?.primary?.id, 'fallback?', !bundle);
     if (!bundle) {
         return getFallbackStory(options);
     }
