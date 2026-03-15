@@ -65,6 +65,24 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 - 67ac26f feat(biz): LICENSE + MONETIZATION.md
 - e920dbb feat(purchases): RevenueCat-ready service with mock fallback
 - b6ea3a6 feat(subscription): integrate purchases service with full UI flow
+- 1448ea9 fix(nav): inline color for active state, fix dark mode visibility
+- e1c4140 fix(create-story): fix layout overlap between sections
+- 874a44f fix(story-gen): resolve import issues, add generation diagnostics
+- 4a4c9c0 fix(safety): null guards on story content
+
+## Recent Fixes (2026-03-15)
+### UI & UX Hardening
+- **BottomNav dark mode fix:** "text-primary" CDN Tailwind resolve etmiyordu, inline style (#ee8c2b) ile değiştirildi
+  - Aktif item altına 2px turuncu indicator dot eklendi
+  - Hover effect: rgba(255,255,255,0.8)
+  - NavButton component'e refactor edildi
+- **CreateStory layout overlap:** pb-32 → pb-48 ile footer'ın content üzerine binmesi düzeltildi
+- **StoryGenerator sağlık kontrolü:**
+  - Circular import yok (data.ts ↔ services/ arasında)
+  - Build başarılı (TypeScript hatasız)
+  - Debug log eklendi: template ID ve fallback status loglanıyor
+- **Null guards:** generateStory sonucunda null/incomplete content kontrolü eklendi
+  - Reader.tsx zaten hasPlayableStoryData ile korunuyordu
 
 ## Open Issues
 - Remote generation (Gemini) ve premium TTS API key olmadan calismiyor (kasitli)
