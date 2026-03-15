@@ -22,7 +22,7 @@ interface LibraryProps {
 
 const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
   const { language, t } = useLanguage();
-  const { isFavorite, addFavorite, removeFavorite, favorites, stats, customStories, seenStoryIds } = useAppState();
+  const { isFavorite, addFavorite, removeFavorite, favorites, stats, customStories, seenStoryIds, isPro } = useAppState();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const localizedCustomStories = useMemo(
@@ -198,14 +198,27 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
       {/* Story Grid */}
       {filteredStories.length > 0 ? (
         <div className="grid grid-cols-2 gap-4 p-4">
-          {filteredStories.map(story => (
-            <div key={story.id} className="flex flex-col gap-2.5 group cursor-pointer">
-              <div
-                className="relative w-full aspect-[4/5] rounded-[22px] overflow-hidden bg-white/5 ring-1 ring-white/10 shadow-[0_18px_40px_rgba(0,0,0,0.24)]"
-                onClick={() => onStorySelect(story)}
-              >
-                <img src={getStoryCoverUrl(story)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+          {filteredStories.map(story => {
+            const isLocked = story.isLocked === true && !isPro;
+            return (
+              <div key={story.id} className="flex flex-col gap-2.5 group cursor-pointer">
+                <div
+                  className="relative w-full aspect-[4/5] rounded-[22px] overflow-hidden bg-white/5 ring-1 ring-white/10 shadow-[0_18px_40px_rgba(0,0,0,0.24)]"
+                  onClick={() => isLocked ? onNavigate('subscription') : onStorySelect(story)}
+                >
+                  <img src={getStoryCoverUrl(story)} className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100 ${isLocked ? 'blur-sm' : ''}`} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+
+                  {isLocked && (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <span className="material-symbols-outlined text-white text-5xl">lock</span>
+                        <span className="text-white text-xs font-bold">
+                          {language === 'tr' ? 'Pro Gerekli' : 'Pro Required'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                 <button
                   onClick={(e) => {
@@ -239,7 +252,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
                   <span className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 backdrop-blur-sm truncate max-w-[72px]">{story.theme}</span>
                 </div>
               </div>
-              <div className="px-1" onClick={() => onStorySelect(story)}>
+              <div className="px-1" onClick={() => isLocked ? onNavigate('subscription') : onStorySelect(story)}>
                 <h3 className="text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-1">{getStoryTitle(story)}</h3>
                 <p className="text-[10px] text-white/50 mt-1 line-clamp-2 min-h-[28px] leading-relaxed">{getStorySubtitle(story)}</p>
                 {(story.companion || story.place) && (
@@ -260,7 +273,8 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center flex-1 px-6 text-center">
