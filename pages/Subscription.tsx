@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { SubscriptionTier, useAppState } from '../context/AppStateContext';
-import { purchasePackage, restorePurchases, isConfigured, type PurchasePackage } from '../src/services/purchases';
+import { purchasePackage, restorePurchases, isMockMode, type PurchasePackage } from '../src/services/purchases';
 
 interface SubscriptionProps {
   onBack: () => void;
@@ -29,7 +29,7 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionTier>(subscription.tier);
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const isMockMode = !isConfigured();
+  const mockMode = isMockMode();
 
   const plans: PremiumPlan[] = isTr
     ? [
@@ -251,7 +251,7 @@ const Subscription: React.FC<SubscriptionProps> = ({ onBack }) => {
               : 'Choose the right capacity for your family: more stories, more profiles, less repetition.'}
           </p>
 
-          {isMockMode && (
+          {mockMode && (
             <div className="mt-3 mx-4 rounded-xl border border-yellow-400/30 bg-yellow-400/10 px-3 py-2 text-center">
               <p className="text-[11px] text-yellow-200/90 leading-relaxed">
                 🧪 {isTr ? 'Test modu — gerçek ödeme yok' : 'Test mode — no real payments'}

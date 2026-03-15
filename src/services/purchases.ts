@@ -1,22 +1,24 @@
 /**
- * Purchase service (mock-first)
+ * RevenueCat purchase service
  *
- * Current status:
- * - If VITE_REVENUECAT_KEY is NOT set, this runs in mock/test mode.
- * - If VITE_REVENUECAT_KEY IS set, the real RevenueCat SDK is still not wired yet.
+ * Real behavior:
+ * - If VITE_REVENUECAT_KEY is missing, app stays in mock/test mode.
+ * - If VITE_REVENUECAT_KEY is present, the Web Billing SDK is configured and
+ *   purchases use RevenueCat's checkout flow.
  *
- * This file intentionally does NOT pretend production billing is complete.
- * Add the SDK integration before using it for real purchases.
+ * Notes:
+ * - The configured key must be a RevenueCat Web Billing public key.
+ * - Offerings/products must already exist in the RevenueCat dashboard.
  */
 
 export type PurchasePackageId = 'monthly' | 'yearly';
 
 export interface PurchasePackage {
   id: PurchasePackageId;
-  price: string;      // Localized price (e.g., "$11.99")
-  priceTr: string;    // Turkish price (e.g., "₺299,99")
-  period: string;     // "month" or "year"
-  tier: 'pro' | 'family';  // Maps to subscription tier
+  price: string;
+  priceTr: string;
+  period: string;
+  tier: 'pro' | 'family';
 }
 
 export interface PurchaseResult {
@@ -30,7 +32,6 @@ export interface RestoreResult {
   tier?: 'pro' | 'family';
 }
 
-// Available packages
 export const PACKAGES: PurchasePackage[] = [
   {
     id: 'monthly',
@@ -48,86 +49,170 @@ export const PACKAGES: PurchasePackage[] = [
   }
 ];
 
-/**
- * Check if RevenueCat is properly configured
- */
+const STORAGE_KEY = 'storyteller-revenuecat-app-user-id';
+const OFFERING_PACKAGE_CANDIDATES: Record<PurchasePackageId, string[]> = {
+  monthly: ['$rc_monthly', 'monthly', 'pro', 'pro_monthly'],
+  yearly: ['$rc_annual', 'annual', 'yearly', 'family', 'family_yearly'],
+};
+
+function getRevenueCatKey(): string | undefined {
+  return import.meta.env.VITE_REVENUECAT_KEY?.trim() || undefined;
+}
+
 export function isConfigured(): boolean {
-  return !!import.meta.env.VITE_REVENUECAT_KEY;
+  return !!getRevenueCatKey();
 }
 
 export function isMockMode(): boolean {
-  return true;
+  return !isConfigured();
 }
 
-/**
- * Get available subscription packages
- */
+function getOrCreateAppUserId(): string {
+  const existing = localStorage.getItem(STORAGE_KEY);
+  if (existing) return existing;
+
+  const generated = `storyteller-${crypto.randomUUID()}`;
+  localStorage.setItem(STORAGE_KEY, generated);
+  return generated;
+}
+
+async function getPurchasesInstance(): Promise<any | null> {
+  const apiKey = getRevenueCatKey();
+  if (!apiKey) return null;
+
+  const module = await import('@revenuecat/purchases-js');
+  const Purchases = module.Purchases;
+  if (Purchases.isConfigured()) {
+    return Purchases.getSharedInstance();
+  }
+
+  return Purchases.configure({
+    apiKey,
+    appUserId: getOrCreateAppUserId(),
+  });
+}
+
+function findRevenueCatPackage(offering: any, packageId: PurchasePackageId): any | null {
+  if (!offering) return null;
+
+  for (const candidate of OFFERING_PACKAGE_CANDIDATES[packageId]) {
+    if (offering.packagesById?.[candidate]) return offering.packagesById[candidate];
+    if (offering[candidate]) return offering[candidate];
+  }
+
+  const availablePackages = Array.isArray(offering.availablePackages) ? offering.availablePackages : [];
+  if (packageId === 'monthly') {
+    return availablePackages.find((pkg: any) => {
+      const identifier = String(pkg?.identifier || '').toLowerCase();
+      return identifier.includes('month') || identifier.includes('pro');
+    }) || null;
+  }
+
+  return availablePackages.find((pkg: any) => {
+    const identifier = String(pkg?.identifier || '').toLowerCase();
+    return identifier.includes('year') || identifier.includes('annual') || identifier.includes('family');
+  }) || null;
+}
+
+function getLocalizedPrice(rcPackage: any): string {
+  return rcPackage?.webBillingProduct?.price?.formattedPrice
+    || rcPackage?.rcBillingProduct?.currentPrice?.formattedPrice
+    || rcPackage?.webBillingProduct?.currentPrice?.formattedPrice
+    || '';
+}
+
+function hasActiveProduct(customerInfo: any, packageId: PurchasePackageId): boolean {
+  const productHints = packageId === 'monthly'
+    ? ['month', 'monthly', 'pro']
+    : ['year', 'annual', 'family'];
+
+  const subscriptions = customerInfo?.subscriptionsByProductIdentifier || {};
+  return Object.entries(subscriptions).some(([productId, sub]: [string, any]) => {
+    if (!sub?.isActive) return false;
+    const lower = productId.toLowerCase();
+    return productHints.some((hint) => lower.includes(hint));
+  });
+}
+
 export async function getOfferings(): Promise<PurchasePackage[]> {
-  if (isConfigured()) {
-    // TODO: When RevenueCat SDK is integrated, fetch real offerings
-    // const offerings = await Purchases.getOfferings();
-    // return parseOfferings(offerings);
-    console.warn('RevenueCat SDK not yet integrated, returning mock packages');
+  const purchases = await getPurchasesInstance();
+  if (!purchases) {
+    return PACKAGES;
   }
 
-  // Mock mode: return static packages
-  return Promise.resolve(PACKAGES);
+  try {
+    const offerings = await purchases.getOfferings();
+    const current = offerings?.current;
+    if (!current) return PACKAGES;
+
+    return PACKAGES.map((pkg) => {
+      const rcPackage = findRevenueCatPackage(current, pkg.id);
+      const livePrice = getLocalizedPrice(rcPackage);
+      return livePrice
+        ? { ...pkg, price: livePrice, priceTr: livePrice }
+        : pkg;
+    });
+  } catch (error) {
+    console.error('RevenueCat getOfferings failed, falling back to static packages:', error);
+    return PACKAGES;
+  }
 }
 
-/**
- * Purchase a subscription package
- */
 export async function purchasePackage(pkg: PurchasePackage): Promise<PurchaseResult> {
-  if (isConfigured()) {
-    // TODO: When RevenueCat SDK is integrated, make real purchase
-    // try {
-    //   const result = await Purchases.purchasePackage(pkg.id);
-    //   return {
-    //     success: true,
-    //     tier: pkg.tier
-    //   };
-    // } catch (error) {
-    //   return {
-    //     success: false,
-    //     error: error.message
-    //   };
-    // }
-    console.warn('RevenueCat SDK not yet integrated, simulating purchase');
+  const purchases = await getPurchasesInstance();
+  if (!purchases) {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    return { success: true, tier: pkg.tier };
   }
 
-  // Mock mode: simulate successful purchase after delay
-  await new Promise(resolve => setTimeout(resolve, 800));
+  try {
+    const offerings = await purchases.getOfferings();
+    const current = offerings?.current;
+    const rcPackage = findRevenueCatPackage(current, pkg.id);
 
-  return {
-    success: true,
-    tier: pkg.tier
-  };
+    if (!rcPackage) {
+      return {
+        success: false,
+        error: `RevenueCat offering package not found for ${pkg.id}`,
+      };
+    }
+
+    await purchases.purchasePackage(rcPackage);
+    return {
+      success: true,
+      tier: pkg.tier,
+    };
+  } catch (error: any) {
+    const message = error?.message || 'RevenueCat purchase failed';
+    console.error('RevenueCat purchase failed:', error);
+    return {
+      success: false,
+      error: message,
+    };
+  }
 }
 
-/**
- * Restore previous purchases
- */
 export async function restorePurchases(): Promise<RestoreResult> {
-  if (isConfigured()) {
-    // TODO: When RevenueCat SDK is integrated, restore real purchases
-    // try {
-    //   const customerInfo = await Purchases.restorePurchases();
-    //   const activeTier = getActiveTier(customerInfo);
-    //   return {
-    //     isPro: activeTier !== 'free',
-    //     tier: activeTier !== 'free' ? activeTier : undefined
-    //   };
-    // } catch (error) {
-    //   console.error('Restore failed:', error);
-    //   return { isPro: false };
-    // }
-    console.warn('RevenueCat SDK not yet integrated, simulating restore');
+  const purchases = await getPurchasesInstance();
+  if (!purchases) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return { isPro: false };
   }
 
-  // Mock mode: no purchases to restore
-  await new Promise(resolve => setTimeout(resolve, 500));
+  try {
+    const customerInfo = await purchases.getCustomerInfo();
 
-  return {
-    isPro: false
-  };
+    if (hasActiveProduct(customerInfo, 'yearly')) {
+      return { isPro: true, tier: 'family' };
+    }
+
+    if (hasActiveProduct(customerInfo, 'monthly')) {
+      return { isPro: true, tier: 'pro' };
+    }
+
+    return { isPro: false };
+  } catch (error) {
+    console.error('RevenueCat restore/status check failed:', error);
+    return { isPro: false };
+  }
 }

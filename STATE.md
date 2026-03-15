@@ -228,8 +228,10 @@ Ekran görüntülerinden tespit edilen 5 kritik UI hatası düzeltildi:
 - **Commit:** db1ced2 "docs(monetization): add RevenueCat and ElevenLabs setup guides"
 - MONETIZATION.md genişletildi
 - `.env.example` gerekli alanlarla güncellendi
-- `src/services/purchases.ts` artık daha dürüst açıklama taşıyor: gerçek RevenueCat SDK entegrasyonu henüz yapılmadı
-- Uygulama hâlâ mock purchase mode üzerinde çalışıyor; production billing tamamlandı denemez
+- `src/services/purchases.ts` RevenueCat Web Billing SDK ile kablolandı
+- `@revenuecat/purchases-js` bağımlılığı eklendi
+- Gerçek key varsa checkout RevenueCat üzerinden açılacak, yoksa mock mode devam edecek
+- Not: canlı satın alma testi bu repoda gerçek key olmadığı için doğrulanmadı
 
 ### MILESTONE 7: STATE.md Final Güncelleme (✅ TAMAMLANDI - ŞU AN)
 - **Commit:** (bu commit)
@@ -242,9 +244,9 @@ Ekran görüntülerinden tespit edilen 5 kritik UI hatası düzeltildi:
 - Remote generation (Gemini) gerçek API key olmadan canlı test edilmedi; local/hybrid fallback var
 - OpenAI TTS kodu hazır ama bu repoda gerçek `VITE_OPENAI_TTS_KEY` bulunmadığı için production test doğrulanmış değil
 - Premium TTS / ElevenLabs key olmadan çalışmıyor (kasıtlı, browser Speech Synthesis fallback var)
-- RevenueCat gerçek SDK entegrasyonu henüz yok; `purchases.ts` mock mode ile çalışıyor
-- GitHub Pages workflow eklendi, fakat repo tarafında Pages deployment izinleri/ilk run sonucu ayrıca doğrulanmalı
-- App Store screenshot'larının nihai submit seti repo içinden doğrulanmadı
+- RevenueCat SDK wiring eklendi, fakat gerçek public Web Billing key ve dashboard offering olmadan canlı satın alma doğrulanmadı
+- GitHub Pages URL şu an 404 dönüyor; workflow ekli olsa da repo tarafında Pages publish henüz canlı değil
+- App Store screenshot'larının bazıları güncel görünse de submit seti için manuel kalite kontrol ve yeniden çekim ihtiyacı var
 
 ## Next Steps (Production Deployment)
 1. **GitHub Pages canlı doğrulama:**

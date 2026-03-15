@@ -63,7 +63,7 @@ VITE_STORY_API_URL=
 - `GEMINI_API_KEY` is read only by the backend proxy (`server/story-api.mjs`).
 - `OPENAI_API_KEY` is used by the optional backend proxy.
 - `VITE_OPENAI_TTS_KEY` enables direct OpenAI TTS from the app. If missing, the reader falls back to browser Speech Synthesis automatically.
-- `VITE_REVENUECAT_KEY` currently only signals planned billing setup; the app still runs in mock purchase mode until the real SDK is wired.
+- `VITE_REVENUECAT_KEY` now enables RevenueCat Web Billing SDK wiring. If the key is missing, the app stays in mock purchase mode.
 - `TRUST_PROXY` controls whether `x-forwarded-for`/`x-real-ip` headers are trusted for rate limiting. Keep `false` unless you are behind a trusted reverse proxy.
 - `CORS_ALLOWED_ORIGINS` is a comma-separated allowlist for browser origins. Set this explicitly in production.
 - See [PRIVACY.md](./PRIVACY.md) and [SECURITY.md](./SECURITY.md) before public deployment.
