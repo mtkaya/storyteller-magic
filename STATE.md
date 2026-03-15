@@ -69,9 +69,15 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 - e1c4140 fix(create-story): fix layout overlap between sections
 - 874a44f fix(story-gen): resolve import issues, add generation diagnostics
 - 4a4c9c0 fix(safety): null guards on story content
+- 4c3a4c6 docs(state): update after UI and story hardening
+- 155c0fe fix(create-story): fix step rendering — only active step in DOM
+- 06992fa fix(story-map): fix overlay z-index and scroll lock
+- 291df05 fix(ui): fix long-press button text contrast
+- d9e093f fix(create-story): hide debug info in prod
+- 0fdecc7 fix(layout): global scroll and overflow cleanup
 
 ## Recent Fixes (2026-03-15)
-### UI & UX Hardening
+### UI & UX Hardening Pass 1
 - **BottomNav dark mode fix:** "text-primary" CDN Tailwind resolve etmiyordu, inline style (#ee8c2b) ile değiştirildi
   - Aktif item altına 2px turuncu indicator dot eklendi
   - Hover effect: rgba(255,255,255,0.8)
@@ -83,6 +89,40 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
   - Debug log eklendi: template ID ve fallback status loglanıyor
 - **Null guards:** generateStory sonucunda null/incomplete content kontrolü eklendi
   - Reader.tsx zaten hasPlayableStoryData ile korunuyordu
+
+### UI Bug Fixes Pass 2 (2026-03-15)
+Ekran görüntülerinden tespit edilen 5 kritik UI hatası düzeltildi:
+
+1. **CreateStory step rendering (commit 155c0fe)**
+   - Ana form container: min-h-screen → h-screen + overflow-hidden
+   - Header ve progress: shrink-0 ile flex shrinking engellendi
+   - Footer: fixed position → shrink-0 flex item (artık overlay yapmıyor)
+   - Scrollable alan: pb-48 → pb-4 (artık gereksiz padding yok)
+   - Sonuç: Sadece aktif step DOM'da, adımlar artık çakışmıyor
+
+2. **StoryMap overlay scroll lock (commit 06992fa)**
+   - useEffect ile overlay açıkken body.style.overflow = 'hidden'
+   - Arka plan scroll lock'u eklendi, overlay kapatılınca restore ediliyor
+   - Modal zaten fixed inset-0 z-[100], artık scroll davranışı da doğru
+
+3. **ParentalGate long-press button contrast (commit 291df05)**
+   - Buton text-primary → text-white (koyu arka planda okunabilir)
+   - Border: border-primary/20 → border-white/40
+   - Arka plan: bg-white/5 eklendi (görünürlük artırıldı)
+
+4. **CreateStory RESULT debug info gizleme (commit d9e093f)**
+   - "GORSEL KIMLIK" bölümü: import.meta.env.DEV guard ile sarmalandı
+   - "Illustrator Prompt" bölümü: import.meta.env.DEV guard ile sarmalandı
+   - Debug bilgiler production'da gizli, console.log'a yazılıyor (sadece dev mode)
+   - Mode badge'lere cursor-default eklendi (tıklanabilir gibi görünmüyor)
+
+5. **Global scroll/overflow cleanup (commit 0fdecc7)**
+   - Reader: min-h-screen → h-screen + overflow-hidden
+   - Reader header: sticky → shrink-0
+   - Reader hero image: shrink-0 eklendi
+   - Reader main content: overflow-y-auto + flex-1, pb-24 → pb-4
+   - App container: overflow-hidden → overflow-x-hidden (y-scroll'a izin veriyor)
+   - İçerik artık nav bar'a taşmıyor, scroll davranışı düzgün
 
 ## Open Issues
 - Remote generation (Gemini) ve premium TTS API key olmadan calismiyor (kasitli)
