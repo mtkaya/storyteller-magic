@@ -54,6 +54,11 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
   (her seed icin cover + 8 sahne + 3 branch — EN)
 
 ## Important Commits
+- 653a4dd feat(reader): word-by-word highlight with manual and auto modes
+- 468c63e feat(reader): reading assistant drawer — highlight, font, speed controls
+- 61fe282 feat(reader): story-end reflection cards
+- 49d5d94 feat(craftsman): story craftsman page — guided story builder
+- 0b74e18 feat(nav): add story craftsman to navigation
 - ea95ac1 feat(story): companion/place fields added to Story type
 - 532c72a feat(seeds): companion/place mapped from vault seeds
 - f01d6a5 feat(utils): deriveStoryVisualIdentity helper (theme palettes + icons)
@@ -75,6 +80,51 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 - 291df05 fix(ui): fix long-press button text contrast
 - d9e093f fix(create-story): hide debug info in prod
 - 0fdecc7 fix(layout): global scroll and overflow cleanup
+
+## Recent Features (2026-03-15)
+### Reading Assistant & Story Craftsman Features (✅ TAMAMLANDI)
+- **Word-by-word highlighting (commit 653a4dd)**
+  - hooks/useReadingAssistant.ts: custom hook with manual/auto modes
+  - Reader.tsx: paragraph text split to word-level spans
+  - Active word: font-bold, text-primary, underline styling
+  - Manual mode: tap screen to advance word
+  - Auto mode: timer-based advancement (100-800ms/word configurable)
+
+- **Reading assistant drawer (commit 468c63e)**
+  - Slide-up drawer panel with toggle button (bottom-right)
+  - Word highlight ON/OFF with nested auto mode toggle
+  - Auto speed slider: 100ms-800ms per word
+  - Font size selector: text-lg / text-xl / text-2xl
+  - Font family toggle: Serif (Noto Serif) vs Sans (Plus Jakarta Sans)
+  - Reader-specific theme toggle: Dark/Light mode
+
+- **Story-end reflection cards (commit 61fe282)**
+  - Full-screen overlay after linear story completion
+  - "Hikaye Bitti! 🌙" title
+  - 3 random reflection questions from pool:
+    * "Who was your favorite character?"
+    * "What did you learn from this story?"
+    * "How would you tell this story to a friend?"
+  - 3 numbered option buttons per question
+  - "Continue" button to proceed to normal ending screen
+  - Fully localized (EN/TR) with sound effects
+
+- **Story Craftsman page (commit 49d5d94)**
+  - New guided story creation flow (pages/StoryCraftsman.tsx)
+  - Step 1: Choose hero (6 options: knight, fox, princess, owl, dragon, robot)
+  - Step 2: Choose place (6 options: forest, castle, underwater, space, village, clouds)
+  - Step 3: Choose event (4 options: find treasure, new friend, courage, mystery)
+  - Step 4: Choose ending (3 options: happy, lesson, adventure continues)
+  - Progress indicator dots show current step
+  - Result screen with "Read Story" button
+  - Full localization (EN/TR)
+
+- **Navigation integration (commit 0b74e18)**
+  - Added 'story_craftsman' to ScreenName type (types.ts)
+  - Imported and routed StoryCraftsman component in App.tsx
+  - "Hikaye Kurgula" / "Craft Story" card added to Home.tsx
+  - Card appears below main hero CTA
+  - Full click-through flow: Home → Story Craftsman → Reader
 
 ## Recent Fixes (2026-03-15)
 ### UI & UX Hardening Pass 1
@@ -129,8 +179,10 @@ Ekran görüntülerinden tespit edilen 5 kritik UI hatası düzeltildi:
 - RevenueCat SDK (@revenuecat/purchases-js) henüz kurulmadı — purchases.ts TODO placeholders ile hazır
 
 ## Next Suggested Step
+- Test reading assistant features: word highlighting, drawer controls, reflection cards
+- Test Story Craftsman flow: hero → place → event → ending → generate → read
 - Smoke test: Subscription ekranını test et (mock mode banner, satın alma butonu, restore butonu)
-- Screenshot'lar cek (store metadata icin)
+- Screenshot'lar cek (store metadata icin, yeni özelliklerle)
 - RevenueCat SDK kurulumu ve gerçek API key entegrasyonu (optional)
 - Gizlilik politikasi URL'ini bir yerde host et (GitHub Pages veya domain)
 
