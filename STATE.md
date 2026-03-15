@@ -76,6 +76,57 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 - d9e093f fix(create-story): hide debug info in prod
 - 0fdecc7 fix(layout): global scroll and overflow cleanup
 
+## TTS Feature (✅ TAMAMLANDI - 2026-03-15)
+### Sesli Hikaye Okuma Özelliği
+- **src/services/ttsService.ts:** Web Speech API wrapper
+  - speak(text, options): Promise<void> — tekst okuma
+  - speakParagraphs(paragraphs[], onWord?, onParagraphEnd?) — paragraf bazlı okuma
+  - stop(), pause(), resume() kontrolleri
+  - isSupported(), getVoices() — tarayıcı desteği kontrolü
+  - Kelime bazlı callback (word highlight için)
+  - Paragraf sonu callback (otomatik ilerleme için)
+
+- **pages/Reader.tsx entegrasyonu:**
+  - TTS buton: play/pause toggle (header'da 🔊 ikonu)
+  - Aktif paragraf: hafif bg-white/10 highlight
+  - Aktif kelime: bold + text-primary highlight (kelime bazlı tracking)
+  - Hız slider: 0.7x - 1.2x (Settings'teki varsayılan değer)
+  - Dil: story.sourceLanguage'den otomatik seçilir (tr-TR / en-US)
+  - Cleanup: sayfa kapanınca/story değişince tts.stop() çağrılır
+  - Premium TTS fallback destekleniyor (mevcut kod korundu)
+
+- **pages/Settings.tsx:**
+  - "Sesli Okuma" toggle (AppStateContext.settings.ttsEnabled)
+  - Varsayılan ses hızı slider (Reading Speed section)
+  - Ses seçici dropdown (availableVoices listesi, tr/en filtrelenmiş)
+  - TTS toggle kapalıyken ayarlar gizleniyor
+
+- **context/AppStateContext.tsx:**
+  - settings.ttsEnabled: boolean (varsayılan: true)
+  - localStorage'a kaydediliyor
+
+- **src/services/elevenlabsTTS.ts:** ElevenLabs stub (API key hazırlığı)
+  - isElevenLabsConfigured(): VITE_ELEVENLABS_KEY kontrolü
+  - speakWithElevenLabs(text, voiceId): AudioBuffer — stub implementation
+  - ELEVENLABS_VOICES: 4 çocuk dostu ses (Adam, Bella, Elli, Antoni)
+  - getRecommendedVoice(language): dil bazlı ses önerisi
+  - Fallback: API key yoksa Web Speech API kullanılır
+
+- **docs/tts-voices.md:** Ses kullanım kılavuzu
+  - Web Speech API önerilen sesler (tr-TR / en-US)
+  - ElevenLabs premium ses önerileri ve API kurulumu
+  - Okuma hızı yaş bazlı öneriler (2-4 yaş: 0.7x, 8+ yaş: 1.2x)
+  - Tema bazlı ses seçim stratejileri
+  - Teknik notlar: SSR kısıtları, fallback stratejisi
+  - Test kontrol listesi
+
+Commits:
+- 7982df8 feat(tts): Web Speech API service with paragraph and word callbacks
+- a50fb90 feat(reader): TTS integration — play/pause, word highlight, speed control
+- 1e11be9 feat(settings): TTS preferences — enable toggle, speed, voice picker
+- 6da8ce0 feat(tts): ElevenLabs stub — ready for API key integration
+- a13348b docs(tts): voice guide and ElevenLabs voice recommendations
+
 ## Recent Fixes (2026-03-15)
 ### UI & UX Hardening Pass 1
 - **BottomNav dark mode fix:** "text-primary" CDN Tailwind resolve etmiyordu, inline style (#ee8c2b) ile değiştirildi
@@ -127,10 +178,12 @@ Ekran görüntülerinden tespit edilen 5 kritik UI hatası düzeltildi:
 ## Open Issues
 - Remote generation (Gemini) ve premium TTS API key olmadan calismiyor (kasitli)
 - RevenueCat SDK (@revenuecat/purchases-js) henüz kurulmadı — purchases.ts TODO placeholders ile hazır
+- ElevenLabs TTS API key entegrasyonu stub — VITE_ELEVENLABS_KEY ile aktif hale gelecek
 
 ## Next Suggested Step
-- Smoke test: Subscription ekranını test et (mock mode banner, satın alma butonu, restore butonu)
-- Screenshot'lar cek (store metadata icin)
+- TTS özelliğini test et (Web Speech API, kelime highlight, paragraf geçişleri)
+- ElevenLabs API key ekle ve premium TTS test et (optional)
+- Screenshot'lar cek (store metadata icin — TTS özelliği dahil)
 - RevenueCat SDK kurulumu ve gerçek API key entegrasyonu (optional)
 - Gizlilik politikasi URL'ini bir yerde host et (GitHub Pages veya domain)
 
