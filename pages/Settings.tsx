@@ -353,6 +353,12 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                     <button className="w-full text-left text-white/60 text-sm p-4 hover:text-white transition-colors">
                         {language === 'tr' ? 'Yardım & Destek' : 'Help & Support'}
                     </button>
+                    <button
+                        onClick={() => onNavigate('privacy_policy')}
+                        className="w-full text-left text-white/60 text-sm p-4 hover:text-white transition-colors"
+                    >
+                        {language === 'tr' ? 'Gizlilik Politikası' : 'Privacy Policy'}
+                    </button>
                     <button className="w-full text-left text-red-400 text-sm p-4 hover:text-red-300 transition-colors">
                         {language === 'tr' ? 'Çıkış Yap' : 'Log Out'}
                     </button>

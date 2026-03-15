@@ -10,7 +10,8 @@ export type ScreenName =
   | 'subscription'
   | 'stats'
   | 'parent_report'
-  | 'collections';
+  | 'collections'
+  | 'privacy_policy';
 
 export interface Story {
   id: string;

@@ -13,6 +13,7 @@ import StatsPage from './pages/StatsPage';
 import ParentReport from './pages/ParentReport';
 import CollectionsPage from './pages/CollectionsPage';
 import Onboarding from './pages/Onboarding';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import BottomNav from './components/BottomNav';
 import ParentalGate from './components/ParentalGate';
 import BadgeNotification from './components/BadgeNotification';
@@ -235,6 +236,8 @@ const AppContent: React.FC = () => {
       setCurrentScreen('parent_report' as ScreenName);
     } else if (screen === 'collections' as ScreenName) {
       setCurrentScreen('collections' as ScreenName);
+    } else if (screen === 'privacy_policy') {
+      setCurrentScreen('privacy_policy');
     } else {
       setCurrentScreen(screen);
     }
@@ -345,6 +348,8 @@ const AppContent: React.FC = () => {
             onStorySelect={handleStorySelect}
           />
         );
+      case 'privacy_policy':
+        return <PrivacyPolicy onBack={() => setCurrentScreen('settings')} />;
       default:
         return <Home onNavigate={handleNavigate} onStorySelect={handleStorySelect} />;
     }
