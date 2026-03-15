@@ -54,6 +54,36 @@ children's book cover, dreamy cosmos, friendly planets and stars, soft nebula cl
 children's book cover, calm underwater world, glowing corals, bubbles, friendly sea creatures, bedtime serenity
 ```
 
+### Seasons (Autumn)
+
+```text
+children's book cover, golden autumn forest, falling colorful leaves, warm orange and red palette, cozy harvest mood, gentle twilight
+```
+
+### Seasons (Winter)
+
+```text
+children's book cover, snowy pine forest, soft snowflakes, silvery moonlight, peaceful winter night, warm lantern glow
+```
+
+### Seasons (Spring)
+
+```text
+children's book cover, blooming meadow, fresh green grass, budding flowers, soft morning light, gentle awakening mood
+```
+
+### Seasons (Summer)
+
+```text
+children's book cover, warm twilight field, fireflies glowing, starry night, peaceful summer evening, gentle warm breeze atmosphere
+```
+
+### Folklore
+
+```text
+children's book cover, ancient forest clearing, mystical moonlight, old stone circles, folk tale atmosphere, gentle magical heritage
+```
+
 ## Technique Presets
 
 ### Watercolor
@@ -236,6 +266,36 @@ children's book cover, twinkling sky discovery, magical awe, soft radiant highli
 children's book cover, thoughtful library scene, lantern-lit reading nook, gentle mentor character, calm intellectual warmth, hand-painted digital illustration
 ```
 
+#### Autumn Cover
+
+```text
+children's book cover, golden autumn forest, falling leaves, harvest baskets, cozy orange and red palette, gentle twilight mood, hand-painted digital illustration
+```
+
+#### Winter Cover
+
+```text
+children's book cover, snowy pine forest, soft snowflakes, warm lantern glow, peaceful winter night, silvery moonlight, hand-painted digital illustration
+```
+
+#### Spring Cover
+
+```text
+children's book cover, blooming meadow, fresh flowers, morning dew, gentle awakening atmosphere, soft pastel greens and pinks, hand-painted digital illustration
+```
+
+#### Summer Cover
+
+```text
+children's book cover, firefly-lit twilight field, starry summer evening, warm gentle breeze, peaceful nighttime meadow, hand-painted digital illustration
+```
+
+#### Folklore Cover
+
+```text
+children's book cover, ancient forest clearing, mystical stone circle, moonlit folk tale scene, timeless heritage mood, hand-painted digital illustration
+```
+
 ### Sequential Story Prompts (8 Scenes)
 
 Use one set per story. Replace placeholders:
@@ -378,6 +438,36 @@ twinkling discovery, awe and curiosity, radiant magical atmosphere
 lantern-lit learning, thoughtful calm, gentle mentor presence
 ```
 
+#### Autumn Flavor
+
+```text
+golden falling leaves, harvest warmth, cozy twilight preparation
+```
+
+#### Winter Flavor
+
+```text
+soft snowflakes, silvery moonlight, peaceful winter stillness
+```
+
+#### Spring Flavor
+
+```text
+blooming flowers, fresh green awakening, gentle morning renewal
+```
+
+#### Summer Flavor
+
+```text
+firefly glow, starlit fields, warm evening comfort
+```
+
+#### Folklore Flavor
+
+```text
+ancient stone circles, mystical moonlight, timeless folk wisdom
+```
+
 ### Single-Cover-Only Story Mode
 
 Use this when one story uses one main cover image only:
@@ -478,6 +568,31 @@ fotorealizm yok, gerçekçi kamera lensi yok, gerçek fotoğraf dokusu yok, sert
 çocuk kitabı kapağı, düşünceli kütüphane sahnesi, fenerle aydınlatılmış okuma köşesi, nazik mentor karakter, sakin entelektüel sıcaklık, el yapımı dijital illüstrasyon
 ```
 
+#### Sonbahar
+```text
+çocuk kitabı kapağı, altın sonbahar ormanı, düşen yapraklar, hasat sepetleri, rahat turuncu ve kırmızı palet, nazik alacakaranlık atmosfer, el yapımı dijital illüstrasyon
+```
+
+#### Kış
+```text
+çocuk kitabı kapağı, karlı çam ormanı, yumuşak kar taneleri, sıcak fener ışığı, huzurlu kış gecesi, gümüşi ay ışığı, el yapımı dijital illüstrasyon
+```
+
+#### Bahar
+```text
+çocuk kitabı kapağı, çiçek açan çayır, taze çiçekler, sabah çiyi, nazik uyanış atmosferi, yumuşak pastel yeşil ve pembeler, el yapımı dijital illüstrasyon
+```
+
+#### Yaz
+```text
+çocuk kitabı kapağı, ateşböceği ışıklı alacakaranlık tarlası, yıldızlı yaz akşamı, sıcak nazik esinti, huzurlu gece çayırı, el yapımı dijital illüstrasyon
+```
+
+#### Folklor
+```text
+çocuk kitabı kapağı, antik orman açıklığı, mistik taş çember, mehtaplı halk masalı sahnesi, zamansız miras atmosferi, el yapımı dijital illüstrasyon
+```
+
 ### 8 Sahne Şablonu (TR)
 
 Değiştirilecekler: `{TEMA_AROMASI}`, `{ANA_KARAKTER}`, `{YARDIMCI_KARAKTER}`, `{KONUM}`
@@ -537,6 +652,11 @@ Aile: ev sıcaklığı, koruyucu birliktelik, ilgili jestler
 İyilik: yardım eden eller, davet edici ifadeler, yumuşak parlayan empati
 Merak: yıldızlı keşif, hayranlık ve merak, radyan sihirli atmosfer
 Bilgelik: fenerle aydınlatılmış öğrenme, düşünceli huzur, nazik mentor varlığı
+Sonbahar: altın düşen yapraklar, hasat sıcaklığı, rahat alacakaranlık hazırlığı
+Kış: yumuşak kar taneleri, gümüşi ay ışığı, huzurlu kış sessizliği
+Bahar: çiçek açan çiçekler, taze yeşil uyanış, nazik sabah yenilenmesi
+Yaz: ateşböceği parıltısı, yıldızlı tarlalar, sıcak akşam konforu
+Folklor: antik taş çemberler, mistik ay ışığı, zamansız halk bilgeliği
 ```
 
 ---
