@@ -260,6 +260,8 @@ interface AppStateContextType {
     subscription: SubscriptionState;
     planRule: PlanRule;
     setSubscriptionTier: (tier: SubscriptionTier) => void;
+    isPro: boolean;
+    setPro: (value: boolean) => void;
 
     // Profiles
     profiles: ChildProfile[];
@@ -332,6 +334,7 @@ const STORAGE_KEYS = {
     settings: 'storyteller_settings',
     customStories: 'storyteller_custom_stories',
     subscription: 'storyteller_subscription',
+    isPro: 'storyteller_is_pro',
 };
 
 // Provider
@@ -392,6 +395,15 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
             };
         } catch {
             return { tier: 'free', updatedAt: new Date().toISOString() };
+        }
+    });
+
+    const [isPro, setIsPro] = useState<boolean>(() => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEYS.isPro);
+            return saved === 'true';
+        } catch {
+            return false;
         }
     });
 
@@ -473,6 +485,10 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
         localStorage.setItem(STORAGE_KEYS.subscription, JSON.stringify(subscription));
     }, [subscription]);
 
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.isPro, String(isPro));
+    }, [isPro]);
+
     // Check and unlock badges
     const checkBadges = (updatedStats: ReadingStats) => {
         const newBadges = [...badges];
@@ -531,6 +547,10 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
             tier,
             updatedAt: new Date().toISOString(),
         });
+    };
+
+    const setPro = (value: boolean) => {
+        setIsPro(value);
     };
 
     const addProfile = (name: string, age: number, avatar: string) => {
@@ -711,6 +731,8 @@ export const AppStateProvider: React.FC<{ children: ReactNode }> = ({ children }
         subscription,
         planRule,
         setSubscriptionTier,
+        isPro,
+        setPro,
         profiles,
         activeProfile,
         setActiveProfile,
