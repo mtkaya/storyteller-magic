@@ -11,6 +11,7 @@ import { translateSegmentsToTurkish } from '../services/storyTranslation';
 import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/storyLocalization';
 import { resolveStorySceneVisual } from '../services/storySceneVisuals';
 import { deriveStoryVisualIdentity } from '../storyUtils';
+import { ttsService } from '../src/services/ttsService';
 
 interface ReaderProps {
   story: Story | null;
@@ -313,6 +314,8 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [speechRate, setSpeechRate] = useState(persistedReadingSpeed);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentWord, setCurrentWord] = useState<string | null>(null);
+  const [currentWordIndex, setCurrentWordIndex] = useState<number>(-1);
 
   // Interactive story state
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
@@ -358,7 +361,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     speechSessionRef.current += 1;
     if (synthRef.current) synthRef.current.cancel();
     stopPremiumAudio();
+    ttsService.stop();
     setIsSpeaking(false);
+    setCurrentWord(null);
+    setCurrentWordIndex(-1);
   };
 
   // Enable sleep controller when playing
@@ -822,12 +828,22 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     setShowChoices(false);
     setIsEnding(false);
     setNavigationError(null);
+    setCurrentWord(null);
+    setCurrentWordIndex(-1);
+    ttsService.stop();
     if (isInteractiveStory) {
       setCurrentBranchId(initialBranchId);
     } else {
       setCurrentBranchId(null);
     }
   }, [activeStory.id, isInteractiveStory, initialBranchId]);
+
+  // Cleanup TTS on unmount
+  useEffect(() => {
+    return () => {
+      ttsService.stop();
+    };
+  }, []);
 
   // Recover from malformed branch IDs by jumping to the best available start branch.
   useEffect(() => {
@@ -1045,18 +1061,25 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     return playPremiumChunk(text, sessionId, playbackRate);
   };
 
-  // Speak paragraph
+  // Speak paragraph using ttsService
   const speakParagraph = async (text: string) => {
+    if (!ttsService.isSupported()) {
+      console.warn('TTS not supported in this browser');
+      return;
+    }
+
     const chunks = splitTextForSpeech(text, language);
     if (chunks.length === 0) return;
 
     cancelSpeech();
     const sessionId = speechSessionRef.current;
     const effectiveRate = language === 'tr'
-      ? Math.min(0.96, Math.max(0.72, speechRate))
-      : Math.min(1.05, Math.max(0.78, speechRate));
+      ? Math.min(1.2, Math.max(0.7, speechRate))
+      : Math.min(1.2, Math.max(0.7, speechRate));
 
     setIsSpeaking(true);
+
+    // Try premium TTS first
     const premiumPlayed = await tryPlayPremiumTts(chunks.join(' '), sessionId, effectiveRate);
     if (premiumPlayed) {
       finalizeParagraphPlayback(sessionId);
@@ -1065,58 +1088,33 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
     if (sessionId !== speechSessionRef.current) return;
 
-    if (!synthRef.current) {
-      setIsSpeaking(false);
-      return;
-    }
-
-    let chunkIndex = 0;
-    const voices = synthRef.current.getVoices();
-    preferredVoiceRef.current = pickBestVoice(voices, language);
-
-    const speakNextChunk = () => {
-      if (!synthRef.current || sessionId !== speechSessionRef.current) return;
-      const chunk = chunks[chunkIndex];
-      if (!chunk) return;
-
-      const utterance = new SpeechSynthesisUtterance(chunk);
-      utterance.rate = effectiveRate;
-      utterance.pitch = language === 'tr' ? 0.98 : 1.0;
-      utterance.volume = settings.narrationVolume;
-      utterance.lang = language === 'tr' ? 'tr-TR' : 'en-US';
-
-      if (preferredVoiceRef.current) {
-        utterance.voice = preferredVoiceRef.current;
-      }
-
-      utterance.onstart = () => {
-        if (sessionId === speechSessionRef.current) {
-          setIsSpeaking(true);
+    try {
+      await ttsService.speakParagraphs(
+        [text],
+        (paragraphIndex: number, word: string) => {
+          setCurrentWord(word);
+        },
+        () => {
+          setCurrentWord(null);
+          setCurrentWordIndex(-1);
+        },
+        {
+          rate: effectiveRate,
+          pitch: language === 'tr' ? 0.98 : 1.0,
+          volume: settings.narrationVolume,
+          lang: language === 'tr' ? 'tr-TR' : 'en-US'
         }
-      };
+      );
 
-      utterance.onend = () => {
-        if (sessionId !== speechSessionRef.current) return;
-        chunkIndex += 1;
-
-        if (chunkIndex < chunks.length && isPlayingRef.current) {
-          setTimeout(speakNextChunk, chunkPauseMs(chunk));
-          return;
-        }
-
+      if (sessionId === speechSessionRef.current) {
         finalizeParagraphPlayback(sessionId);
-      };
-
-      utterance.onerror = () => {
-        if (sessionId === speechSessionRef.current) {
-          setIsSpeaking(false);
-        }
-      };
-
-      synthRef.current.speak(utterance);
-    };
-
-    speakNextChunk();
+      }
+    } catch (error) {
+      console.error('TTS error:', error);
+      if (sessionId === speechSessionRef.current) {
+        setIsSpeaking(false);
+      }
+    }
   };
 
   // Auto-play effect
@@ -1382,10 +1380,25 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
         <div className="max-w-md mx-auto relative pt-4">
 
           {/* Text Content */}
-          <div className="bg-bg-card rounded-2xl p-6 shadow-xl border border-white/5 relative mb-4">
+          <div className={`bg-bg-card rounded-2xl p-6 shadow-xl border border-white/5 relative mb-4 transition-all duration-300 ${isSpeaking ? 'bg-white/10' : ''}`}>
             {hasContent ? (
               <p className="text-white text-lg leading-relaxed font-medium transition-all duration-500 ease-in-out font-serif">
-                {content[currentParagraph]}
+                {currentWord && isSpeaking
+                  ? content[currentParagraph].split(/(\s+)/).map((part, idx) => {
+                      const trimmedPart = part.trim();
+                      if (!trimmedPart) return <span key={idx}>{part}</span>;
+                      const isCurrentWord = trimmedPart.toLowerCase() === currentWord.toLowerCase();
+                      return (
+                        <span
+                          key={idx}
+                          className={isCurrentWord ? 'font-bold text-primary' : ''}
+                        >
+                          {part}
+                        </span>
+                      );
+                    })
+                  : content[currentParagraph]
+                }
               </p>
             ) : (
               <div className="text-center py-10">
