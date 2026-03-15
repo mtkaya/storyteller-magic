@@ -50,13 +50,15 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 
 ### Prompt Kutuphanesi
 - docs/illustration-prompts.md: tema kapak promptlari, teknik presetler, TR sablonlar, kontrol listesi
-  - **YENI:** Seasons (Sonbahar/Kış/Bahar/Yaz), Folklore tema prompt'ları eklendi
-- docs/seed-prompts.md: **46 seed × 12 prompt = 552 hazir gorsel promptu**
+- docs/seed-prompts.md: 21 seed × 12 prompt = 252 hazir gorsel promptu
   (her seed icin cover + 8 sahne + 3 branch — EN)
-  - İlk 21 seed detaylı prompt'larla dökümante
-  - Yeni 25 seed tablo ve örnek formatlarla dökümante
 
 ## Important Commits
+- 653a4dd feat(reader): word-by-word highlight with manual and auto modes
+- 468c63e feat(reader): reading assistant drawer — highlight, font, speed controls
+- 61fe282 feat(reader): story-end reflection cards
+- 49d5d94 feat(craftsman): story craftsman page — guided story builder
+- 0b74e18 feat(nav): add story craftsman to navigation
 - ea95ac1 feat(story): companion/place fields added to Story type
 - 532c72a feat(seeds): companion/place mapped from vault seeds
 - f01d6a5 feat(utils): deriveStoryVisualIdentity helper (theme palettes + icons)
@@ -79,50 +81,50 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 - d9e093f fix(create-story): hide debug info in prod
 - 0fdecc7 fix(layout): global scroll and overflow cleanup
 
-## Recent Updates (2026-03-15)
+## Recent Features (2026-03-15)
+### Reading Assistant & Story Craftsman Features (✅ TAMAMLANDI)
+- **Word-by-word highlighting (commit 653a4dd)**
+  - hooks/useReadingAssistant.ts: custom hook with manual/auto modes
+  - Reader.tsx: paragraph text split to word-level spans
+  - Active word: font-bold, text-primary, underline styling
+  - Manual mode: tap screen to advance word
+  - Auto mode: timer-based advancement (100-800ms/word configurable)
 
-### Story Vault Expansion (✅ TAMAMLANDI - feature/more-seeds branch)
-**Total: 25 yeni hikaye seed'i (15 linear + 10 interactive)**
+- **Reading assistant drawer (commit 468c63e)**
+  - Slide-up drawer panel with toggle button (bottom-right)
+  - Word highlight ON/OFF with nested auto mode toggle
+  - Auto speed slider: 100ms-800ms per word
+  - Font size selector: text-lg / text-xl / text-2xl
+  - Font family toggle: Serif (Noto Serif) vs Sans (Plus Jakarta Sans)
+  - Reader-specific theme toggle: Dark/Light mode
 
-**Data Layer (data.ts):**
-- VAULT_SEEDS: 23 → 48 seed (25 yeni eklendi)
-- VAULT_LINEAR_STORIES: 96 linear hikaye (15 yeni seed döngüsel olarak kullanılıyor)
-- VAULT_INTERACTIVE_STORIES: 48 interactive hikaye (her seed 1 interactive hikaye)
+- **Story-end reflection cards (commit 61fe282)**
+  - Full-screen overlay after linear story completion
+  - "Hikaye Bitti! 🌙" title
+  - 3 random reflection questions from pool:
+    * "Who was your favorite character?"
+    * "What did you learn from this story?"
+    * "How would you tell this story to a friend?"
+  - 3 numbered option buttons per question
+  - "Continue" button to proceed to normal ending screen
+  - Fully localized (EN/TR) with sound effects
 
-**Yeni Temalar ve Karakterler:**
-1. **Seasons (5 seed):**
-   - Maple the Autumn Fox, Sage the Winter Owl, Clover the Spring Bunny
-   - Glow the Summer Firefly, Rustle the Autumn Hedgehog
-2. **Space (3 seed):**
-   - Cosmo the Star Bunny, Nova the Space Mouse, Jupiter the Stargazer Cat
-3. **Ocean (3 seed):**
-   - Pearl the Coral Fish, Anchor the Sea Turtle, Wave the Dolphin
-4. **Folklore (4 seed):**
-   - Ember the Folk Fox, Midnight the Folklore Raven
-   - Fawn the Folk Deer, Moon the Folklore Hare
-5. **Interactive Extensions (10 seed):**
-   - Frost castle, Spring bloom, Cosmic compass, Deep trench
-   - Shadow lantern, Tide song, Elder story, Harvest moon
-   - Mirror lake, Comet trail
+- **Story Craftsman page (commit 49d5d94)**
+  - New guided story creation flow (pages/StoryCraftsman.tsx)
+  - Step 1: Choose hero (6 options: knight, fox, princess, owl, dragon, robot)
+  - Step 2: Choose place (6 options: forest, castle, underwater, space, village, clouds)
+  - Step 3: Choose event (4 options: find treasure, new friend, courage, mystery)
+  - Step 4: Choose ending (3 options: happy, lesson, adventure continues)
+  - Progress indicator dots show current step
+  - Result screen with "Read Story" button
+  - Full localization (EN/TR)
 
-**UI Updates (pages/Library.tsx):**
-- 4 yeni kategori filtresi: Seasons, Space, Ocean, Folklore
-- Keyword-based filtreleme (karakter isimleri, başlıklar, yerler)
-- Türkçe/İngilizce etiket desteği
-- Kindness teması themeLabelMap'e eklendi
-
-**Dokümantasyon (docs/):**
-- illustration-prompts.md: Seasons ve Folklore prompt paketleri
-- seed-prompts.md: 46 seed × 12 prompt = 552 unique prompt
-  - 3 detaylı örnek (Maple, Sage, Cosmo)
-  - Tam seed tablosu ve format referansı
-
-**Commits:**
-- b28263e feat(seeds): add 15 new linear seeds — seasons, space, ocean themes
-- 6be833a feat(seeds): add 10 new interactive seeds with branching paths
-- 834074d docs(prompts): add season, folklore illustration prompts matching art style
-- b17f3d0 docs(prompts): add 25 new seed illustration prompts
-- 95e62e4 feat(library): add new theme filters for seasons, space, ocean, folklore
+- **Navigation integration (commit 0b74e18)**
+  - Added 'story_craftsman' to ScreenName type (types.ts)
+  - Imported and routed StoryCraftsman component in App.tsx
+  - "Hikaye Kurgula" / "Craft Story" card added to Home.tsx
+  - Card appears below main hero CTA
+  - Full click-through flow: Home → Story Craftsman → Reader
 
 ## Recent Fixes (2026-03-15)
 ### UI & UX Hardening Pass 1
@@ -177,8 +179,10 @@ Ekran görüntülerinden tespit edilen 5 kritik UI hatası düzeltildi:
 - RevenueCat SDK (@revenuecat/purchases-js) henüz kurulmadı — purchases.ts TODO placeholders ile hazır
 
 ## Next Suggested Step
+- Test reading assistant features: word highlighting, drawer controls, reflection cards
+- Test Story Craftsman flow: hero → place → event → ending → generate → read
 - Smoke test: Subscription ekranını test et (mock mode banner, satın alma butonu, restore butonu)
-- Screenshot'lar cek (store metadata icin)
+- Screenshot'lar cek (store metadata icin, yeni özelliklerle)
 - RevenueCat SDK kurulumu ve gerçek API key entegrasyonu (optional)
 - Gizlilik politikasi URL'ini bir yerde host et (GitHub Pages veya domain)
 

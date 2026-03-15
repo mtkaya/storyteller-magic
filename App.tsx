@@ -4,6 +4,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { ScreenName, Story } from './types';
 import Home from './pages/Home';
 import CreateStory from './pages/CreateStory';
+import StoryCraftsman from './pages/StoryCraftsman';
 import Reader from './pages/Reader';
 import Library from './pages/Library';
 import Achievements from './pages/Achievements';
@@ -313,6 +314,8 @@ const AppContent: React.FC = () => {
         );
       case 'create_story':
         return <CreateStory onBack={() => setCurrentScreen('home')} onComplete={handleStoryComplete} />;
+      case 'story_craftsman':
+        return <StoryCraftsman onBack={() => setCurrentScreen('home')} onComplete={handleStoryComplete} />;
       case 'reader':
         return (
           <Reader

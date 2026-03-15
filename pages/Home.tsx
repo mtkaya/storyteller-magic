@@ -203,6 +203,29 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onStorySelect, onProfileClick, 
             </button>
           </div>
         </div>
+
+        {/* Story Craftsman Card */}
+        <div
+          className="relative w-full rounded-2xl overflow-hidden shadow-xl border border-white/10 cursor-pointer hover:border-primary/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-br from-secondary/20 to-primary/20 mt-4"
+          onClick={() => onNavigate('story_craftsman')}
+        >
+          <div className="p-5 flex items-center gap-4">
+            <div className="size-14 rounded-xl bg-primary/30 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-primary text-3xl">auto_stories</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-white text-lg font-bold mb-1">
+                {language === 'tr' ? 'Hikaye Kurgula' : 'Craft Story'}
+              </h3>
+              <p className="text-white/60 text-sm leading-snug">
+                {language === 'tr'
+                  ? 'Kahramanını, yerini ve macerasını sen seç!'
+                  : 'Choose your hero, place, and adventure!'}
+              </p>
+            </div>
+            <span className="material-symbols-outlined text-white/40 text-2xl">arrow_forward</span>
+          </div>
+        </div>
       </div>
 
       {/* Favorites Section (if any) */}

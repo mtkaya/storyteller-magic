@@ -11,7 +11,7 @@ import { translateSegmentsToTurkish } from '../services/storyTranslation';
 import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/storyLocalization';
 import { resolveStorySceneVisual } from '../services/storySceneVisuals';
 import { deriveStoryVisualIdentity } from '../storyUtils';
-import { ttsService } from '../src/services/ttsService';
+import { useReadingAssistant } from '../hooks/useReadingAssistant';
 
 interface ReaderProps {
   story: Story | null;
@@ -314,8 +314,32 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   const [speechRate, setSpeechRate] = useState(persistedReadingSpeed);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [currentWord, setCurrentWord] = useState<string | null>(null);
-  const [currentWordIndex, setCurrentWordIndex] = useState<number>(-1);
+
+  // Word highlighting state
+  const [wordHighlightEnabled, setWordHighlightEnabled] = useState(false);
+  const [autoWordSpeed, setAutoWordSpeed] = useState(300);
+  const currentText = hasContent ? content[currentParagraph] : '';
+  const words = currentText.split(/\s+/).filter(Boolean);
+  const readingAssistant = useReadingAssistant({
+    totalWords: words.length,
+    isEnabled: wordHighlightEnabled,
+    autoSpeed: autoWordSpeed,
+  });
+
+  // Reading assistant drawer state
+  const [showAssistantDrawer, setShowAssistantDrawer] = useState(false);
+  const [readerFontSize, setReaderFontSize] = useState<'text-lg' | 'text-xl' | 'text-2xl'>('text-lg');
+  const [readerFontFamily, setReaderFontFamily] = useState<'font-serif' | 'font-sans'>('font-serif');
+  const [readerTheme, setReaderTheme] = useState<'dark' | 'light'>('dark');
+
+  // Reflection card state
+  const [showReflectionCard, setShowReflectionCard] = useState(false);
+  const [reflectionQuestion, setReflectionQuestion] = useState<{
+    question: string;
+    questionTr: string;
+    options: string[];
+    optionsTr: string[];
+  } | null>(null);
 
   // Interactive story state
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
@@ -361,10 +385,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     speechSessionRef.current += 1;
     if (synthRef.current) synthRef.current.cancel();
     stopPremiumAudio();
-    ttsService.stop();
     setIsSpeaking(false);
-    setCurrentWord(null);
-    setCurrentWordIndex(-1);
   };
 
   // Enable sleep controller when playing
@@ -828,22 +849,12 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     setShowChoices(false);
     setIsEnding(false);
     setNavigationError(null);
-    setCurrentWord(null);
-    setCurrentWordIndex(-1);
-    ttsService.stop();
     if (isInteractiveStory) {
       setCurrentBranchId(initialBranchId);
     } else {
       setCurrentBranchId(null);
     }
   }, [activeStory.id, isInteractiveStory, initialBranchId]);
-
-  // Cleanup TTS on unmount
-  useEffect(() => {
-    return () => {
-      ttsService.stop();
-    };
-  }, []);
 
   // Recover from malformed branch IDs by jumping to the best available start branch.
   useEffect(() => {
@@ -928,6 +939,31 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     completionEventRef.current = completionKey;
     recordStoryRead(activeStory.id, activeStory.theme || 'general', getSessionDurationMinutes());
     soundEffects.play('story_complete');
+
+    // Show reflection card after linear story completion
+    const reflectionQuestions = [
+      {
+        question: 'Who was your favorite character in the story?',
+        questionTr: 'Hikayede en sevdiğin karakter hangisiydi?',
+        options: ['The hero', 'The companion', 'The magical creature'],
+        optionsTr: ['Kahraman', 'Arkadaş', 'Sihirli yaratık'],
+      },
+      {
+        question: 'What did you learn from this story?',
+        questionTr: 'Bu hikayeden ne öğrendin?',
+        options: ['Be brave', 'Help others', 'Never give up'],
+        optionsTr: ['Cesur ol', 'Başkalarına yardım et', 'Asla vazgeçme'],
+      },
+      {
+        question: 'How would you tell this story to a friend?',
+        questionTr: 'Bu hikayeyi bir arkadaşına nasıl anlatırdın?',
+        options: ['Exciting adventure!', 'Magical journey!', 'Heartwarming tale!'],
+        optionsTr: ['Heyecanlı macera!', 'Sihirli yolculuk!', 'İçten bir hikaye!'],
+      },
+    ];
+    const randomQuestion = reflectionQuestions[Math.floor(Math.random() * reflectionQuestions.length)];
+    setReflectionQuestion(randomQuestion);
+    setTimeout(() => setShowReflectionCard(true), 1000);
   }, [isInteractiveStory, hasContent, currentParagraph, content.length, activeStory.id, activeStory.theme, recordStoryRead]);
 
   // Initialize speech synthesis
@@ -1061,25 +1097,18 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
     return playPremiumChunk(text, sessionId, playbackRate);
   };
 
-  // Speak paragraph using ttsService
+  // Speak paragraph
   const speakParagraph = async (text: string) => {
-    if (!ttsService.isSupported()) {
-      console.warn('TTS not supported in this browser');
-      return;
-    }
-
     const chunks = splitTextForSpeech(text, language);
     if (chunks.length === 0) return;
 
     cancelSpeech();
     const sessionId = speechSessionRef.current;
     const effectiveRate = language === 'tr'
-      ? Math.min(1.2, Math.max(0.7, speechRate))
-      : Math.min(1.2, Math.max(0.7, speechRate));
+      ? Math.min(0.96, Math.max(0.72, speechRate))
+      : Math.min(1.05, Math.max(0.78, speechRate));
 
     setIsSpeaking(true);
-
-    // Try premium TTS first
     const premiumPlayed = await tryPlayPremiumTts(chunks.join(' '), sessionId, effectiveRate);
     if (premiumPlayed) {
       finalizeParagraphPlayback(sessionId);
@@ -1088,33 +1117,58 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
     if (sessionId !== speechSessionRef.current) return;
 
-    try {
-      await ttsService.speakParagraphs(
-        [text],
-        (paragraphIndex: number, word: string) => {
-          setCurrentWord(word);
-        },
-        () => {
-          setCurrentWord(null);
-          setCurrentWordIndex(-1);
-        },
-        {
-          rate: effectiveRate,
-          pitch: language === 'tr' ? 0.98 : 1.0,
-          volume: settings.narrationVolume,
-          lang: language === 'tr' ? 'tr-TR' : 'en-US'
-        }
-      );
-
-      if (sessionId === speechSessionRef.current) {
-        finalizeParagraphPlayback(sessionId);
-      }
-    } catch (error) {
-      console.error('TTS error:', error);
-      if (sessionId === speechSessionRef.current) {
-        setIsSpeaking(false);
-      }
+    if (!synthRef.current) {
+      setIsSpeaking(false);
+      return;
     }
+
+    let chunkIndex = 0;
+    const voices = synthRef.current.getVoices();
+    preferredVoiceRef.current = pickBestVoice(voices, language);
+
+    const speakNextChunk = () => {
+      if (!synthRef.current || sessionId !== speechSessionRef.current) return;
+      const chunk = chunks[chunkIndex];
+      if (!chunk) return;
+
+      const utterance = new SpeechSynthesisUtterance(chunk);
+      utterance.rate = effectiveRate;
+      utterance.pitch = language === 'tr' ? 0.98 : 1.0;
+      utterance.volume = settings.narrationVolume;
+      utterance.lang = language === 'tr' ? 'tr-TR' : 'en-US';
+
+      if (preferredVoiceRef.current) {
+        utterance.voice = preferredVoiceRef.current;
+      }
+
+      utterance.onstart = () => {
+        if (sessionId === speechSessionRef.current) {
+          setIsSpeaking(true);
+        }
+      };
+
+      utterance.onend = () => {
+        if (sessionId !== speechSessionRef.current) return;
+        chunkIndex += 1;
+
+        if (chunkIndex < chunks.length && isPlayingRef.current) {
+          setTimeout(speakNextChunk, chunkPauseMs(chunk));
+          return;
+        }
+
+        finalizeParagraphPlayback(sessionId);
+      };
+
+      utterance.onerror = () => {
+        if (sessionId === speechSessionRef.current) {
+          setIsSpeaking(false);
+        }
+      };
+
+      synthRef.current.speak(utterance);
+    };
+
+    speakNextChunk();
   };
 
   // Auto-play effect
@@ -1260,7 +1314,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   };
 
   return (
-    <div className="flex flex-col h-screen bg-bg-dark overflow-hidden">
+    <div className={`flex flex-col h-screen overflow-hidden ${readerTheme === 'light' ? 'bg-gray-50' : 'bg-bg-dark'}`}>
       {/* Header */}
       <div
         className="shrink-0 flex items-center justify-between px-4 pb-3 bg-bg-dark/80 backdrop-blur-md border-b border-white/5"
@@ -1380,25 +1434,32 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
         <div className="max-w-md mx-auto relative pt-4">
 
           {/* Text Content */}
-          <div className={`bg-bg-card rounded-2xl p-6 shadow-xl border border-white/5 relative mb-4 transition-all duration-300 ${isSpeaking ? 'bg-white/10' : ''}`}>
+          <div
+            className="bg-bg-card rounded-2xl p-6 shadow-xl border border-white/5 relative mb-4"
+            onClick={() => {
+              if (wordHighlightEnabled && !readingAssistant.isAuto) {
+                readingAssistant.nextWord();
+              }
+            }}
+          >
             {hasContent ? (
-              <p className="text-white text-lg leading-relaxed font-medium transition-all duration-500 ease-in-out font-serif">
-                {currentWord && isSpeaking
-                  ? content[currentParagraph].split(/(\s+)/).map((part, idx) => {
-                      const trimmedPart = part.trim();
-                      if (!trimmedPart) return <span key={idx}>{part}</span>;
-                      const isCurrentWord = trimmedPart.toLowerCase() === currentWord.toLowerCase();
-                      return (
-                        <span
-                          key={idx}
-                          className={isCurrentWord ? 'font-bold text-primary' : ''}
-                        >
-                          {part}
-                        </span>
-                      );
-                    })
-                  : content[currentParagraph]
-                }
+              <p className={`text-white ${readerFontSize} leading-relaxed font-medium transition-all duration-500 ease-in-out ${readerFontFamily}`}>
+                {wordHighlightEnabled ? (
+                  words.map((word, index) => (
+                    <span
+                      key={`${index}-${word}`}
+                      className={`transition-all duration-200 ${
+                        index === readingAssistant.activeWordIndex
+                          ? 'font-bold text-primary underline decoration-2 underline-offset-4'
+                          : ''
+                      }`}
+                    >
+                      {word}{index < words.length - 1 ? ' ' : ''}
+                    </span>
+                  ))
+                ) : (
+                  content[currentParagraph]
+                )}
               </p>
             ) : (
               <div className="text-center py-10">
@@ -1504,6 +1565,53 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             </div>
           )}
 
+          {/* Reflection Card */}
+          {showReflectionCard && !isEnding && reflectionQuestion && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+              <div className="bg-gradient-to-b from-bg-card to-bg-dark rounded-3xl p-8 max-w-md w-full border border-primary/20 shadow-2xl shadow-primary/10 animate-slide-up">
+                <div className="text-center mb-8">
+                  <div className="text-6xl mb-4">🌙</div>
+                  <h2 className="text-2xl font-bold text-white mb-2 font-serif">
+                    {language === 'tr' ? 'Hikaye Bitti!' : 'Story Complete!'}
+                  </h2>
+                  <p className="text-white/60 text-sm">
+                    {language === 'tr' ? reflectionQuestion.questionTr : reflectionQuestion.question}
+                  </p>
+                </div>
+
+                <div className="space-y-3 mb-6">
+                  {(language === 'tr' ? reflectionQuestion.optionsTr : reflectionQuestion.options).map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        soundEffects.play('choice_select');
+                        setTimeout(() => setShowReflectionCard(false), 300);
+                      }}
+                      className="w-full bg-white/5 hover:bg-primary/20 border border-white/10 hover:border-primary/50 rounded-xl p-4 text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                          {index + 1}
+                        </div>
+                        <span className="text-white font-medium">{option}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="border-t border-white/10 pt-4">
+                  <button
+                    onClick={() => setShowReflectionCard(false)}
+                    className="w-full bg-primary/10 hover:bg-primary/20 text-primary font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                    {language === 'tr' ? 'Devam' : 'Continue'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Ending Screen */}
           {isEnding && (
             <div className="mt-8 text-center p-6 bg-gradient-to-b from-primary/10 to-transparent rounded-3xl border border-primary/20 animate-fade-in-scale">
@@ -1565,6 +1673,190 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
         </div>
       </div>
 
+      {/* Reading Assistant Toggle Button */}
+      {!showAssistantDrawer && (
+        <button
+          onClick={() => setShowAssistantDrawer(true)}
+          className="fixed bottom-6 right-6 size-14 rounded-full bg-primary text-bg-dark shadow-lg shadow-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-30"
+          style={{ bottom: 'max(env(safe-area-inset-bottom, 0px) + 24px, 24px)' }}
+        >
+          <span className="material-symbols-outlined text-2xl">auto_stories</span>
+        </button>
+      )}
+
+      {/* Reading Assistant Drawer */}
+      {showAssistantDrawer && (
+        <div
+          className="fixed inset-x-0 bottom-0 bg-bg-dark/95 backdrop-blur-xl border-t border-white/10 rounded-t-3xl shadow-2xl z-40 transform transition-transform duration-300"
+          style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
+        >
+          <div className="p-6 max-w-md mx-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">auto_stories</span>
+                {language === 'tr' ? 'Okuma Yardımcısı' : 'Reading Assistant'}
+              </h3>
+              <button
+                onClick={() => setShowAssistantDrawer(false)}
+                className="size-8 rounded-full hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* Word Highlight Toggle */}
+            <div className="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white text-sm font-medium">
+                  {language === 'tr' ? 'Kelime Vurgulama' : 'Word Highlight'}
+                </span>
+                <button
+                  onClick={() => {
+                    setWordHighlightEnabled(!wordHighlightEnabled);
+                    if (wordHighlightEnabled) {
+                      readingAssistant.reset();
+                    }
+                  }}
+                  className={`w-12 h-6 rounded-full transition-colors relative ${
+                    wordHighlightEnabled ? 'bg-primary' : 'bg-white/20'
+                  }`}
+                >
+                  <div
+                    className={`absolute top-1 size-4 bg-white rounded-full transition-transform ${
+                      wordHighlightEnabled ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+              {wordHighlightEnabled && (
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white/60 text-xs">
+                      {language === 'tr' ? 'Otomatik' : 'Auto'}
+                    </span>
+                    <button
+                      onClick={readingAssistant.toggleAuto}
+                      className={`w-10 h-5 rounded-full transition-colors relative ${
+                        readingAssistant.isAuto ? 'bg-primary/80' : 'bg-white/20'
+                      }`}
+                    >
+                      <div
+                        className={`absolute top-0.5 size-4 bg-white rounded-full transition-transform ${
+                          readingAssistant.isAuto ? 'translate-x-5' : 'translate-x-0.5'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  {readingAssistant.isAuto && (
+                    <div className="mt-3">
+                      <label className="text-white/60 text-xs block mb-2">
+                        {language === 'tr' ? 'Hız: ' : 'Speed: '}{autoWordSpeed}ms
+                      </label>
+                      <input
+                        type="range"
+                        min="100"
+                        max="800"
+                        step="50"
+                        value={autoWordSpeed}
+                        onChange={(e) => {
+                          const newSpeed = parseInt(e.target.value);
+                          setAutoWordSpeed(newSpeed);
+                          readingAssistant.setAutoSpeed(newSpeed);
+                        }}
+                        className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Font Size */}
+            <div className="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+              <label className="text-white text-sm font-medium block mb-3">
+                {language === 'tr' ? 'Yazı Boyutu' : 'Font Size'}
+              </label>
+              <div className="flex gap-2">
+                {(['text-lg', 'text-xl', 'text-2xl'] as const).map((size, index) => (
+                  <button
+                    key={size}
+                    onClick={() => setReaderFontSize(size)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
+                      readerFontSize === size
+                        ? 'bg-primary text-bg-dark'
+                        : 'bg-white/10 text-white/60 hover:bg-white/20'
+                    }`}
+                  >
+                    {['A', 'A+', 'A++'][index]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Font Family */}
+            <div className="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+              <label className="text-white text-sm font-medium block mb-3">
+                {language === 'tr' ? 'Yazı Tipi' : 'Font Style'}
+              </label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setReaderFontFamily('font-serif')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
+                    readerFontFamily === 'font-serif'
+                      ? 'bg-primary text-bg-dark'
+                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                  }`}
+                >
+                  Serif
+                </button>
+                <button
+                  onClick={() => setReaderFontFamily('font-sans')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
+                    readerFontFamily === 'font-sans'
+                      ? 'bg-primary text-bg-dark'
+                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                  }`}
+                >
+                  Sans
+                </button>
+              </div>
+            </div>
+
+            {/* Theme Toggle (Reader-specific) */}
+            <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+              <label className="text-white text-sm font-medium block mb-3">
+                {language === 'tr' ? 'Tema (Okuyucu)' : 'Theme (Reader)'}
+              </label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setReaderTheme('dark')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                    readerTheme === 'dark'
+                      ? 'bg-primary text-bg-dark'
+                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">dark_mode</span>
+                  {language === 'tr' ? 'Karanlık' : 'Dark'}
+                </button>
+                <button
+                  onClick={() => setReaderTheme('light')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                    readerTheme === 'light'
+                      ? 'bg-primary text-bg-dark'
+                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">light_mode</span>
+                  {language === 'tr' ? 'Aydınlık' : 'Light'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sleep Controller (Invisible but active) */}
       <SleepController
         isActive={sleepControllerActive}
@@ -1573,6 +1865,14 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       />
 
       <style>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
         @keyframes fade-in-scale {
           from {
             opacity: 0;
@@ -1581,6 +1881,16 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
           to {
             opacity: 1;
             transform: scale(1);
+          }
+        }
+        @keyframes slide-up {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
           }
         }
         @keyframes float-sparkle {
@@ -1599,8 +1909,14 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             text-shadow: 0 0 20px rgba(238, 140, 43, 0.6);
           }
         }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
         .animate-fade-in-scale {
           animation: fade-in-scale 0.6s ease-out;
+        }
+        .animate-slide-up {
+          animation: slide-up 0.4s ease-out;
         }
         .animate-float-sparkle {
           animation: float-sparkle 2s ease-in-out infinite;
