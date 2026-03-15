@@ -131,6 +131,9 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onBack, onComplete }) => {
 
     try {
       const story = await generateStory(storyOptions);
+      if (!story || !story.title || (!story.content?.length && !story.branches?.length)) {
+        throw new Error('Generated story is incomplete or missing content');
+      }
       const generatedStoryKey = `generated:${story.theme}:${story.title}`;
       recordStoryGenerated(generatedStoryKey);
       setGeneratedStory(story);
