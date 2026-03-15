@@ -13,6 +13,7 @@ import {
   rankStoriesForLibrary,
 } from '../services/storyCuration';
 import { getLocalizedStorySubtitle, getLocalizedStoryTitle } from '../services/storyLocalization';
+import { deriveStoryVisualIdentity } from '../storyUtils';
 
 interface LibraryProps {
   onNavigate: (screen: ScreenName) => void;
@@ -241,6 +242,22 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
               <div className="px-1" onClick={() => onStorySelect(story)}>
                 <h3 className="text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-1">{getStoryTitle(story)}</h3>
                 <p className="text-[10px] text-white/50 mt-1 line-clamp-2 min-h-[28px] leading-relaxed">{getStorySubtitle(story)}</p>
+                {(story.companion || story.place) && (
+                  <div className="flex items-center gap-2 mt-1.5 text-[9px] text-white/40">
+                    {story.companion && (
+                      <span className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[10px]">groups</span>
+                        {story.companion}
+                      </span>
+                    )}
+                    {story.place && (
+                      <span className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[10px]">location_on</span>
+                        {story.place}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}
