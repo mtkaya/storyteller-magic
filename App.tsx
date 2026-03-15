@@ -361,7 +361,7 @@ const AppContent: React.FC = () => {
   const appScreen = showOnboarding ? (
     <Onboarding onComplete={handleOnboardingComplete} />
   ) : (
-    <div className={`max-w-[430px] mx-auto bg-bg-dark min-h-screen relative shadow-2xl overflow-hidden ${isNightMode ? 'night-mode' : ''}`}>
+    <div className={`max-w-[430px] mx-auto bg-bg-dark min-h-screen relative shadow-2xl overflow-x-hidden ${isNightMode ? 'night-mode' : ''}`}>
       {renderScreen()}
 
       {showNav && (

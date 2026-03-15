@@ -1262,10 +1262,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-bg-dark">
+    <div className="flex flex-col h-screen bg-bg-dark overflow-hidden">
       {/* Header */}
       <div
-        className="sticky top-0 z-50 flex items-center justify-between px-4 pb-3 bg-bg-dark/80 backdrop-blur-md border-b border-white/5"
+        className="shrink-0 flex items-center justify-between px-4 pb-3 bg-bg-dark/80 backdrop-blur-md border-b border-white/5"
         style={{ paddingTop: 'max(env(safe-area-inset-top), 10px)' }}
       >
         <button
@@ -1308,7 +1308,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       </div>
 
       {/* Hero Image */}
-      <div className="px-4 py-2">
+      <div className="shrink-0 px-4 py-2">
         <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-2xl relative">
           <img
             key={sceneVisual.sceneKey}
@@ -1378,7 +1378,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 transition-all duration-300 relative px-4 pb-24">
+      <div className="flex-1 overflow-y-auto transition-all duration-300 relative px-4 pb-4">
         <div className="max-w-md mx-auto relative pt-4">
 
           {/* Text Content */}
