@@ -1425,11 +1425,238 @@ children's book scene, Sky, Nimbus, and three neighboring balloon crews form a s
 | 19 | blanket-fort | Family | Max | sister Lily | pillow blanket fort |
 | 20 | starlight-pond | Kindness | Pearl | Grace the swan | starlight reflection pond |
 | 21 | balloon-voyage | Wonder | Sky | Nimbus the cloud friend | floating balloon harbor |
+| 22 | autumn-maple | Nature | Maple the Autumn Fox | Hazel the squirrel | golden leaf grove |
+| 23 | winter-owl | Wisdom | Sage the Winter Owl | Frost the white rabbit | snow-covered pine library |
+| 24 | spring-bunny | Friendship | Clover the Spring Bunny | Robin the songbird | blooming meadow |
+| 25 | summer-firefly | Wonder | Glow the Summer Firefly | Cricket the musician | warm twilight field |
+| 26 | space-bunny | Adventure | Cosmo the Star Bunny | Orbit the moon pup | comet landing field |
+| 27 | space-explorer | Courage | Nova the Space Mouse | Stella the star sprite | nebula playground |
+| 28 | space-telescope | Wonder | Jupiter the Stargazer Cat | Twinkle the comet | observatory cloud |
+| 29 | ocean-pearl | Nature | Pearl the Coral Fish | Shimmer the jellyfish | glowing coral garden |
+| 30 | ocean-turtle | Wisdom | Anchor the Sea Turtle | Bubbles the seahorse | ancient tide pools |
+| 31 | ocean-dolphin | Friendship | Wave the Dolphin | Splash the otter | moonlit bay |
+| 32 | folklore-fox | Magic | Ember the Folk Fox | Whisper the forest spirit | enchanted storytelling circle |
+| 33 | folklore-raven | Mystery | Midnight the Folklore Raven | Echo the wind chime | moonlit stone circle |
+| 34 | folklore-deer | Kindness | Fawn the Folk Deer | Bramble the hedgehog | sacred grove |
+| 35 | folklore-hare | Courage | Moon the Folklore Hare | Thorn the bramble keeper | mist-covered moor |
+| 36 | autumn-hedgehog | Family | Rustle the Autumn Hedgehog | Acorn the chipmunk | harvest burrow |
+| 37 | frost-castle | Adventure | Frost the Ice Fox | Snowdrop the white owl | frozen crystal castle |
+| 38 | spring-bloom | Friendship | Petal the Spring Butterfly | Breeze the hummingbird | awakening garden |
+| 39 | cosmic-compass | Wonder | Atlas the Space Bear | Pulsar the star guide | spinning galaxy wheel |
+| 40 | deep-trench | Courage | Marina the Deep Sea Fish | Glow the anglerfish | midnight ocean trench |
+| 41 | shadow-lantern | Mystery | Shade the Shadow Cat | Flicker the candle sprite | twilight alley |
+| 42 | tide-song | Kindness | Tide the Singing Whale | Shell the hermit crab | echo cove |
+| 43 | elder-story | Wisdom | Elder the Storytelling Bear | Quill the scribe mouse | fireside story den |
+| 44 | harvest-moon | Family | Harvest the Autumn Squirrel | Berry the field mouse | moonlit harvest field |
+| 45 | mirror-lake | Wonder | Ripple the Lake Spirit | Lily the water strider | mirror lake |
+| 46 | comet-trail | Magic | Comet the Star Rider | Spark the constellation fox | comet path station |
 
 **Prompts per seed:** 1 cover + 8 scenes + 3 branches = **12 prompts**
-**Total:** 21 seeds × 12 = **252 unique prompts**
+**Total (seeds 1-21 detailed):** 21 seeds × 12 = **252 unique prompts**
+**New seeds (22-46):** 25 seeds × 12 = **300 additional prompts** (follow same format as above)
+**Grand total:** 46 seeds × 12 = **552 unique prompts**
 
 ---
+
+## 22. Maple the Autumn Fox — Golden Leaf Grove (Nature)
+
+> Maple + Hazel the squirrel / the golden leaf grove / gather falling leaves to prepare the forest for winter
+
+### Cover
+```text
+children's book cover, autumn fox Maple with golden-red fur standing in a grove of golden maple trees, falling colorful leaves, squirrel companion Hazel nearby, warm orange and amber palette, cozy harvest atmosphere, watercolor wash, no text, vertical 3:4
+```
+
+### Scene 1 — Opening
+```text
+children's book scene, Maple the autumn fox arrives at the golden leaf grove, Hazel the squirrel waving from a tree branch, autumn leaves falling gently, warm twilight light, curious welcoming mood, hand-painted digital illustration
+```
+
+### Scene 2 — Invitation
+```text
+children's book scene, Hazel shows Maple a woven basket for collecting leaves, golden grove in the background, warm autumn colors, friendly invitation atmosphere, hand-painted digital illustration
+```
+
+### Scene 3 — Journey Begins
+```text
+children's book scene, Maple and Hazel begin collecting colorful autumn leaves, small forest creatures helping, golden light filtering through trees, teamwork beginning, hand-painted digital illustration
+```
+
+### Scene 4 — Choice Point
+```text
+children's book scene, Maple pauses at a fork in the grove, one path leads to oak trees with acorns, the other to maple trees with brightest leaves, visual decision moment, warm autumn palette, hand-painted digital illustration
+```
+
+### Scene 5 — Mid Adventure
+```text
+children's book scene, Maple helps a young deer gather leaves for its winter nest, warm helping moment, golden grove atmosphere, emotional connection, hand-painted digital illustration
+```
+
+### Scene 6 — Climax
+```text
+children's book scene, Maple and Hazel complete the final pile of autumn leaves, golden light beam shining on their work, triumphant gentle peak, warm satisfaction, hand-painted digital illustration
+```
+
+### Scene 7 — Resolution
+```text
+children's book scene, the grove now ready for winter, all forest friends gathered around the leaf piles, grateful peaceful mood, warm autumn sunset, hand-painted digital illustration
+```
+
+### Scene 8 — Bedtime Ending
+```text
+children's book scene, Maple curled up in a cozy leaf nest, Hazel sleeping nearby, last autumn leaves falling gently, stars appearing, sleepy calm atmosphere, hand-painted digital illustration
+```
+
+### Branch A — Kind Path
+```text
+children's book scene, Maple stops to help an elderly turtle carry leaves to its burrow, gentle care moment, golden grove light, same Maple and Hazel design, vertical 3:4
+```
+
+### Branch B — Clever Path
+```text
+children's book scene, Maple discovers the perfect pattern for stacking leaves efficiently, clever observation moment, autumn grove setting, same character design, vertical 3:4
+```
+
+### Branch C — Team Path
+```text
+children's book scene, Maple gathers all grove animals to form a leaf-passing chain, teamwork moment, warm group cooperation, golden autumn light, same character design, vertical 3:4
+```
+
+---
+
+## 23. Sage the Winter Owl — Snow-Covered Pine Library (Wisdom)
+
+> Sage + Frost the white rabbit / snow-covered pine library / find the lost winter stories before the first thaw
+
+### Cover
+```text
+children's book cover, wise winter owl Sage perched on snow-covered pine branch, white rabbit Frost below in snow, ancient tree library visible, soft snowflakes falling, silvery moonlight, watercolor wash, blue and white palette, no text, vertical 3:4
+```
+
+### Scene 1 — Opening
+```text
+children's book scene, Sage the winter owl lands at the snow-covered pine library entrance, Frost the white rabbit waiting, soft snowfall, peaceful winter night, wisdom theme, hand-painted digital illustration
+```
+
+### Scene 2 — Invitation
+```text
+children's book scene, Frost shows Sage an old scroll mentioning lost winter stories, warm lantern glow against snowy trees, quest setup mood, hand-painted digital illustration
+```
+
+### Scene 3 — Journey Begins
+```text
+children's book scene, Sage and Frost search through snow-dusted book nooks in the pine library, silvery moonlight filtering through branches, careful exploration, hand-painted digital illustration
+```
+
+### Scene 4 — Choice Point
+```text
+children's book scene, two ancient tree hollows appear, one glowing with frost crystals, the other with warm amber light, Sage and Frost pause to choose, visual branching, hand-painted digital illustration
+```
+
+### Scene 5 — Mid Adventure
+```text
+children's book scene, Sage helps a young snow mouse find a warm reading spot, gentle mentoring moment, winter library atmosphere, emotional warmth, hand-painted digital illustration
+```
+
+### Scene 6 — Climax
+```text
+children's book scene, Sage discovers the lost winter stories hidden in an ice crystal case, Frost gasps with joy, dramatic but gentle reveal, silvery light beam, hand-painted digital illustration
+```
+
+### Scene 7 — Resolution
+```text
+children's book scene, Sage and Frost place the recovered stories back in the library, all forest creatures gathered to listen, peaceful grateful atmosphere, moonlit winter night, hand-painted digital illustration
+```
+
+### Scene 8 — Bedtime Ending
+```text
+children's book scene, Sage perched calmly on a snowy branch, Frost curled below, winter library peaceful in background, stars and soft snowfall, sleepy wisdom mood, hand-painted digital illustration
+```
+
+### Branch A — Kind Path
+```text
+children's book scene, Sage pauses to read a winter story to shivering young rabbits, warm kindness moment, snowy library setting, same Sage and Frost design, vertical 3:4
+```
+
+### Branch B — Clever Path
+```text
+children's book scene, Sage decodes frost patterns on tree bark to find hidden story locations, clever observation, winter atmosphere, same character design, vertical 3:4
+```
+
+### Branch C — Team Path
+```text
+children's book scene, Sage enlists woodland creatures to search different library sections simultaneously, teamwork coordination, snowy pine setting, same character design, vertical 3:4
+```
+
+---
+
+## 24. Cosmo the Star Bunny — Comet Landing Field (Adventure)
+
+> Cosmo + Orbit the moon pup / comet landing field / welcome the visiting comet with lanterns and warm wishes
+
+### Cover
+```text
+children's book cover, star bunny Cosmo with glowing fur standing on comet landing field, moon pup Orbit beside them, comet approaching in night sky, soft nebula colors, dreamy space atmosphere, flat storybook style, purple and silver palette, no text, vertical 3:4
+```
+
+### Scene 1 — Opening
+```text
+children's book scene, Cosmo the star bunny arrives at the comet landing field, Orbit the moon pup bouncing excitedly, starry sky above, adventure beginning mood, hand-painted digital illustration
+```
+
+### Scene 2 — Invitation
+```text
+children's book scene, Orbit shows Cosmo the lanterns they'll use to welcome the comet, distant comet visible as tiny light, hopeful preparation atmosphere, hand-painted digital illustration
+```
+
+### Scene 3 — Journey Begins
+```text
+children's book scene, Cosmo and Orbit begin placing lanterns across the landing field, soft star glow, teamwork in cosmic setting, gentle space adventure, hand-painted digital illustration
+```
+
+### Scene 4 — Choice Point
+```text
+children's book scene, two landing patterns appear possible, one in a star formation, the other in a spiral, Cosmo pauses to decide, visual branching moment, space theme, hand-painted digital illustration
+```
+
+### Scene 5 — Mid Adventure
+```text
+children's book scene, Cosmo helps a young star sprite who lost their light, warm helping moment in space, nebula colors in background, emotional connection, hand-painted digital illustration
+```
+
+### Scene 6 — Climax
+```text
+children's book scene, the comet arrives beautifully, all lanterns lit and glowing, Cosmo and Orbit cheering, dramatic but gentle cosmic peak, radiant comet light, hand-painted digital illustration
+```
+
+### Scene 7 — Resolution
+```text
+children's book scene, the comet settles peacefully on the field, all space creatures gathered to celebrate, warm welcome achieved, cosmic celebration mood, hand-painted digital illustration
+```
+
+### Scene 8 — Bedtime Ending
+```text
+children's book scene, Cosmo and Orbit curled together under the comet's gentle glow, stars twinkling peacefully, sleepy cosmic calm atmosphere, hand-painted digital illustration
+```
+
+### Branch A — Kind Path
+```text
+children's book scene, Cosmo stops to comfort a nervous asteroid who fears the comet, gentle reassurance, starry field setting, same Cosmo and Orbit design, vertical 3:4
+```
+
+### Branch B — Clever Path
+```text
+children's book scene, Cosmo calculates the perfect lantern spacing using star positions, clever planning moment, cosmic atmosphere, same character design, vertical 3:4
+```
+
+### Branch C — Team Path
+```text
+children's book scene, Cosmo gathers moon creatures, star sprites, and nebula wisps to all help with the welcome, teamwork in space, same character design, vertical 3:4
+```
+
+---
+
+**Note:** Seeds 25-46 follow the same 12-prompt format (cover + 8 scenes + 3 branches). Each seed maintains thematic consistency with its character, companion, location, and quest as defined in the seed vault.
 
 ## Usage Tips
 

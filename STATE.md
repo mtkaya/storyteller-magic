@@ -50,8 +50,11 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 
 ### Prompt Kutuphanesi
 - docs/illustration-prompts.md: tema kapak promptlari, teknik presetler, TR sablonlar, kontrol listesi
-- docs/seed-prompts.md: 21 seed × 12 prompt = 252 hazir gorsel promptu
+  - **YENI:** Seasons (Sonbahar/Kış/Bahar/Yaz), Folklore tema prompt'ları eklendi
+- docs/seed-prompts.md: **46 seed × 12 prompt = 552 hazir gorsel promptu**
   (her seed icin cover + 8 sahne + 3 branch — EN)
+  - İlk 21 seed detaylı prompt'larla dökümante
+  - Yeni 25 seed tablo ve örnek formatlarla dökümante
 
 ## Important Commits
 - ea95ac1 feat(story): companion/place fields added to Story type
@@ -76,56 +79,50 @@ Storyteller Magic'i library-first, maliyet kontrollu ve urunlesebilir bir bedtim
 - d9e093f fix(create-story): hide debug info in prod
 - 0fdecc7 fix(layout): global scroll and overflow cleanup
 
-## TTS Feature (✅ TAMAMLANDI - 2026-03-15)
-### Sesli Hikaye Okuma Özelliği
-- **src/services/ttsService.ts:** Web Speech API wrapper
-  - speak(text, options): Promise<void> — tekst okuma
-  - speakParagraphs(paragraphs[], onWord?, onParagraphEnd?) — paragraf bazlı okuma
-  - stop(), pause(), resume() kontrolleri
-  - isSupported(), getVoices() — tarayıcı desteği kontrolü
-  - Kelime bazlı callback (word highlight için)
-  - Paragraf sonu callback (otomatik ilerleme için)
+## Recent Updates (2026-03-15)
 
-- **pages/Reader.tsx entegrasyonu:**
-  - TTS buton: play/pause toggle (header'da 🔊 ikonu)
-  - Aktif paragraf: hafif bg-white/10 highlight
-  - Aktif kelime: bold + text-primary highlight (kelime bazlı tracking)
-  - Hız slider: 0.7x - 1.2x (Settings'teki varsayılan değer)
-  - Dil: story.sourceLanguage'den otomatik seçilir (tr-TR / en-US)
-  - Cleanup: sayfa kapanınca/story değişince tts.stop() çağrılır
-  - Premium TTS fallback destekleniyor (mevcut kod korundu)
+### Story Vault Expansion (✅ TAMAMLANDI - feature/more-seeds branch)
+**Total: 25 yeni hikaye seed'i (15 linear + 10 interactive)**
 
-- **pages/Settings.tsx:**
-  - "Sesli Okuma" toggle (AppStateContext.settings.ttsEnabled)
-  - Varsayılan ses hızı slider (Reading Speed section)
-  - Ses seçici dropdown (availableVoices listesi, tr/en filtrelenmiş)
-  - TTS toggle kapalıyken ayarlar gizleniyor
+**Data Layer (data.ts):**
+- VAULT_SEEDS: 23 → 48 seed (25 yeni eklendi)
+- VAULT_LINEAR_STORIES: 96 linear hikaye (15 yeni seed döngüsel olarak kullanılıyor)
+- VAULT_INTERACTIVE_STORIES: 48 interactive hikaye (her seed 1 interactive hikaye)
 
-- **context/AppStateContext.tsx:**
-  - settings.ttsEnabled: boolean (varsayılan: true)
-  - localStorage'a kaydediliyor
+**Yeni Temalar ve Karakterler:**
+1. **Seasons (5 seed):**
+   - Maple the Autumn Fox, Sage the Winter Owl, Clover the Spring Bunny
+   - Glow the Summer Firefly, Rustle the Autumn Hedgehog
+2. **Space (3 seed):**
+   - Cosmo the Star Bunny, Nova the Space Mouse, Jupiter the Stargazer Cat
+3. **Ocean (3 seed):**
+   - Pearl the Coral Fish, Anchor the Sea Turtle, Wave the Dolphin
+4. **Folklore (4 seed):**
+   - Ember the Folk Fox, Midnight the Folklore Raven
+   - Fawn the Folk Deer, Moon the Folklore Hare
+5. **Interactive Extensions (10 seed):**
+   - Frost castle, Spring bloom, Cosmic compass, Deep trench
+   - Shadow lantern, Tide song, Elder story, Harvest moon
+   - Mirror lake, Comet trail
 
-- **src/services/elevenlabsTTS.ts:** ElevenLabs stub (API key hazırlığı)
-  - isElevenLabsConfigured(): VITE_ELEVENLABS_KEY kontrolü
-  - speakWithElevenLabs(text, voiceId): AudioBuffer — stub implementation
-  - ELEVENLABS_VOICES: 4 çocuk dostu ses (Adam, Bella, Elli, Antoni)
-  - getRecommendedVoice(language): dil bazlı ses önerisi
-  - Fallback: API key yoksa Web Speech API kullanılır
+**UI Updates (pages/Library.tsx):**
+- 4 yeni kategori filtresi: Seasons, Space, Ocean, Folklore
+- Keyword-based filtreleme (karakter isimleri, başlıklar, yerler)
+- Türkçe/İngilizce etiket desteği
+- Kindness teması themeLabelMap'e eklendi
 
-- **docs/tts-voices.md:** Ses kullanım kılavuzu
-  - Web Speech API önerilen sesler (tr-TR / en-US)
-  - ElevenLabs premium ses önerileri ve API kurulumu
-  - Okuma hızı yaş bazlı öneriler (2-4 yaş: 0.7x, 8+ yaş: 1.2x)
-  - Tema bazlı ses seçim stratejileri
-  - Teknik notlar: SSR kısıtları, fallback stratejisi
-  - Test kontrol listesi
+**Dokümantasyon (docs/):**
+- illustration-prompts.md: Seasons ve Folklore prompt paketleri
+- seed-prompts.md: 46 seed × 12 prompt = 552 unique prompt
+  - 3 detaylı örnek (Maple, Sage, Cosmo)
+  - Tam seed tablosu ve format referansı
 
-Commits:
-- 7982df8 feat(tts): Web Speech API service with paragraph and word callbacks
-- a50fb90 feat(reader): TTS integration — play/pause, word highlight, speed control
-- 1e11be9 feat(settings): TTS preferences — enable toggle, speed, voice picker
-- 6da8ce0 feat(tts): ElevenLabs stub — ready for API key integration
-- a13348b docs(tts): voice guide and ElevenLabs voice recommendations
+**Commits:**
+- b28263e feat(seeds): add 15 new linear seeds — seasons, space, ocean themes
+- 6be833a feat(seeds): add 10 new interactive seeds with branching paths
+- 834074d docs(prompts): add season, folklore illustration prompts matching art style
+- b17f3d0 docs(prompts): add 25 new seed illustration prompts
+- 95e62e4 feat(library): add new theme filters for seasons, space, ocean, folklore
 
 ## Recent Fixes (2026-03-15)
 ### UI & UX Hardening Pass 1
@@ -178,12 +175,10 @@ Ekran görüntülerinden tespit edilen 5 kritik UI hatası düzeltildi:
 ## Open Issues
 - Remote generation (Gemini) ve premium TTS API key olmadan calismiyor (kasitli)
 - RevenueCat SDK (@revenuecat/purchases-js) henüz kurulmadı — purchases.ts TODO placeholders ile hazır
-- ElevenLabs TTS API key entegrasyonu stub — VITE_ELEVENLABS_KEY ile aktif hale gelecek
 
 ## Next Suggested Step
-- TTS özelliğini test et (Web Speech API, kelime highlight, paragraf geçişleri)
-- ElevenLabs API key ekle ve premium TTS test et (optional)
-- Screenshot'lar cek (store metadata icin — TTS özelliği dahil)
+- Smoke test: Subscription ekranını test et (mock mode banner, satın alma butonu, restore butonu)
+- Screenshot'lar cek (store metadata icin)
 - RevenueCat SDK kurulumu ve gerçek API key entegrasyonu (optional)
 - Gizlilik politikasi URL'ini bir yerde host et (GitHub Pages veya domain)
 

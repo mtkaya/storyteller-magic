@@ -58,6 +58,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
       mystery: language === 'tr' ? 'Gizem' : 'Mystery',
       family: language === 'tr' ? 'Aile' : 'Family',
       wonder: language === 'tr' ? 'Hayranlık' : 'Wonder',
+      kindness: language === 'tr' ? 'İyilik' : 'Kindness',
     }),
     [language]
   );
@@ -71,15 +72,26 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
     [rankedStories, themeLabelMap]
   );
 
+  const categoryFilters = useMemo(
+    () => [
+      { id: 'seasons', name: language === 'tr' ? 'Mevsimler' : 'Seasons' },
+      { id: 'space', name: language === 'tr' ? 'Uzay' : 'Space' },
+      { id: 'ocean', name: language === 'tr' ? 'Okyanus' : 'Ocean' },
+      { id: 'folklore', name: language === 'tr' ? 'Folklor' : 'Folklore' },
+    ],
+    [language]
+  );
+
   const filters = useMemo(
     () => [
       { id: 'favorites', name: language === 'tr' ? 'Favoriler' : 'Favorites' },
       { id: 'interactive', name: language === 'tr' ? 'Seçimli' : 'Interactive' },
       { id: 'short', name: language === 'tr' ? 'Kısa' : 'Short' },
       { id: 'long', name: language === 'tr' ? 'Uzun' : 'Long' },
+      ...categoryFilters,
       ...dynamicThemeFilters,
     ],
-    [language, dynamicThemeFilters]
+    [language, categoryFilters, dynamicThemeFilters]
   );
 
   const getStoryTitle = (story: Story) => getLocalizedStoryTitle(story, language);
@@ -108,7 +120,54 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, onStorySelect }) => {
     if (activeFilter === 'short' && parseDurationMinutes(story.duration) > 8) return false;
     if (activeFilter === 'long' && parseDurationMinutes(story.duration) < 12) return false;
 
-    const specialFilters = new Set(['favorites', 'interactive', 'short', 'long']);
+    // Category filters based on character/story content
+    if (activeFilter === 'seasons') {
+      const seasonKeywords = ['autumn', 'winter', 'spring', 'summer', 'maple', 'sage', 'clover', 'glow', 'rustle', 'harvest'];
+      const matchesSeason = seasonKeywords.some(
+        (keyword) =>
+          story.character?.toLowerCase().includes(keyword) ||
+          story.title?.toLowerCase().includes(keyword) ||
+          story.titleTr?.toLowerCase().includes(keyword)
+      );
+      if (!matchesSeason) return false;
+    }
+
+    if (activeFilter === 'space') {
+      const spaceKeywords = ['space', 'star', 'cosmo', 'nova', 'jupiter', 'comet', 'atlas', 'nebula', 'galaxy', 'cosmic'];
+      const matchesSpace = spaceKeywords.some(
+        (keyword) =>
+          story.character?.toLowerCase().includes(keyword) ||
+          story.title?.toLowerCase().includes(keyword) ||
+          story.titleTr?.toLowerCase().includes(keyword) ||
+          story.place?.toLowerCase().includes(keyword)
+      );
+      if (!matchesSpace) return false;
+    }
+
+    if (activeFilter === 'ocean') {
+      const oceanKeywords = ['ocean', 'sea', 'coral', 'pearl', 'anchor', 'wave', 'dolphin', 'whale', 'tide', 'marina'];
+      const matchesOcean = oceanKeywords.some(
+        (keyword) =>
+          story.character?.toLowerCase().includes(keyword) ||
+          story.title?.toLowerCase().includes(keyword) ||
+          story.titleTr?.toLowerCase().includes(keyword) ||
+          story.place?.toLowerCase().includes(keyword)
+      );
+      if (!matchesOcean) return false;
+    }
+
+    if (activeFilter === 'folklore') {
+      const folkloreKeywords = ['folk', 'ember', 'midnight', 'fawn', 'moon', 'raven', 'hare', 'deer'];
+      const matchesFolklore = folkloreKeywords.some(
+        (keyword) =>
+          story.character?.toLowerCase().includes(keyword) ||
+          story.title?.toLowerCase().includes(keyword) ||
+          story.titleTr?.toLowerCase().includes(keyword)
+      );
+      if (!matchesFolklore) return false;
+    }
+
+    const specialFilters = new Set(['favorites', 'interactive', 'short', 'long', 'seasons', 'space', 'ocean', 'folklore']);
     if (activeFilter && !specialFilters.has(activeFilter)) {
       if (normalizeStoryTheme(story.theme) !== activeFilter) return false;
     }
