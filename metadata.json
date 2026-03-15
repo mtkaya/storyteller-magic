@@ -1,6 +1,21 @@
 {
   "name": "Storyteller Magic",
-  "description": "A personalized bedtime story app for children with interactive story paths, a curated library, and reading progress tracking.",
+  "version": "1.0.0",
+  "description": "Bedtime story app with 148+ curated tales, interactive reading paths, TTS narration, reading assistant with word highlighting, and parental controls. Fully offline, zero tracking.",
+  "keywords": [
+    "bedtime stories",
+    "children's books",
+    "interactive stories",
+    "TTS narration",
+    "reading assistant",
+    "word highlighting",
+    "offline stories",
+    "parental controls",
+    "choose your own adventure",
+    "bilingual",
+    "Turkish",
+    "English"
+  ],
   "privacyPolicyUrl": "https://mtkaya.github.io/storyteller-magic/docs/privacy-policy",
   "requestFramePermissions": []
 }
