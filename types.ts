@@ -27,6 +27,8 @@ export interface Story {
   content?: string[];  // Array of paragraphs (for linear stories)
   contentTr?: string[]; // Turkish content
   character?: string;  // Main character name
+  companion?: string;  // Supporting character / companion cue
+  place?: string;      // Primary world / setting cue
   moral?: string;      // Lesson/moral of the story
   moralTr?: string;
   ageRange?: string;   // e.g., "3-6", "5-8"
