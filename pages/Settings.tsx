@@ -10,6 +10,7 @@ import {
     downloadCanvaPromptCsv
 } from '../services/canvaPromptExport';
 import { ttsService } from '../src/services/ttsService';
+import { isOpenAITTSAvailable } from '../src/services/openaiTTS';
 
 interface SettingsProps {
     onNavigate: (screen: ScreenName) => void;
@@ -211,7 +212,14 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                         <div className="flex items-center justify-between p-4 border-b border-white/5">
                             <div className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-primary">record_voice_over</span>
-                                <span>{language === 'tr' ? 'Sesli Okuma Aktif' : 'Enable TTS'}</span>
+                                <div className="flex flex-col">
+                                    <span>{language === 'tr' ? 'Sesli Okuma Aktif' : 'Enable TTS'}</span>
+                                    <span className="text-xs text-white/60">
+                                        {isOpenAITTSAvailable()
+                                            ? (language === 'tr' ? '✨ OpenAI TTS (Doğal)' : '✨ OpenAI TTS (Natural)')
+                                            : (language === 'tr' ? '🤖 Web Speech API' : '🤖 Web Speech API')}
+                                    </span>
+                                </div>
                             </div>
                             <button
                                 onClick={() => updateSettings({ ttsEnabled: !ttsEnabled })}
