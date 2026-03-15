@@ -22,6 +22,41 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        chunkSizeWarningLimit: 800,
+        rollupOptions: {
+          output: {
+            manualChunks(id) {
+              // Vendor chunks
+              if (id.includes('node_modules')) {
+                if (id.includes('react') || id.includes('react-dom')) {
+                  return 'vendor-react';
+                }
+                if (id.includes('@capacitor')) {
+                  return 'vendor-capacitor';
+                }
+                return 'vendor';
+              }
+
+              // Page chunks
+              if (id.includes('/pages/Reader.')) {
+                return 'page-reader';
+              }
+              if (id.includes('/pages/Library.')) {
+                return 'page-library';
+              }
+              if (id.includes('/pages/CreateStory.') || id.includes('/pages/StoryCraftsman.')) {
+                return 'page-create';
+              }
+
+              // Service chunks
+              if (id.includes('/services/')) {
+                return 'services';
+              }
+            }
+          }
+        }
       }
     };
 });
