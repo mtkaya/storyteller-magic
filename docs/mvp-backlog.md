@@ -1,0 +1,1 @@
+# MVP Backlog (Pri-1 / Pri-2)\n\nThis document outlines the MVP backlog prioritized into Pri-1 (high priority) and Pri-2 (next priority).
