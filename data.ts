@@ -926,7 +926,14 @@ function buildVaultLinearStory(seed: VaultSeed, index: number): Story {
     moral: seed.moralEn,
     moralTr: seed.moralTr,
     content: [
-      `${seed.characterEn} arrived at ${seed.placeEn} one quiet evening, with ${seed.companionEn} close behind.`,
+      pickVaultValue([
+        `${seed.characterEn} tiptoed into ${seed.placeEn} just as the first stars appeared, ${seed.companionEn} padding softly beside them.`,
+        `The evening breeze carried ${seed.characterEn} toward ${seed.placeEn}, where ${seed.companionEn} was already waiting with a curious smile.`,
+        `${seed.characterEn} arrived at ${seed.placeEn} one quiet evening, with ${seed.companionEn} close behind.`,
+        `Under a violet sky, ${seed.characterEn} and ${seed.companionEn} found their way to ${seed.placeEn}, drawn by a faint golden glow.`,
+        `${seed.characterEn} sat down at the edge of ${seed.placeEn}, breathing in the cool night air, while ${seed.companionEn} curled up nearby.`,
+        `A gentle hum led ${seed.characterEn} through the twilight to ${seed.placeEn}, with ${seed.companionEn} hopping along the moonlit path.`,
+      ], index + 7),
       `Their mission: ${seed.questEn} — and they set off ${toneEn} to make it happen.`,
       pickVaultValue([
         `They split the task into small steps and ticked each one off together.`,
@@ -948,7 +955,14 @@ function buildVaultLinearStory(seed: VaultSeed, index: number): Story {
       `By bedtime, they were home — ${endingEn}, and a little wiser.`,
     ],
     contentTr: [
-      `${seed.characterTr}, sakin bir akşam ${seed.placeTr}'ye ulaştı; ${seed.companionTr} de hemen arkasındaydı.`,
+      pickVaultValue([
+        `${seed.characterTr}, ilk yıldızlar belirirken ${seed.placeTr}'ye sessizce süzüldü; ${seed.companionTr} yanında usulca ilerliyordu.`,
+        `Akşam esintisi ${seed.characterTr}'yı ${seed.placeTr}'ye taşıdı; ${seed.companionTr} meraklı bir gülümsemeyle çoktan oradaydı.`,
+        `${seed.characterTr}, sakin bir akşam ${seed.placeTr}'ye ulaştı; ${seed.companionTr} de hemen arkasındaydı.`,
+        `Menekşe rengi gökyüzünün altında ${seed.characterTr} ve ${seed.companionTr}, soluk altın bir parıltının peşinde ${seed.placeTr}'ye vardı.`,
+        `${seed.characterTr}, ${seed.placeTr}'nin kenarına oturdu ve serin gece havasını içine çekti; ${seed.companionTr} yanı başına kıvrıldı.`,
+        `Hafif bir mırıltı, ${seed.characterTr}'yı alacakaranlıkta ${seed.placeTr}'ye götürdü; ${seed.companionTr} ay ışıklı patikada zıplayarak eşlik etti.`,
+      ], index + 7),
       `Görevleri: ${seed.questTr} — ve ${toneTr} harekete geçtiler.`,
       pickVaultValue([
         `Görevi küçük adımlara böldüler ve her birini birlikte tamamladılar.`,
@@ -1214,18 +1228,11 @@ const VAULT_INTERACTIVE_STORIES: Story[] = VAULT_SEEDS.map((seed, index) =>
 export const RECENT_STORIES: Story[] = VAULT_LINEAR_STORIES.slice(0, 3);
 
 export const LIBRARY_STORIES: Story[] = [
-  {
-    id: '13',
-    title: 'The Autumn Fox',
-    subtitle: 'Seasons • Change',
-    duration: '9 min',
-    theme: 'Nature',
-    coverUrl: IMAGES.FOX
-  },
   // New Stories with Full Content
   {
     id: '14',
     title: 'Detective Mouse',
+    titleTr: 'Dedektif Fare',
     subtitle: 'Mystery • Curiosity',
     duration: '8 min',
     theme: 'Mystery',
@@ -1253,6 +1260,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '15',
     title: 'The Brave Lion Cub',
+    titleTr: 'Cesur Aslan Yavrusu',
     subtitle: 'Courage • Dreams',
     duration: '10 min',
     theme: 'Courage',
@@ -1285,6 +1293,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '16',
     title: 'The Sleepy Owl\'s Library',
+    titleTr: 'Uykucu Baykuşun Kütüphanesi',
     subtitle: 'Dreams • Bedtime',
     duration: '7 min',
     theme: 'Calm',
@@ -1314,6 +1323,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '17',
     title: 'Whiskers and the Golden Treasure',
+    titleTr: 'Bıyık ve Altın Hazine',
     subtitle: 'Adventure • Kindness',
     duration: '9 min',
     theme: 'Adventure',
@@ -1345,6 +1355,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '18',
     title: 'The Wise Owl\'s Secret',
+    titleTr: 'Bilge Baykuşun Sırrı',
     subtitle: 'Wisdom • Learning',
     duration: '8 min',
     theme: 'Wisdom',
@@ -1377,6 +1388,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '20',
     title: 'Whiskers and the Treasure',
+    titleTr: 'Bıyık ve Hazine',
     subtitle: 'Interactive Story • Adventure',
     duration: '10+ min',
     theme: 'Adventure',
@@ -1826,6 +1838,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '22',
     title: 'The Enchanted Tea Party',
+    titleTr: 'Büyülü Çay Partisi',
     subtitle: 'Interactive Story • Friendship',
     duration: '7+ min',
     theme: 'Friendship',
@@ -1907,6 +1920,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '23',
     title: "Penny's Big Show",
+    titleTr: 'Penny\'nin Büyük Gösterisi',
     subtitle: 'Interactive Story • Courage',
     duration: '8+ min',
     theme: 'Courage',
@@ -1976,6 +1990,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '24',
     title: 'The Wolf and the Moon Princess',
+    titleTr: 'Kurt ve Ay Prensesi',
     subtitle: 'Interactive Story • Kindness',
     duration: '10+ min',
     theme: 'Kindness',
@@ -2061,6 +2076,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '25',
     title: 'The Lantern That Listened',
+    titleTr: 'Dinleyen Fener',
     subtitle: 'Magic • Kindness',
     duration: '9 min',
     theme: 'Magic',
@@ -2080,6 +2096,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '26',
     title: 'Bobo and the Cloud Blanket',
+    titleTr: 'Bobo ve Bulut Battaniye',
     subtitle: 'Calm • Sleep',
     duration: '6 min',
     theme: 'Calm',
@@ -2099,6 +2116,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '27',
     title: 'Captain Pebble\'s Star Rocket',
+    titleTr: 'Kaptan Çakıl\'ın Yıldız Roketi',
     subtitle: 'Adventure • Wonder',
     duration: '8 min',
     theme: 'Adventure',
@@ -2118,6 +2136,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '28',
     title: 'Luna and the Seahorse Song',
+    titleTr: 'Luna ve Denizatı Şarkısı',
     subtitle: 'Nature • Calm',
     duration: '9 min',
     theme: 'Nature',
@@ -2137,6 +2156,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '29',
     title: 'The Treehouse Promise',
+    titleTr: 'Ağaç Ev Sözü',
     subtitle: 'Friendship • Home',
     duration: '8 min',
     theme: 'Friendship',
@@ -2156,6 +2176,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '30',
     title: 'Compass of Kind Paths',
+    titleTr: 'İyilik Pusulası',
     subtitle: 'Adventure • Kindness',
     duration: '10 min',
     theme: 'Adventure',
@@ -2175,6 +2196,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '31',
     title: 'Balloon Above Sleepy Valley',
+    titleTr: 'Uyuyan Vadi Üzerinde Balon',
     subtitle: 'Adventure • Dreams',
     duration: '8 min',
     theme: 'Adventure',
@@ -2194,6 +2216,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '32',
     title: 'The Castle of Quiet Crowns',
+    titleTr: 'Sessiz Taçlar Kalesi',
     subtitle: 'Kindness • Wisdom',
     duration: '9 min',
     theme: 'Kindness',
@@ -2213,6 +2236,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '33',
     title: 'The Tower and the Falling Star',
+    titleTr: 'Kule ve Düşen Yıldız',
     subtitle: 'Magic • Hope',
     duration: '9 min',
     theme: 'Magic',
@@ -2232,6 +2256,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '34',
     title: 'Goodnight, Smiling Moon',
+    titleTr: 'İyi Geceler, Gülen Ay',
     subtitle: 'Calm • Bedtime',
     duration: '6 min',
     theme: 'Calm',
@@ -2251,6 +2276,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '35',
     title: 'The Lighthouse of Little Waves',
+    titleTr: 'Küçük Dalgaların Deniz Feneri',
     subtitle: 'Family • Safety',
     duration: '8 min',
     theme: 'Family',
@@ -2270,6 +2296,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '36',
     title: 'The Whale Who Carried Starlight',
+    titleTr: 'Yıldız Işığı Taşıyan Balina',
     subtitle: 'Nature • Wonder',
     duration: '9 min',
     theme: 'Nature',
@@ -2289,6 +2316,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '37',
     title: 'Firefly Forest Picnic',
+    titleTr: 'Ateşböceği Orman Pikniği',
     subtitle: 'Nature • Friendship',
     duration: '8 min',
     theme: 'Nature',
@@ -2308,6 +2336,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '38',
     title: 'The Old Tree\'s Lantern Leaves',
+    titleTr: 'Yaşlı Ağacın Fener Yaprakları',
     subtitle: 'Magic • Wisdom',
     duration: '8 min',
     theme: 'Magic',
@@ -2327,6 +2356,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '39',
     title: 'The Dandelion Wish',
+    titleTr: 'Karahindiba Dileği',
     subtitle: 'Kindness • Dreams',
     duration: '7 min',
     theme: 'Kindness',
@@ -2346,6 +2376,7 @@ export const LIBRARY_STORIES: Story[] = [
   {
     id: '40',
     title: 'Lotus Lake Breathing',
+    titleTr: 'Nilüfer Gölü Nefesi',
     subtitle: 'Calm • Mindfulness',
     duration: '6 min',
     theme: 'Calm',

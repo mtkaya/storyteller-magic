@@ -300,7 +300,10 @@ async function generateWithGemini(prompts) {
 
   console.log(`\n🎨 Generating ${prompts.length} images with Gemini...\n`);
 
-  const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
+  // Gemini 2.5 Flash Image (native image generation)
+  const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`;
+  // Fallback: Imagen 4
+  const IMAGEN_URL = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`;
 
   let generated = 0;
   let failed = 0;
@@ -318,44 +321,26 @@ async function generateWithGemini(prompts) {
     fs.mkdirSync(outputDir, { recursive: true });
 
     try {
-      const response = await fetch(GEMINI_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Generate an image: ${p.prompt}`
-            }]
-          }],
-          generationConfig: {
-            responseModalities: ['IMAGE', 'TEXT'],
-            responseMimeType: 'image/jpeg',
-          }
-        }),
-      });
+      // Try Gemini Flash image generation first
+      let imageData = await tryGeminiFlash(GEMINI_URL, p.prompt);
 
-      if (!response.ok) {
-        const errText = await response.text();
-        console.error(`❌ ${p.filename}: HTTP ${response.status} - ${errText.slice(0, 100)}`);
-        failed++;
-        continue;
+      // Fallback to Imagen 3
+      if (!imageData) {
+        imageData = await tryImagen(IMAGEN_URL, p.prompt);
       }
 
-      const data = await response.json();
-      const imagePart = data.candidates?.[0]?.content?.parts?.find(part => part.inlineData);
-
-      if (imagePart?.inlineData?.data) {
-        const buffer = Buffer.from(imagePart.inlineData.data, 'base64');
+      if (imageData) {
+        const buffer = Buffer.from(imageData, 'base64');
         fs.writeFileSync(outputFile, buffer);
         console.log(`✅ ${p.filename} (${(buffer.length / 1024).toFixed(0)} KB)`);
         generated++;
       } else {
-        console.error(`❌ ${p.filename}: No image data in response`);
+        console.error(`❌ ${p.filename}: No image data from any model`);
         failed++;
       }
 
-      // Rate limit: 15 RPM for free tier
-      await new Promise(resolve => setTimeout(resolve, 4500));
+      // Rate limit: ~10 RPM for free tier
+      await new Promise(resolve => setTimeout(resolve, 7000));
 
     } catch (err) {
       console.error(`❌ ${p.filename}: ${err.message}`);
@@ -364,6 +349,63 @@ async function generateWithGemini(prompts) {
   }
 
   console.log(`\n📊 Done: ${generated} generated, ${failed} failed`);
+}
+
+async function tryImagen(url, prompt) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        instances: [{ prompt }],
+        parameters: {
+          sampleCount: 1,
+          aspectRatio: '3:4',
+          safetyFilterLevel: 'block_few',
+        },
+      }),
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const image = data.predictions?.[0]?.bytesBase64Encoded;
+    return image || null;
+  } catch {
+    return null;
+  }
+}
+
+async function tryGeminiFlash(url, prompt) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: `Generate an illustration: ${prompt}` }],
+        }],
+        generationConfig: {
+          responseModalities: ['Text', 'Image'],
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.log(`  [gemini] ${response.status}: ${errText.slice(0, 120)}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const imagePart = data.candidates?.[0]?.content?.parts?.find(
+      (part) => part.inlineData
+    );
+    return imagePart?.inlineData?.data || null;
+  } catch (err) {
+    console.log(`  [gemini] error: ${err.message}`);
+    return null;
+  }
 }
 
 main().catch(console.error);
