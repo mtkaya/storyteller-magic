@@ -1,0 +1,540 @@
+
+═══════════════════════════════════════
+  THEME: ADVENTURE
+  Technique: gouache
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: adventure-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, curious young explorer with a small backpack arrives at a magical forest trail, gentle curiosity, readable focal composition, winding path, glowing horizon, brave but gentle momentum, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: adventure-scene-02-invitation.jpg
+Prompt:
+children's book scene, a friendly fox companion presents a small quest to curious young explorer with a small backpack, warm expressions, story setup, winding path, glowing horizon, brave but gentle momentum, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: adventure-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, winding path, glowing horizon, brave but gentle momentum, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: adventure-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, winding path, glowing horizon, brave but gentle momentum, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: adventure-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, curious young explorer with a small backpack with a friendly fox companion, helpful interaction, emotional warmth, winding path, glowing horizon, brave but gentle momentum, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: adventure-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, winding path, glowing horizon, brave but gentle momentum, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: adventure-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, winding path, glowing horizon, brave but gentle momentum, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: adventure-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, winding path, glowing horizon, brave but gentle momentum, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: FRIENDSHIP
+  Technique: watercolor
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: friendship-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a kind young girl with braided hair arrives at a sunlit meadow near a gentle stream, gentle curiosity, readable focal composition, warm lantern lights, shared smiles, cozy meadow togetherness, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: friendship-scene-02-invitation.jpg
+Prompt:
+children's book scene, a shy bunny friend presents a small quest to a kind young girl with braided hair, warm expressions, story setup, warm lantern lights, shared smiles, cozy meadow togetherness, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: friendship-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, warm lantern lights, shared smiles, cozy meadow togetherness, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: friendship-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, warm lantern lights, shared smiles, cozy meadow togetherness, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: friendship-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a kind young girl with braided hair with a shy bunny friend, helpful interaction, emotional warmth, warm lantern lights, shared smiles, cozy meadow togetherness, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: friendship-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, warm lantern lights, shared smiles, cozy meadow togetherness, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: friendship-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, warm lantern lights, shared smiles, cozy meadow togetherness, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: friendship-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, warm lantern lights, shared smiles, cozy meadow togetherness, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: MAGIC
+  Technique: cut-paper
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: magic-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a young apprentice wizard with a glowing wand arrives at an enchanted forest clearing, gentle curiosity, readable focal composition, enchanted clearing, floating sparkles, playful magical artifacts, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: magic-scene-02-invitation.jpg
+Prompt:
+children's book scene, a mischievous owl familiar presents a small quest to a young apprentice wizard with a glowing wand, warm expressions, story setup, enchanted clearing, floating sparkles, playful magical artifacts, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: magic-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, enchanted clearing, floating sparkles, playful magical artifacts, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: magic-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, enchanted clearing, floating sparkles, playful magical artifacts, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: magic-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a young apprentice wizard with a glowing wand with a mischievous owl familiar, helpful interaction, emotional warmth, enchanted clearing, floating sparkles, playful magical artifacts, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: magic-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, enchanted clearing, floating sparkles, playful magical artifacts, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: magic-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, enchanted clearing, floating sparkles, playful magical artifacts, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: magic-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, enchanted clearing, floating sparkles, playful magical artifacts, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: NATURE
+  Technique: watercolor
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: nature-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a gentle young nature guardian arrives at a moonlit ancient forest, gentle curiosity, readable focal composition, moonlit forest, soft leaves, peaceful wildlife presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: nature-scene-02-invitation.jpg
+Prompt:
+children's book scene, a calm deer friend presents a small quest to a gentle young nature guardian, warm expressions, story setup, moonlit forest, soft leaves, peaceful wildlife presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: nature-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, moonlit forest, soft leaves, peaceful wildlife presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: nature-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, moonlit forest, soft leaves, peaceful wildlife presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: nature-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a gentle young nature guardian with a calm deer friend, helpful interaction, emotional warmth, moonlit forest, soft leaves, peaceful wildlife presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: nature-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, moonlit forest, soft leaves, peaceful wildlife presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: nature-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, moonlit forest, soft leaves, peaceful wildlife presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: nature-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, moonlit forest, soft leaves, peaceful wildlife presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: CALM
+  Technique: flat-storybook
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: calm-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a sleepy child in pajamas arrives at a cozy bedroom with moon glow, gentle curiosity, readable focal composition, quiet room energy, soft gradients, soothing low-contrast composition, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: calm-scene-02-invitation.jpg
+Prompt:
+children's book scene, a fluffy cloud pillow friend presents a small quest to a sleepy child in pajamas, warm expressions, story setup, quiet room energy, soft gradients, soothing low-contrast composition, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: calm-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, quiet room energy, soft gradients, soothing low-contrast composition, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: calm-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, quiet room energy, soft gradients, soothing low-contrast composition, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: calm-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a sleepy child in pajamas with a fluffy cloud pillow friend, helpful interaction, emotional warmth, quiet room energy, soft gradients, soothing low-contrast composition, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: calm-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, quiet room energy, soft gradients, soothing low-contrast composition, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: calm-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, quiet room energy, soft gradients, soothing low-contrast composition, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: calm-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, quiet room energy, soft gradients, soothing low-contrast composition, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: BEDTIME
+  Technique: watercolor
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: bedtime-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a drowsy child holding a teddy bear arrives at a starlit nursery room, gentle curiosity, readable focal composition, moonlight lullaby mood, sleepy clouds, warm nighttime comfort, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: bedtime-scene-02-invitation.jpg
+Prompt:
+children's book scene, a gentle moon character presents a small quest to a drowsy child holding a teddy bear, warm expressions, story setup, moonlight lullaby mood, sleepy clouds, warm nighttime comfort, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: bedtime-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, moonlight lullaby mood, sleepy clouds, warm nighttime comfort, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: bedtime-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, moonlight lullaby mood, sleepy clouds, warm nighttime comfort, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: bedtime-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a drowsy child holding a teddy bear with a gentle moon character, helpful interaction, emotional warmth, moonlight lullaby mood, sleepy clouds, warm nighttime comfort, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: bedtime-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, moonlight lullaby mood, sleepy clouds, warm nighttime comfort, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: bedtime-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, moonlight lullaby mood, sleepy clouds, warm nighttime comfort, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: bedtime-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, moonlight lullaby mood, sleepy clouds, warm nighttime comfort, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: COURAGE
+  Technique: gouache
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: courage-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a tiny brave knight with a wooden sword arrives at a rolling hill with a tower in the distance, gentle curiosity, readable focal composition, small hero, gentle challenge, hopeful beam of light, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: courage-scene-02-invitation.jpg
+Prompt:
+children's book scene, a loyal puppy squire presents a small quest to a tiny brave knight with a wooden sword, warm expressions, story setup, small hero, gentle challenge, hopeful beam of light, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: courage-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, small hero, gentle challenge, hopeful beam of light, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: courage-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, small hero, gentle challenge, hopeful beam of light, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: courage-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a tiny brave knight with a wooden sword with a loyal puppy squire, helpful interaction, emotional warmth, small hero, gentle challenge, hopeful beam of light, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: courage-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, small hero, gentle challenge, hopeful beam of light, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: courage-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, small hero, gentle challenge, hopeful beam of light, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: courage-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, small hero, gentle challenge, hopeful beam of light, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: bold gouache brush strokes, rich matte color blocks, confident silhouettes, clean edge control. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: MYSTERY
+  Technique: cut-paper
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: mystery-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a young detective with a magnifying glass arrives at a dusty magical attic full of treasures, gentle curiosity, readable focal composition, safe hidden clues, curious observation, magical attic atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: mystery-scene-02-invitation.jpg
+Prompt:
+children's book scene, a curious cat sidekick presents a small quest to a young detective with a magnifying glass, warm expressions, story setup, safe hidden clues, curious observation, magical attic atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: mystery-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, safe hidden clues, curious observation, magical attic atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: mystery-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, safe hidden clues, curious observation, magical attic atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: mystery-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a young detective with a magnifying glass with a curious cat sidekick, helpful interaction, emotional warmth, safe hidden clues, curious observation, magical attic atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: mystery-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, safe hidden clues, curious observation, magical attic atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: mystery-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, safe hidden clues, curious observation, magical attic atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: mystery-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, safe hidden clues, curious observation, magical attic atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: cut-paper collage layers, tactile overlaps, handcrafted depth, subtle paper shadow separation. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: FAMILY
+  Technique: watercolor
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: family-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a loving parent and child duo arrives at a warm living room with fireplace, gentle curiosity, readable focal composition, home warmth, protective togetherness, caring gestures, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: family-scene-02-invitation.jpg
+Prompt:
+children's book scene, a family pet dog presents a small quest to a loving parent and child duo, warm expressions, story setup, home warmth, protective togetherness, caring gestures, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: family-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, home warmth, protective togetherness, caring gestures, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: family-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, home warmth, protective togetherness, caring gestures, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: family-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a loving parent and child duo with a family pet dog, helpful interaction, emotional warmth, home warmth, protective togetherness, caring gestures, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: family-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, home warmth, protective togetherness, caring gestures, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: family-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, home warmth, protective togetherness, caring gestures, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: family-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, home warmth, protective togetherness, caring gestures, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: KINDNESS
+  Technique: watercolor
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: kindness-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a thoughtful child with open arms arrives at a garden path with blooming flowers, gentle curiosity, readable focal composition, helping hands, welcoming expressions, soft glowing empathy, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: kindness-scene-02-invitation.jpg
+Prompt:
+children's book scene, a small injured bird being helped presents a small quest to a thoughtful child with open arms, warm expressions, story setup, helping hands, welcoming expressions, soft glowing empathy, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: kindness-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, helping hands, welcoming expressions, soft glowing empathy, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: kindness-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, helping hands, welcoming expressions, soft glowing empathy, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: kindness-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a thoughtful child with open arms with a small injured bird being helped, helpful interaction, emotional warmth, helping hands, welcoming expressions, soft glowing empathy, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: kindness-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, helping hands, welcoming expressions, soft glowing empathy, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: kindness-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, helping hands, welcoming expressions, soft glowing empathy, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: kindness-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, helping hands, welcoming expressions, soft glowing empathy, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: watercolor wash edges, airy blends, soft dreamy transitions, gentle pigment bloom. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: WONDER
+  Technique: flat-storybook
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: wonder-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a wide-eyed young stargazer arrives at a hilltop observatory under the night sky, gentle curiosity, readable focal composition, twinkling discovery, awe and curiosity, radiant magical atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: wonder-scene-02-invitation.jpg
+Prompt:
+children's book scene, a friendly shooting star character presents a small quest to a wide-eyed young stargazer, warm expressions, story setup, twinkling discovery, awe and curiosity, radiant magical atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: wonder-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, twinkling discovery, awe and curiosity, radiant magical atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: wonder-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, twinkling discovery, awe and curiosity, radiant magical atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: wonder-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a wide-eyed young stargazer with a friendly shooting star character, helpful interaction, emotional warmth, twinkling discovery, awe and curiosity, radiant magical atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: wonder-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, twinkling discovery, awe and curiosity, radiant magical atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: wonder-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, twinkling discovery, awe and curiosity, radiant magical atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: wonder-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, twinkling discovery, awe and curiosity, radiant magical atmosphere, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+═══════════════════════════════════════
+  THEME: WISDOM
+  Technique: flat-storybook
+═══════════════════════════════════════
+
+── Scene 1: opening ──
+Filename: wisdom-scene-01-opening.jpg
+Prompt:
+children's book scene, opening moment, a studious young reader with round glasses arrives at a lantern-lit library nook, gentle curiosity, readable focal composition, lantern-lit learning, thoughtful calm, gentle mentor presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 2: invitation ──
+Filename: wisdom-scene-02-invitation.jpg
+Prompt:
+children's book scene, a wise old owl on a bookshelf presents a small quest to a studious young reader with round glasses, warm expressions, story setup, lantern-lit learning, thoughtful calm, gentle mentor presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, cozy night lighting. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 3: journey ──
+Filename: wisdom-scene-03-journey.jpg
+Prompt:
+children's book scene, first steps into the journey, path details and small magical clues, hopeful movement, lantern-lit learning, thoughtful calm, gentle mentor presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 4: choice ──
+Filename: wisdom-scene-04-choice.jpg
+Prompt:
+children's book scene, clear decision moment with two or three safe path options, visual branching, curious pause, lantern-lit learning, thoughtful calm, gentle mentor presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 5: mid-adventure ──
+Filename: wisdom-scene-05-mid-adventure.jpg
+Prompt:
+children's book scene, exploration in progress, a studious young reader with round glasses with a wise old owl on a bookshelf, helpful interaction, emotional warmth, lantern-lit learning, thoughtful calm, gentle mentor presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 6: climax ──
+Filename: wisdom-scene-06-climax.jpg
+Prompt:
+children's book scene, gentle emotional peak, challenge resolved through kindness and courage, focused lighting, lantern-lit learning, thoughtful calm, gentle mentor presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 7: resolution ──
+Filename: wisdom-scene-07-resolution.jpg
+Prompt:
+children's book scene, peaceful return, calm smiles, world feels safer and brighter, lantern-lit learning, thoughtful calm, gentle mentor presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism, lullaby mood. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
+
+── Scene 8: bedtime-ending ──
+Filename: wisdom-scene-08-bedtime-ending.jpg
+Prompt:
+children's book scene, bedtime closure, stars and moon, comforting final frame, sleepy calm atmosphere, lantern-lit learning, thoughtful calm, gentle mentor presence, children's book illustration, hand-painted digital art, soft painterly shapes, clean composition, bedtime-friendly mood, whimsical but calm, no photorealism. Technique: flat storybook geometry, crisp layered shapes, editorial clarity, simplified perspective. same main character design as previous scene, same costume palette, same world art direction, same brush language, no style drift, no text, no logo, vertical 3:4. Negative: no photorealism, no realistic camera lens, no real photo texture, no harsh shadows, no horror, no violence, no text watermark, no logo
