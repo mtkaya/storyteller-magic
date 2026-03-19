@@ -1480,7 +1480,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
 
           {/* Text Content */}
           <div
-            className="bg-bg-card rounded-2xl p-6 shadow-xl border border-white/5 relative mb-4"
+            className={`rounded-2xl p-6 shadow-xl relative mb-4 ${readerTheme === 'light' ? 'bg-white border border-gray-200' : 'bg-bg-card border border-white/5'}`}
             onClick={() => {
               if (wordHighlightEnabled && !readingAssistant.isAuto) {
                 readingAssistant.nextWord();
@@ -1488,7 +1488,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             }}
           >
             {hasContent ? (
-              <p className={`text-white ${readerFontSize} leading-relaxed font-medium transition-all duration-500 ease-in-out ${readerFontFamily}`}>
+              <p className={`${readerTheme === 'light' ? 'text-gray-900' : 'text-white'} ${readerFontSize} leading-relaxed font-medium transition-all duration-500 ease-in-out ${readerFontFamily}`}>
                 {wordHighlightEnabled ? (
                   words.map((word, index) => (
                     <span
@@ -1508,7 +1508,7 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
               </p>
             ) : (
               <div className="text-center py-10">
-                <p className="text-white/60">
+                <p className={readerTheme === 'light' ? 'text-gray-400' : 'text-white/60'}>
                   {language === 'tr'
                     ? (isTranslatingCurrentContent ? 'Hikaye Türkçeye çevriliyor...' : 'Hikaye içeriği yükleniyor...')
                     : 'Story content is loading...'}
@@ -1517,10 +1517,10 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
             )}
 
             {/* Action Bar */}
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/5">
+            <div className={`flex items-center justify-between mt-6 pt-4 border-t ${readerTheme === 'light' ? 'border-gray-200' : 'border-white/5'}`}>
               <button
                 onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-                className="flex items-center gap-1 text-white/40 hover:text-white text-xs font-bold uppercase tracking-wider px-2 py-1 rounded hover:bg-white/5"
+                className={`flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-2 py-1 rounded ${readerTheme === 'light' ? 'text-gray-400 hover:text-gray-700 hover:bg-gray-100' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
               >
                 <span className="material-symbols-outlined text-sm">speed</span>
                 {speechRate}x
@@ -1530,9 +1530,9 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
                 <button
                   onClick={handlePrevParagraph}
                   disabled={currentParagraph === 0}
-                  className="size-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center disabled:opacity-30 disabled:hover:bg-white/5 transition-all"
+                  className={`size-8 rounded-full flex items-center justify-center disabled:opacity-30 transition-all ${readerTheme === 'light' ? 'bg-gray-100 hover:bg-gray-200' : 'bg-white/5 hover:bg-white/10'}`}
                 >
-                  <span className="material-symbols-outlined text-white">chevron_left</span>
+                  <span className={`material-symbols-outlined ${readerTheme === 'light' ? 'text-gray-700' : 'text-white'}`}>chevron_left</span>
                 </button>
 
                 <button
@@ -1547,9 +1547,9 @@ const Reader: React.FC<ReaderProps> = ({ story, onBack, currentMusic, onMusicCha
                 <button
                   onClick={handleNextParagraph}
                   disabled={!hasContent || currentParagraph >= content.length - 1}
-                  className="size-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center disabled:opacity-30 disabled:hover:bg-white/5 transition-all"
+                  className={`size-8 rounded-full flex items-center justify-center disabled:opacity-30 transition-all ${readerTheme === 'light' ? 'bg-gray-100 hover:bg-gray-200' : 'bg-white/5 hover:bg-white/10'}`}
                 >
-                  <span className="material-symbols-outlined text-white">chevron_right</span>
+                  <span className={`material-symbols-outlined ${readerTheme === 'light' ? 'text-gray-700' : 'text-white'}`}>chevron_right</span>
                 </button>
               </div>
 
