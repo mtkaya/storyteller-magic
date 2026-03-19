@@ -49,4 +49,4 @@ bedtime, stories, kids, children, offline, sleep, reading, fairy tales, interact
 Dark purple night sky, book with glowing moon, child and bear sleeping
 
 ## Privacy Policy
-(hosted link required for Play Store)
+https://rad-raindrop-8b1b74.netlify.app

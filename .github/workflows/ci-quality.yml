@@ -34,3 +34,11 @@ jobs:
 
       - name: Smoke checks (typecheck + build + data integrity)
         run: npm run smoke
+
+      - name: Upload build artifacts
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 7

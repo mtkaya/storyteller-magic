@@ -57,7 +57,7 @@ uyku masalı, çocuk uygulaması, masal, peri masalı, eğitim, interaktif, çev
 https://github.com/mtkaya/storyteller-magic
 
 ## Gizlilik Politikası URL
-(PRIVACY.md barındırılan sayfa linki)
+https://rad-raindrop-8b1b74.netlify.app
 
 ---
 

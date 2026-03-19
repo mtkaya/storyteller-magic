@@ -57,10 +57,10 @@ bedtime stories, kids app, sleep, fairy tales, children, interactive, offline, r
 https://github.com/mtkaya/storyteller-magic
 
 ## Marketing URL
-(to be created)
+https://github.com/mtkaya/storyteller-magic
 
 ## Privacy Policy URL
-(link to PRIVACY.md hosted page)
+https://rad-raindrop-8b1b74.netlify.app
 
 ---
 
