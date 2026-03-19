@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { SubscriptionTier, useAppState } from '../context/AppStateContext';
-import { purchasePackage, restorePurchases, isMockMode, type PurchasePackage } from '../src/services/purchases';
+import { purchasePackage, restorePurchases, isMockMode, type PurchasePackage } from '../services/purchases';
 
 interface SubscriptionProps {
   onBack: () => void;

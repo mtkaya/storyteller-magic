@@ -9,8 +9,8 @@ import {
     buildCanvaPromptCsv,
     downloadCanvaPromptCsv
 } from '../services/canvaPromptExport';
-import { ttsService } from '../src/services/ttsService';
-import { isOpenAITTSAvailable } from '../src/services/openaiTTS';
+import { ttsService } from '../services/ttsService';
+import { isOpenAITTSAvailable } from '../services/openaiTTS';
 
 interface SettingsProps {
     onNavigate: (screen: ScreenName) => void;

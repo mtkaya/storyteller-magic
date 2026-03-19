@@ -12,7 +12,7 @@ import { getLocalizedStoryTitle, getLocalizedThemeName } from '../services/story
 import { resolveStorySceneVisual } from '../services/storySceneVisuals';
 import { deriveStoryVisualIdentity } from '../storyUtils';
 import { useReadingAssistant } from '../hooks/useReadingAssistant';
-import { isOpenAITTSAvailable, speakParagraph as speakParagraphOpenAI } from '../src/services/openaiTTS';
+import { isOpenAITTSAvailable, speakParagraph as speakParagraphOpenAI } from '../services/openaiTTS';
 
 interface ReaderProps {
   story: Story | null;
