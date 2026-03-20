@@ -386,32 +386,46 @@ const buildScenePrompt = (
 export const getScenePhaseLabel = (phase: StoryScenePhase, language: 'en' | 'tr'): string =>
   PHASE_LABELS[phase][language];
 
+/** Map scene phase to filename scene-number patterns */
+const PHASE_TO_SCENE_NUMBERS: Record<StoryScenePhase, string[]> = {
+  opening:    ['scene-01', 'scene-02', 'opening', 'cover'],
+  journey:    ['scene-03', 'scene-05', 'journey', 'mid-adventure', 'invitation'],
+  choice:     ['scene-04', 'choice', 'crossroads', 'decision'],
+  climax:     ['scene-06', 'climax'],
+  resolution: ['scene-07', 'scene-08', 'resolution', 'bedtime-ending', 'ending'],
+};
+
+/** Filter pool images that match the current scene phase by filename */
+const filterPoolByPhase = (pool: string[], phase: StoryScenePhase): string[] => {
+  const patterns = PHASE_TO_SCENE_NUMBERS[phase];
+  const matched = pool.filter(img => {
+    const filename = img.split('/').pop()?.toLowerCase() || '';
+    return patterns.some(p => filename.includes(p));
+  });
+  return matched.length > 0 ? matched : pool;
+};
+
 export function resolveStorySceneVisual(input: StorySceneVisualInput): StorySceneVisualOutput {
   const pool = resolveImagePool(input.story);
   const phase = detectScenePhase(input);
   const branchToken = normalizeBranchToken(input.branchId);
   const choiceDepth = Math.max(0, input.choiceDepth || 0);
-  const sceneSeed = `${input.story.id}|${branchToken}|${phase}|${input.paragraphIndex}|${choiceDepth}`;
-  const stepSeed = `${input.story.id}|${branchToken}|step`;
-  const poolSize = Math.max(1, pool.length);
-  const phaseOffsetMap: Record<StoryScenePhase, number> = {
-    opening: 0,
-    journey: 2,
-    choice: 4,
-    climax: 6,
-    resolution: 8,
-  };
-  const baseOffset = toSeed(sceneSeed) % poolSize;
-  const phaseOffset = phaseOffsetMap[phase] % poolSize;
-  const jump = ((toSeed(stepSeed) % (poolSize - 1 || 1)) + 1);
-  let variantIndex = (baseOffset + phaseOffset + ((input.paragraphIndex + choiceDepth) * jump)) % poolSize;
+
+  // Filter images matching the current scene phase
+  const phasePool = filterPoolByPhase(pool, phase);
+  const poolSize = Math.max(1, phasePool.length);
+
+  // Deterministic but varied selection within phase-matched images
+  const sceneSeed = `${input.story.id}|${branchToken}|${phase}|${choiceDepth}`;
+  const seedVal = toSeed(sceneSeed);
+  let variantIndex = seedVal % poolSize;
+
+  // Ensure consecutive paragraphs in same phase don't repeat
   if (poolSize > 1 && input.paragraphIndex > 0) {
-    const prevIndex = (baseOffset + phaseOffset + (((input.paragraphIndex - 1) + choiceDepth) * jump)) % poolSize;
-    if (variantIndex === prevIndex) {
-      variantIndex = (variantIndex + 1) % poolSize;
-    }
+    variantIndex = (seedVal + input.paragraphIndex) % poolSize;
   }
-  const imageUrl = pool[variantIndex] || input.fallbackImageUrl;
+
+  const imageUrl = phasePool[variantIndex] || input.fallbackImageUrl;
   const sceneKey = `${branchToken || 'linear'}:${phase}:${input.paragraphIndex}:${variantIndex}`;
 
   return {
@@ -421,7 +435,7 @@ export function resolveStorySceneVisual(input: StorySceneVisualInput): StoryScen
     phaseLabel: getScenePhaseLabel(phase, input.language),
     canvaPrompt: buildScenePrompt(input, phase, variantIndex),
     variantIndex,
-    totalVariants: pool.length,
+    totalVariants: phasePool.length,
   };
 }
 
