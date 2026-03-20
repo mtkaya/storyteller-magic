@@ -288,6 +288,8 @@ const buildTurkishChoiceFallbackText = (index: number): string => `Seçenek ${in
 const buildTurkishChoiceFallbackConsequence = (): string => 'Bu yol yeni bir maceraya açılıyor.';
 const looksLikeTurkishText = (text: string): boolean => {
   if (!text.trim()) return true;
+  // Reject lines that start with common English words (sign of bad translation)
+  if (/^(The|A|An|He|She|It|They|We|You|I|My|His|Her|Its|Our|Your|Their|This|That|These|Those|What|Who|How|Why|Where|When|Which|Open|Find|Close|But|And|Or|So|If|As|At|In|On|To|Of|With|For|From|By|About|Into|Through|After|Before|During|Between|Above|Below|Under|Over|Up|Down|Out|Off|Away|Back|Here|There|Now|Then|Just|Still|Already|Also|Too|Very|Really|Never|Always|Once|Captain|Princess|Professor|Shadow|Detective|Luna|Milo|Penny|Oliver|Leo|Flora|Nora|Eli|Pip|Theo|Rin|Nia)\b/i.test(text.trim())) return false;
   if (/[ğüşöçıİĞÜŞÖÇ]/.test(text)) return true;
   return /\b(ve|bir|ile|için|ama|gibi|çok|şimdi|gece|hikaye|masal|yol|seçenek)\b/i.test(text);
 };
