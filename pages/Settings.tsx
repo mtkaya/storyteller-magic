@@ -238,11 +238,11 @@ const Settings: React.FC<SettingsProps> = ({ onNavigate, onBack, onParentReport 
                                     onChange={(e) => setSelectedVoice(e.target.value)}
                                     className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white text-sm"
                                 >
-                                    <option value="">
+                                    <option value="" className="bg-gray-900 text-white">
                                         {language === 'tr' ? 'Varsayılan Ses' : 'Default Voice'}
                                     </option>
                                     {availableVoices.map((voice, idx) => (
-                                        <option key={idx} value={voice.name}>
+                                        <option key={idx} value={voice.name} className="bg-gray-900 text-white">
                                             {voice.name} ({voice.lang})
                                         </option>
                                     ))}
